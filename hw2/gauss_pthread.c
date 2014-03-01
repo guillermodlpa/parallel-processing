@@ -244,7 +244,7 @@ void * gaussianElimination(void *s) {
   float multiplier;
 //int multiplier;
 
-  threadid = (int)s;
+  threadid = *((int*)(&s));;
 
   for (norm = 0; norm < N - 1; norm++) {
 
