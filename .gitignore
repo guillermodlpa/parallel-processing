@@ -12,4 +12,6 @@
 *.la
 *.a
 
-.c
+gauss
+gauss_pthread
+gauus_openmpi
