@@ -15,3 +15,6 @@
 gauss
 gauss_pthread
 gauus_openmpi
+a.out
+*.odt
+*.zip

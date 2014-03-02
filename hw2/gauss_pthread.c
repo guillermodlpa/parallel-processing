@@ -10,6 +10,17 @@
 /* TA Eduardo Berrocal                               */
 /* Illinois Institute of Technology                  */
 
+/* Algorithm description:                                                                  
+/*                                                                                         
+/*   The loop that iterates through rows applying the multiplier factor is parallelized
+     The number of rows that every thread processes changes in every iteration because 
+     the number of rows to apply the factor dimishes
+     A barrier to avoid the dependency problem is needed after applying 
+     normalizing every column.
+
+     The algorithm is the same in both programs with Pthreads and OpenMP
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -21,10 +32,9 @@
 
 /* Added includes for homework 2 */
 #include <pthread.h>
-#include <math.h>
 
 /* Program Parameters */
-#define MAXN 2000  /* Max value of N */
+#define MAXN 4000  /* Max value of N */
 #define DIVFACTOR 32768.0
 //#define DIVFACTOR 32768000.0
 int N;  /* Matrix size */
@@ -210,7 +220,8 @@ int main(int argc, char **argv) {
 
 
 /* Select the number of worker threads:              */
-int numWorkers = 4;
+ #define NUMWORKERS 4;
+int numWorkers = NUMWORKERS;
 
 
 /* Barrier initialization and method */
@@ -220,6 +231,7 @@ int numArrived =0;
 
 /* Barrier method */
 /* It's used to synchronize all threads after normalizing one column */
+/* Taken from the class slides */
 void barrier(){
 
   pthread_mutex_lock(&barrier_mutex);
@@ -246,9 +258,10 @@ void * gaussianElimination(void *s) {
 
   threadid = *((int*)(&s));;
 
+  /* Outer loop, goes through every element in the diagonal (every row) */
   for (norm = 0; norm < N - 1; norm++) {
 
-    /* Chunk represents the number of elements that this current thread will process */
+    /* numRows represents the number of rows that this current thread will process */
     numRows = (N - norm - 1);
 
     /* Because 'from' and 'to' are int, the "+0.5f" is used to approximate to the closest integer, instead of truncate */
@@ -256,7 +269,6 @@ void * gaussianElimination(void *s) {
     /* For example: 
         float case --->  6.0/8.0 = 0.75  
         int case   --->  6  /8   = 0
- 
         our case --->    (((6*10) / 8)+5 )/10 =  (60/8 + 5) / 10 = (7 + 5) / 10 = 1  = round(0.75)
     */
     from = ( 10*norm + ( ( threadid     * numRows) *10 / numWorkers ) + 5)/10;
@@ -266,12 +278,8 @@ void * gaussianElimination(void *s) {
     for (row = from + 1; row <= to; row++) {
 
       multiplier = A[row][norm] / A[norm][norm];
-
-      //multiplier = A[row][norm]*100 / A[norm][norm];
-
       for (col = norm; col < N; col++) {
         A[row][col] -= A[norm][col] * multiplier;
-        //A[row][col] -= A[norm][col] * multiplier / 100;
       }
 
       B[row] -= B[norm] * multiplier;
@@ -282,10 +290,11 @@ void * gaussianElimination(void *s) {
   }
 }
 
-
+/* Method that transforms both A and B */
+/* The threads are created here */
 void gauss() {
 
-  printf("Computing using Pthreads.\n");
+  printf("Computing in parallel using Pthreads.\n");
 
   /* Create threads */
   pthread_t threads[numWorkers];
@@ -318,15 +327,3 @@ void gauss() {
     X[row] /= A[row][row];
   }
 }
-
-/*
-int main(int argc, char **argv) {
-
-  int rank, size;
-  MPI_Init (&argc, &argv); 
-  MPI_Comm_rank (MPI_COMM_WORLD, &rank);
-  MPI_Comm_size (MPI_COMM_WORLD, &size); 
-  mainMethod(argc,argv);
-  MPI_Finalize();
-  return 0;
-}*/

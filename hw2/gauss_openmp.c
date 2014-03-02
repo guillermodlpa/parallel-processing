@@ -1,10 +1,25 @@
-/* Gaussian elimination without pivoting.
- * Compile with "gcc gauss.c" 
- */
+/* ------------------ HW2 --------------------- */
 
-/* ****** ADD YOUR CODE AT THE END OF THIS FILE. ******
- * You need not submit the provided code.
- */
+/* Guillermo de la Puente - A20314328                */
+/* CS 546 - Parallel and Distributed Processing      */
+/* Homework 2                                        */
+/* OpenMP version of the Gaussian Elimination step   */
+/*                                                   */
+/* 2014 Spring semester                              */
+/* Professor Zhiling Lan                             */
+/* TA Eduardo Berrocal                               */
+/* Illinois Institute of Technology                  */
+
+/* Algorithm description:                                                                  
+/*                                                                                         
+/*   The loop that iterates through rows applying the multiplier factor is parallelized
+     The number of rows that every thread processes changes in every iteration because 
+     the number of rows to apply the factor dimishes
+     A barrier to avoid the dependency problem is needed after applying 
+     normalizing every column.
+
+     The algorithm is the same in both programs with Pthreads and OpenMP
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +32,8 @@
 
 /* Program Parameters */
 #define MAXN 4000  /* Max value of N */
+#define DIVFACTOR 32768.0
+//#define DIVFACTOR 32768000.0
 int N;  /* Matrix size */
 
 /* Matrices and vectors */
@@ -78,9 +95,9 @@ void initialize_inputs() {
   printf("\nInitializing...\n");
   for (col = 0; col < N; col++) {
     for (row = 0; row < N; row++) {
-      A[row][col] = (float)rand() / 32768.0;
+      A[row][col] = (float)rand() / DIVFACTOR;
     }
-    B[col] = (float)rand() / 32768.0;
+    B[col] = (float)rand() / DIVFACTOR;
     X[col] = 0.0;
   }
 
@@ -147,6 +164,11 @@ int main(int argc, char **argv) {
   usecstart = (unsigned long long)etstart.tv_sec * 1000000 + etstart.tv_usec;
   usecstop = (unsigned long long)etstop.tv_sec * 1000000 + etstop.tv_usec;
 
+
+  /* Comment to see result of elmination */
+  printf("After gaussian elimination");
+  print_inputs();
+
   /* Display output */
   print_X();
 
@@ -178,28 +200,55 @@ int main(int argc, char **argv) {
 /****** You will replace this routine with your own parallel version *******/
 /* Provided global variables are MAXN, N, A[][], B[], and X[],
  * defined in the beginning of this code.  X[] is initialized to zeros.
- */
-void gauss() {
-  int norm, row, col;  /* Normalization row, and zeroing
-			* element row and col */
-  float multiplier;
+ *
 
-  printf("Computing Serially.\n");
+/* ------------------ HW2 --------------------- */
+
+
+/* Guillermo de la Puente - A20314328                */
+/* CS 546 - Parallel and Distributed Processing      */
+/* Homework 2                                        */
+/* OpenMP version of the Gaussian Elimination step   */
+/*                                                   */
+/* 2014 Spring semester                              */
+/* Professor Zhiling Lan                             */
+/* TA Eduardo Berrocal                               */
+/* Illinois Institute of Technology                  */
+
+#define NUMWORKERS 4;
+int numWorkers = NUMWORKERS;
+
+void gauss() {
+  
+
+  printf("Computing in parallel using OpenMP.\n");
 
   /* Gaussian elimination */
-  for (norm = 0; norm < N - 1; norm++) {
-    for (row = norm + 1; row < N; row++) {
-      multiplier = A[row][norm] / A[norm][norm];
-      for (col = norm; col < N; col++) {
-	A[row][col] -= A[norm][col] * multiplier;
+
+  #pragma omp parallel num_threads(numWorkers) shared (A,B)
+  {
+
+    int norm,row, col;
+    float multiplier;
+    for (norm = 0; norm < N - 1; norm++) {
+
+      #pragma omp for schedule(guided) private (multiplier)
+      for (row = norm + 1; row < N; row++) {
+
+        multiplier = A[row][norm] / A[norm][norm];
+
+        for (col = norm; col < N; col++) {
+          A[row][col] -= A[norm][col] * multiplier;
+        }
+
+        B[row] -= B[norm] * multiplier;
       }
-      B[row] -= B[norm] * multiplier;
+      /* Implicit barrier */
+
     }
   }
-  /* (Diagonal elements are not normalized to 1.  This is treated in back
-   * substitution.)
-   */
 
+  int row, col; 
 
   /* Back substitution */
   for (row = N - 1; row >= 0; row--) {
