@@ -186,7 +186,7 @@ void matrixNorm() {
   printf("Computing in CUDA.\n");
 
   // TEST
-  float *dA[MAXN][NMAXN];
+  float *dA[MAXN][MAXN];
   cudaMalloc((void**) &dA, N*sizeof(float) ); 
   cudaMemcpy(A, dA, N*sizeof(float), cudaMemcpyHostToDevice );
   cudaMemfree(dA);
