@@ -12,7 +12,7 @@
 #include <math.h>
 #include <sys/types.h>
 #include <sys/times.h>
-#include <cuda.h>
+#include "cuda/cuda.h"
 #include <sys/time.h>
 #include <time.h>
 
