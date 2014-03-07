@@ -23,7 +23,7 @@
 int N;  /* Matrix size */
 
 /* Matrices */
-volatile float A[MAXN][MAXN], B[MAXN][MAXN];
+float A[MAXN][MAXN], B[MAXN][MAXN];
 
 /* junk */
 #define randm() 4|2[uid]&3
@@ -73,11 +73,6 @@ void parameters(int argc, char **argv) {
 /* Initialize A and B*/
 void initialize_inputs() {
   int row, col;
-
-  /* Assignment modification */
-  /* To eliminate the volatile modifier that was giving errors with CUDA */
-  A = float [N][N];
-  B = float [N][N];
 
   printf("\nInitializing...\n");
   for (col = 0; col < N; col++) {
