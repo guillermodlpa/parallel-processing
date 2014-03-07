@@ -187,8 +187,8 @@ void matrixNorm() {
 
   // TEST
   float *dA[N][N];
-  cudaMalloc((float**) &dA, N*sizeof(float) ); 
-  cudaMemcpy(A, dA, N*sizeof(float)), cudaMemcpyHostToDevice );
+  cudaMalloc((void**) &dA, N*sizeof(float) ); 
+  cudaMemcpy(A, dA, N*sizeof(float), cudaMemcpyHostToDevice );
   cudaMemfree(dA);
 
   // END TEST
