@@ -12,6 +12,7 @@
 #include <math.h>
 #include <sys/types.h>
 #include <sys/times.h>
+#include <cuda.h>
 #include <sys/time.h>
 #include <time.h>
 
@@ -174,11 +175,23 @@ int main(int argc, char **argv) {
 /* Provided global variables are MAXN, N, A[][] and B[][],
  * defined in the beginning of this code.  B[][] is initialized to zeros.
  */
+
+
+#define BLOCK_SIZE 32
+
 void matrixNorm() {
   int row, col; 
   float mu, sigma; // Mean and Standard Deviation
 
-  printf("Computing Serially.\n");
+  printf("Computing in CUDA.\n");
+
+  // TEST
+  float dA[MAXN][MAXN];
+  printError(cudaMalloc(dA, sizeof(float)*N)); 
+  printError(cudaMemcpy(A, dA, sizeof(float)*N), cudaMemcpyHostToDevice));
+  printError(cudaMemfree(dA));
+
+  // END TEST
 
     for (col=0; col < N; col++) {
         mu = 0.0;
@@ -199,4 +212,12 @@ void matrixNorm() {
         }
     }
 
+}
+
+// http://stackoverflow.com/questions/20086047/cuda-matrix-example-block-size
+void printError(cudaError_t err) {
+    if(err != 0) {
+        printf("CUDA ERROR: %s\n", cudaGetErrorString(err));
+        getchar();
+    }
 }
