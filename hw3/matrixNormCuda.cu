@@ -92,7 +92,7 @@ void print_inputs() {
     printf("\nA =\n\t");
     for (row = 0; row < N; row++) {
       for (col = 0; col < N; col++) {
-	    printf("%5.2f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
+      printf("%5.2f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
       }
     }
   }
@@ -148,21 +148,21 @@ int main(int argc, char **argv) {
 
   /* Display timing results */
   printf("\nElapsed time = %g ms.\n",
-	 (float)(usecstop - usecstart)/(float)1000);
+   (float)(usecstop - usecstart)/(float)1000);
 
   printf("(CPU times are accurate to the nearest %g ms)\n",
-	 1.0/(float)CLOCKS_PER_SEC * 1000.0);
+   1.0/(float)CLOCKS_PER_SEC * 1000.0);
   printf("My total CPU time for parent = %g ms.\n",
-	 (float)( (cputstop.tms_utime + cputstop.tms_stime) -
-		  (cputstart.tms_utime + cputstart.tms_stime) ) /
-	 (float)CLOCKS_PER_SEC * 1000);
+   (float)( (cputstop.tms_utime + cputstop.tms_stime) -
+      (cputstart.tms_utime + cputstart.tms_stime) ) /
+   (float)CLOCKS_PER_SEC * 1000);
   printf("My system CPU time for parent = %g ms.\n",
-	 (float)(cputstop.tms_stime - cputstart.tms_stime) /
-	 (float)CLOCKS_PER_SEC * 1000);
+   (float)(cputstop.tms_stime - cputstart.tms_stime) /
+   (float)CLOCKS_PER_SEC * 1000);
   printf("My total CPU time for child processes = %g ms.\n",
-	 (float)( (cputstop.tms_cutime + cputstop.tms_cstime) -
-		  (cputstart.tms_cutime + cputstart.tms_cstime) ) /
-	 (float)CLOCKS_PER_SEC * 1000);
+   (float)( (cputstop.tms_cutime + cputstop.tms_cstime) -
+      (cputstart.tms_cutime + cputstart.tms_cstime) ) /
+   (float)CLOCKS_PER_SEC * 1000);
       /* Contrary to the man pages, this appears not to include the parent */
   printf("--------------------------------------------\n");
   
@@ -186,10 +186,10 @@ void matrixNorm() {
   printf("Computing in CUDA.\n");
 
   // TEST
-  float dA[MAXN][MAXN];
-  printError(cudaMalloc(dA, sizeof(float)*N)); 
-  printError(cudaMemcpy(A, dA, sizeof(float)*N), cudaMemcpyHostToDevice ));
-  printError(cudaMemfree(dA));
+  float *dA[N][N];
+  cudaMalloc((void**) &dA, N*sizeof(float) ); 
+  cudaMemcpy(A, dA, N*sizeof(float)), cudaMemcpyHostToDevice );
+  cudaMemfree(dA);
 
   // END TEST
 
