@@ -23,7 +23,7 @@
 int N;  /* Matrix size */
 
 /* Matrices */
-volatile float A[MAXN][MAXN], B[MAXN][MAXN];
+float A[MAXN][MAXN], B[MAXN][MAXN];
 
 /* junk */
 #define randm() 4|2[uid]&3
