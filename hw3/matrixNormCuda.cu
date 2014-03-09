@@ -180,8 +180,6 @@ int main(int argc, char **argv) {
 #define BLOCK_SIZE 32
 
 void matrixNorm() {
-  int row, col; 
-  float mu, sigma; // Mean and Standard Deviation
 
   printf("Computing in CUDA.\n");
 
@@ -190,8 +188,30 @@ void matrixNorm() {
   cudaMemcpy(dA, A, N*sizeof(float), cudaMemcpyHostToDevice );
   cudaMemcpy(dB, B, N*sizeof(float), cudaMemcpyHostToDevice );
 
-  vecAdd<<<ceil(N/256), 256>>> (dA, dB, N);
+  matrixNormKernel<<<ceil(N/256), 256>>> (dA, dB, N);
 
+    
+
+  cudaMemcpy(A, dA, N*sizeof(float), cudaMemcpyDeviceToHost );
+  cudaMemcpy(B, dB, N*sizeof(float), cudaMemcpyDeviceToHost );
+  cudaFree(dB);
+  cudaFree(dA);
+}
+
+// http://stackoverflow.com/questions/20086047/cuda-matrix-example-block-size
+void printError(cudaError_t err) {
+    if(err != 0) {
+        printf("CUDA ERROR: %s\n", cudaGetErrorString(err));
+        getchar();
+    }
+}
+
+__global__ void matrixNormKernel(float *dA,float *dB, int N)
+{
+
+  int row, col; 
+  float mu, sigma; // Mean and Standard Deviation
+  
     for (col=0; col < N; col++) {
         mu = 0.0;
         for (row=0; row < N; row++)
@@ -210,17 +230,4 @@ void matrixNorm() {
                 dB[row][col] = (dA[row][col] - mu) / sigma;
         }
     }
-
-  cudaMemcpy(A, dA, N*sizeof(float), cudaMemcpyDeviceToHost );
-  cudaMemcpy(B, dB, N*sizeof(float), cudaMemcpyDeviceToHost );
-  cudaFree(dB);
-  cudaFree(dA);
-}
-
-// http://stackoverflow.com/questions/20086047/cuda-matrix-example-block-size
-void printError(cudaError_t err) {
-    if(err != 0) {
-        printf("CUDA ERROR: %s\n", cudaGetErrorString(err));
-        getchar();
-    }
-}
+};
