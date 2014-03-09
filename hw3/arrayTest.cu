@@ -21,6 +21,7 @@ int main()
 	float A[N][N];
 	float dA[N][N];
 
+	int row, col;
 	for (col = 0; col < N; col++) {
 	    for (row = 0; row < N; row++) {
 	      A[row][col] = 0.0;
@@ -39,7 +40,7 @@ int main()
 	cudaMemcpy( A, dA, asize, cudaMemcpyDeviceToHost ); 
 	cudaFree( dA );
 
-	int row, col;
+	
 	for (row = 0; row < N; row++) {
         for (col = 0; col < N; col++) {
             printf("%1.0f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
