@@ -12,7 +12,9 @@ const int blocksize = 16;
 __global__ 
 void hello(float dA[N][N]) 
 {
-	dA[threadIdx.x][threadIdx.y] = 1.0;
+	int y = blockIdx.y * blockDim.y + threadIdx.y;
+  	int x = blockIdx.x * blockDim.x + threadIdx.x;
+	dA[x][y] = 1.0;
 }
  
 int main()
