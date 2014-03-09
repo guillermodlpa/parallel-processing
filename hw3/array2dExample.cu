@@ -99,10 +99,6 @@ main()
 	cudaMemcpy( h_a, d_a, num_bytes, cudaMemcpyDeviceToHost );
 	cudaMemcpy( h_o, d_o, sizeof(int), cudaMemcpyDeviceToHost );
 
-	std::cout << "The sum is:" << *h_o << std::endl;
-
-	free(h_a);
-	free(h_o);
 	cudaFree(d_a);
 	cudaFree(d_o);
 
@@ -117,4 +113,8 @@ main()
 		  cout << "h_o[" << (i*dimy) + j << "]=" << h_o[(i*dimy) + j] << endl;
 		}
 	}
+
+	
+	free(h_a);
+	free(h_o);
 }
