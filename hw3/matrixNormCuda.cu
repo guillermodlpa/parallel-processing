@@ -182,11 +182,14 @@ int main(int argc, char **argv) {
 __global__ void matrixNormKernel(float **dA,float **dB, int N)
 {
 
+  #if __CUDA_ARCH__ >= 200
+    printf("Hi Cuda World");
+  #endif
+
   int y = blockIdx.y * blockDim.y + threadIdx.y;
   int x = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (x < N && y < N) {
-    printf("OLA");
     dB[x][y] = 1.0;
   }
 };
