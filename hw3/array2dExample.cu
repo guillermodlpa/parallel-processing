@@ -18,7 +18,7 @@ reduce(float *g, float *o, const int dimx, const int dimy) {
 	if (i >= dimx || j >= dimy)
 	    return;
 
-	o[i*dimy+j]=2;
+	o[i*dimy+j]= *(*(g + i) + j) ;
 }
 
 
