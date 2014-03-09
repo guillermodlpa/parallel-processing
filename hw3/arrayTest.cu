@@ -10,7 +10,7 @@ const int N = 16;
 const int blocksize = 16; 
  
 __global__ 
-void hello(int dA[blocksize][blocksize]) 
+void hello(float dA[blocksize][blocksize]) 
 {
 	dA[threadIdx.x][threadIdx.y] = threadIdx.x;
 }
@@ -18,10 +18,10 @@ void hello(int dA[blocksize][blocksize])
 int main()
 {
 
-	int A[N][N];
-	int dA[N][N];
+	float A[N][N];
+	float dA[N][N];
  
-	const int asize = N*N*sizeof(int);
+	const int asize = N*N*sizeof(float);
  
  
 	cudaMalloc( (void**)&dA, asize ); 
