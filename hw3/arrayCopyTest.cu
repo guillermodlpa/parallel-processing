@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <iostream>
 
+using namespace std;
+
 // kernel which copies data from d_array to destinationArray
 __global__ void CopyData(float* d_array, 
                                    float* destinationArray, 
