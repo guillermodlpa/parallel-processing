@@ -179,7 +179,7 @@ int main(int argc, char **argv) {
 
 #define BLOCK_SIZE 32
 
-__global__ void matrixNormKernel((float **)&dA,(float **)&dB, int N)
+__global__ void matrixNormKernel( (float **) &dA,(float **) &dB, int N)
 {
 
   int row, col; 
