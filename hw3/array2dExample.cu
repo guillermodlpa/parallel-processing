@@ -6,7 +6,7 @@ using namespace std;
 
 
 __global__ void 
-add(float *g, float *o, const int dimx, const int dimy, const int add) {
+add(float *g, float *o, const int dimx, const int dimy, const int value) {
 
 	//extern __shared__ float sdata[];
 
@@ -19,7 +19,7 @@ add(float *g, float *o, const int dimx, const int dimy, const int add) {
 	if (i >= dimx || j >= dimy)
 	    return;
 
-	o[i*dimy+j] = g[i*dimy+j] + add;
+	o[i*dimy+j] = g[i*dimy+j] + value;
 }
 
 
@@ -30,7 +30,7 @@ main()
 	int dimx = 32;
 	int dimy = 16;
 	int num_bytes = dimx*dimy*sizeof(float);
-	int add = 3;
+	int value = 3;
 
 	float *d_a, *h_a, // device and host pointers
 	            *d_o, *h_o;
@@ -61,7 +61,7 @@ main()
 	grid.x = dimx / block.x;
 	grid.y = dimy / block.y;
 
-	add<<<grid, block>>> (d_a, d_o, dimx, dimy, add);
+	add<<<grid, block>>> (d_a, d_o, dimx, dimy, value);
 
 	std::cout << block.x << " " << block.y << std::endl;
 	std::cout << grid.x << " " << grid.y << std::endl;
