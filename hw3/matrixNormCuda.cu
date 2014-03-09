@@ -190,7 +190,7 @@ void matrixNorm() {
   cudaMemcpy(dA, A, N*sizeof(float), cudaMemcpyHostToDevice );
   cudaMemcpy(dB, B, N*sizeof(float), cudaMemcpyHostToDevice );
 
-  vecAddKernel<<<ceil(N/256), 256>>> (dA, dB, N);
+  vecAdd<<<ceil(N/256), 256>>> (dA, dB, N);
 
     for (col=0; col < N; col++) {
         mu = 0.0;
