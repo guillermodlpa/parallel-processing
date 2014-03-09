@@ -77,6 +77,11 @@ main()
 	        h_a[i*dimy + j] = 1;
 	    }
 	}
+	for (int i=0; i < dimx; i++){   
+	    for (int j=0; j < dimy; j++){
+	        h_o[i*dimy + j] = 0;
+	    }
+	}
 
 	cudaMalloc( (void**)&d_a, num_bytes );
 	cudaMalloc( (void**)&d_o, sizeof(int) );
