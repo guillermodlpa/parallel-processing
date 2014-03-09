@@ -214,7 +214,7 @@ void matrixNorm() {
   cudaMemcpy(dA, A, N*sizeof(float), cudaMemcpyHostToDevice );
   cudaMemcpy(dB, B, N*sizeof(float), cudaMemcpyHostToDevice );
 
-  matrixNormKernel<<<ceil(N/256), 256>>> (&dA, &dB, N);
+  matrixNormKernel<<<ceil(N/256), 256>>> (dA, dB, N);
 
   cudaMemcpy(A, dA, N*sizeof(float), cudaMemcpyDeviceToHost );
   cudaMemcpy(B, dB, N*sizeof(float), cudaMemcpyDeviceToHost );
