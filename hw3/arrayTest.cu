@@ -14,7 +14,7 @@ void hello(float* dA)
 {
 	int y = blockIdx.y * blockDim.y + threadIdx.y;
   	int x = blockIdx.x * blockDim.x + threadIdx.x;
-	dA[x][y] = 1.0;
+	dA[x] = 1.0;
 }
  
 int main()
