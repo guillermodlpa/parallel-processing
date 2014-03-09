@@ -32,10 +32,12 @@ main()
 	int num_bytes = dimx*dimy*sizeof(float);
 
 	float *d_a, *h_a, // device and host pointers
-	            *d_o=0, *h_o=0;
+	            *d_o, *h_o;
 
 	h_a = (float*)malloc(num_bytes);
 	h_o = (float*)malloc(num_bytes);
+	d_a = (float*)malloc(num_bytes);
+	d_o = (float*)malloc(num_bytes);
 
 	for (int i=0; i < dimx; i++){   
 	    for (int j=0; j < dimy; j++){
