@@ -19,43 +19,8 @@ reduce(float *g, float *o, const int dimx, const int dimy) {
 	    return;
 
 	o[i*dimy + j] = g[i*dimy + j] + 1;
-
-	/*sdata[tid_x*blockDim.y + tid_y] = g[i*dimy + j];
-
-	__syncthreads();
-
-	for(unsigned int s_y = blockDim.y/2; s_y > 0; s_y >>= 1)
-	{
-	    if (tid_y < s_y)
-	    {
-	        sdata[tid_x * dimy + tid_y] += sdata[tid_x * dimy + tid_y + s_y];
-	    }
-	    __syncthreads();
-	}
-
-	for(unsigned int s_x = blockDim.x/2; s_x > 0; s_x >>= 1 )
-	{
-
-	    if(tid_x < s_x)
-	    {
-	        sdata[tid_x * dimy] += sdata[(tid_x + s_x) * dimy];
-	    }
-	    __syncthreads();
-	}
-
-	float sum;
-
-	if( tid_x == 0 && tid_y == 0)
-	{ 
-	    sum = sdata[0];
-	    atomicAdd (o, sum);   // The result should be the sum of all pixel values. But the program produce 0
-	}
-
-//if(tid_x==0 && tid__y == 0 ) 
-    //o[blockIdx.x] = sdata[0];
-
-    */
 }
+
 
 
 
@@ -95,7 +60,7 @@ main()
 	grid.x = dimx / block.x;
 	grid.y = dimy / block.y;
 
-	reduce<<<grid, block>>> (d_a, d_o, block.x, block.y);
+	reduce<<<grid, block>>> (d_a, d_o, dimx, dimy);
 
 	std::cout << block.x << " " << block.y << std::endl;
 	std::cout << grid.x << " " << grid.y << std::endl;
