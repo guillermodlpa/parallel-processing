@@ -7,7 +7,7 @@ using namespace std;
 __global__ void 
 reduce(float *g, float *o, const int dimx, const int dimy) {
 
-	extern __shared__ float sdata[];
+	//extern __shared__ float sdata[];
 
 	unsigned int tid_x = threadIdx.x;
 	unsigned int tid_y = threadIdx.y;
@@ -18,7 +18,9 @@ reduce(float *g, float *o, const int dimx, const int dimy) {
 	if (i >= dimx || j >= dimy)
 	    return;
 
-	sdata[tid_x*blockDim.y + tid_y] = g[i*dimy + j];
+	o[i*dimy + j] = g[i*dimy + j] + 1;
+
+	/*sdata[tid_x*blockDim.y + tid_y] = g[i*dimy + j];
 
 	__syncthreads();
 
@@ -51,6 +53,8 @@ reduce(float *g, float *o, const int dimx, const int dimy) {
 
 //if(tid_x==0 && tid__y == 0 ) 
     //o[blockIdx.x] = sdata[0];
+
+    */
 }
 
 
@@ -101,4 +105,16 @@ main()
 	free(h_o);
 	cudaFree(d_a);
 	cudaFree(d_o);
+
+	for(int i = 0 ; i < dimx ; i++){
+		for(int j = 0 ; j < dimy ; j++){
+		  cout << "h_a[" << (i*dimy) + j << "]=" << h_a[(i*dimy) + j] << endl;
+		}
+	}
+
+	for(int i = 0 ; i < dimx ; i++){
+		for(int j = 0 ; j < dimy ; j++){
+		  cout << "h_o[" << (i*dimy) + j << "]=" << h_o[(i*dimy) + j] << endl;
+		}
+	}
 }
