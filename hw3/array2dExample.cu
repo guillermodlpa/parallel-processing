@@ -18,7 +18,7 @@ reduce(float *g, float *o, const int dimx, const int dimy) {
 	if (i >= dimx || j >= dimy)
 	    return;
 
-	o[i+j] = g[i+j] + 1;
+	o[i] = g[i];
 }
 
 
@@ -60,15 +60,17 @@ main()
 	grid.x = dimx / block.x;
 	grid.y = dimy / block.y;
 
-	reduce<<<grid, block>>> (d_a, d_o, dimx, dimy);
+	reduce<<<grid, block>>> (d_a, d_o, block.x, block.y);
 
 	std::cout << block.x << " " << block.y << std::endl;
 	std::cout << grid.x << " " << grid.y << std::endl;
 	std::cout << dimx <<  " " << dimy << " " << dimx*dimy << std::endl;
 
 	cudaMemcpy( h_a, d_a, num_bytes, cudaMemcpyDeviceToHost );
-	cudaMemcpy( h_o, d_o, num_bytes, cudaMemcpyDeviceToHost );
+	cudaMemcpy( h_o, d_o, sizeof(int), cudaMemcpyDeviceToHost );
 
+	cudaFree(d_a);
+	cudaFree(d_o);
 
 	printf("MATRIX A\n\t");
     int row, col;
@@ -84,9 +86,6 @@ main()
           printf("%1.0f%s", h_o[(row*dimy+col)], (col < dimy-1) ? ", " : ";\n\t");
       }
     } 
-
-    cudaFree(d_a);
-	cudaFree(d_o);
     free(h_a);
     free(h_o);
 }
