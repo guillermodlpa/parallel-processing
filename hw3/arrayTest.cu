@@ -10,7 +10,7 @@ const int N = 16;
 const int blocksize = 16; 
  
 __global__ 
-void hello(float **dA) 
+void hello(float dA[blocksize][blocksize]) 
 {
 	dA[threadIdx.x][threadIdx.y] = threadIdx.x;
 }
