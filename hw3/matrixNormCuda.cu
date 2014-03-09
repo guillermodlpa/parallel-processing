@@ -179,7 +179,7 @@ int main(int argc, char **argv) {
 
 #define BLOCK_SIZE 32
 
-__global__ void matrixNormKernel( (float **) &dA,(float **) &dB, int N)
+__global__ void matrixNormKernel(float *dA,float *dB, int N)
 {
 
   int row, col; 
@@ -214,7 +214,7 @@ void matrixNorm() {
   cudaMemcpy(dA, A, N*sizeof(float), cudaMemcpyHostToDevice );
   cudaMemcpy(dB, B, N*sizeof(float), cudaMemcpyHostToDevice );
 
-  matrixNormKernel<<<ceil(N/256), 256>>> (dA, dB, N);
+  matrixNormKernel<<<ceil(N/256), 256>>> (&dA, &dB, N);
 
   cudaMemcpy(A, dA, N*sizeof(float), cudaMemcpyDeviceToHost );
   cudaMemcpy(B, dB, N*sizeof(float), cudaMemcpyDeviceToHost );
