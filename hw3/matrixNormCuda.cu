@@ -185,9 +185,9 @@ __global__ void matrixNormKernel(float **dA,float **dB, int N)
   int y = blockIdx.y * blockDim.y + threadIdx.y;
   int x = blockIdx.x * blockDim.x + threadIdx.x;
 
-  if (i < N && j < N) {
+  if (x < N && y < N) {
 
-    dB[i][j] = 1.0;
+    dB[x][y] = 1.0;
   }
 };
 
