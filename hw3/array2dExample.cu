@@ -102,15 +102,16 @@ main()
 	cudaFree(d_a);
 	cudaFree(d_o);
 
+    int row, col;
 	for (row = 0; row < dimx; row++) {
       for (col = 0; col < dimy; col++) {
-          printf("%1.0f%s", h_a[(i*dimy), (col < dimy-1) ? ", " : ";\n\t");
+          printf("%1.0f%s", h_a[(row*dimy+col), (col < dimy-1) ? ", " : ";\n\t");
       }
     } 
 
   	for (row = 0; row < dimx; row++) {
       for (col = 0; col < dimy; col++) {
-          printf("%1.0f%s", h_o[(i*dimy), (col < dimy-1) ? ", " : ";\n\t");
+          printf("%1.0f%s", h_o[(row*dimy+col), (col < dimy-1) ? ", " : ";\n\t");
       }
     } 
 
