@@ -18,7 +18,7 @@ reduce(float *g, float *o, const int dimx, const int dimy) {
 	if (i >= dimx || j >= dimy)
 	    return;
 
-	o[i*dimy + j] = g[i*dimy + j] + 1;
+	o[i*blockDim.y + j] = g[i*blockDim.y + j] + 1;
 }
 
 
@@ -60,7 +60,7 @@ main()
 	grid.x = dimx / block.x;
 	grid.y = dimy / block.y;
 
-	reduce<<<grid, block>>> (d_a, d_o, dimx, dimy);
+	reduce<<<grid, block>>> (d_a, d_o, block.x, block.y);
 
 	std::cout << block.x << " " << block.y << std::endl;
 	std::cout << grid.x << " " << grid.y << std::endl;
