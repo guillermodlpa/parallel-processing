@@ -18,7 +18,7 @@ reduce(float *g, float *o, const int dimx, const int dimy) {
 	//if (i >= 32 || j >= 16)
 	//    return;
 
-	o[blockDim.x * blockIdx.x + threadIdx.x] = g[blockDim.y * blockIdx.y + threadIdx.y] + 2;
+	o[10] = g[10] + 2;
 }
 
 
