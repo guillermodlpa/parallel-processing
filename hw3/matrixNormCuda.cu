@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <sys/times.h>
 #include <cuda.h>
+ #include <cuda_runtime.h>
 #include <sys/time.h>
 #include <time.h>
 
