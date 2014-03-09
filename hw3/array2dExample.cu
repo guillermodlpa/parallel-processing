@@ -15,10 +15,10 @@ reduce(float *g, float *o, const int dimx, const int dimy) {
 	unsigned int i = blockDim.x * blockIdx.x + threadIdx.x;
 	unsigned int j = blockDim.y * blockIdx.y + threadIdx.y; 
 
-	//if (i >= 32 || j >= 16)
-	//    return;
+	if (i >= dimx || j >= dimy)
+	    return;
 
-	o = g;
+	o[i*dimy+j]=2;
 }
 
 
