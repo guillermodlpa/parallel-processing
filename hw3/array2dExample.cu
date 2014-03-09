@@ -18,7 +18,7 @@ reduce(float *g, float *o, const int dimx, const int dimy) {
 	if (i >= dimx || j >= dimy)
 	    return;
 
-	o[i][j]= g[i][j];
+	o[i][j] = g[i][j];
 }
 
 
