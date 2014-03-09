@@ -31,7 +31,7 @@ int main()
 	
 	dim3 dimBlock( blocksize, blocksize );
 	dim3 dimGrid( 1, 1 );
-	hello<<<dimGrid, dimBlock>>>(&dA);
+	hello<<<dimGrid, dimBlock>>>(dA);
 	cudaMemcpy( A, dA, asize, cudaMemcpyDeviceToHost ); 
 	cudaFree( dA );
 
