@@ -10,9 +10,9 @@ const int N = 16;
 const int blocksize = 16; 
  
 __global__ 
-void hello(char *a, int *b) 
+void hello(float **dA) 
 {
-	a[threadIdx.x] += b[threadIdx.x];
+	dA[threadIdx.x][threadIdx.y] = threadIdx.x;
 }
  
 int main()
@@ -23,28 +23,16 @@ int main()
 	float A[N][N];
 	float dA[N][N];
  
-	char *ad;
-	int *bd;
-	const int csize = N*sizeof(char);
-	const int isize = N*sizeof(int);
 	const int asize = N*N*sizeof(float);
  
-	printf("%s", a);
  
-	cudaMalloc( (void**)&ad, csize ); 
-	cudaMalloc( (void**)&bd, isize ); 
 	cudaMalloc( (void**)&dA, asize ); 
-	cudaMemcpy( ad, a, csize, cudaMemcpyHostToDevice ); 
-	cudaMemcpy( bd, b, isize, cudaMemcpyHostToDevice ); 
 	cudaMemcpy( dA, A, asize, cudaMemcpyHostToDevice ); 
 	
-	dim3 dimBlock( blocksize, 1 );
+	dim3 dimBlock( blocksize, blocksize );
 	dim3 dimGrid( 1, 1 );
-	hello<<<dimGrid, dimBlock>>>(ad, bd);
-	cudaMemcpy( a, ad, csize, cudaMemcpyDeviceToHost ); 
+	hello<<<dimGrid, dimBlock>>>(dA);
 	cudaMemcpy( A, dA, asize, cudaMemcpyDeviceToHost ); 
-	cudaFree( ad );
-	cudaFree( bd );
 	cudaFree( dA );
 
 	int row, col;
@@ -54,6 +42,5 @@ int main()
         }
     }
 	
-	printf("%s\n", a);
 	return EXIT_SUCCESS;
 }
