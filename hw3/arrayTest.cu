@@ -20,6 +20,12 @@ int main()
 
 	float A[N][N];
 	float dA[N][N];
+
+	for (col = 0; col < N; col++) {
+	    for (row = 0; row < N; row++) {
+	      A[row][col] = 0.0;
+	    }
+	  }
  
 	const int asize = N*N*sizeof(float);
  
