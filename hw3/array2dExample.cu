@@ -102,6 +102,7 @@ main()
 	cudaFree(d_a);
 	cudaFree(d_o);
 
+	printf("MATRIX A\n\t");
     int row, col;
 	for (row = 0; row < dimx; row++) {
       for (col = 0; col < dimy; col++) {
@@ -109,6 +110,7 @@ main()
       }
     } 
 
+	printf("MATRIX O\n\t");
   	for (row = 0; row < dimx; row++) {
       for (col = 0; col < dimy; col++) {
           printf("%1.0f%s", h_o[(row*dimy+col)], (col < dimy-1) ? ", " : ";\n\t");
