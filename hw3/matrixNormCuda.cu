@@ -185,31 +185,34 @@ void matrixNorm() {
 
   printf("Computing in CUDA.\n");
 
-  float *dA[N][N];
+  float *dA[N][N], *dB[N][N];
   cudaMalloc((void**) &dA, N*sizeof(float) ); 
-  cudaMemcpy(A, dA, N*sizeof(float), cudaMemcpyHostToDevice );
+  cudaMemcpy(dA, A, N*sizeof(float), cudaMemcpyHostToDevice );
+  cudaMemcpy(dB, B, N*sizeof(float), cudaMemcpyHostToDevice );
 
-    cudaFree(dA);
     for (col=0; col < N; col++) {
         mu = 0.0;
         for (row=0; row < N; row++)
-            mu += A[row][col];
+            mu += dA[row][col];
         mu /= (float) N;
         sigma = 0.0;
         for (row=0; row < N; row++)
-            sigma += powf(A[row][col] - mu, 2.0);
+            sigma += powf(dA[row][col] - mu, 2.0);
         sigma /= (float) N;
         sigma = sqrt(sigma);
         //printf("Mean eq %g.Sigma eq %g.\n", mu, sigma);
         for (row=0; row < N; row++) {
             if (sigma == 0.0)
-                B[row][col] = 0.0;
+                dB[row][col] = 0.0;
             else
-                B[row][col] = (A[row][col] - mu) / sigma;
+                dB[row][col] = (dA[row][col] - mu) / sigma;
         }
     }
 
-
+  cudaMemcpy(A, dA, N*sizeof(float), cudaMemcpyDeviceToHost );
+  cudaMemcpy(B, dB, N*sizeof(float), cudaMemcpyDeviceToHost );
+  cudaFree(dB);
+  cudaFree(dA);
 }
 
 // http://stackoverflow.com/questions/20086047/cuda-matrix-example-block-size
