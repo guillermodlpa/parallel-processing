@@ -204,8 +204,8 @@ void matrixNorm() {
   cudaMemcpy(dA, A, N*sizeof(float), cudaMemcpyHostToDevice );
   cudaMemcpy(dB, B, N*sizeof(float), cudaMemcpyHostToDevice );
 
-  dim3 dimBlock(ceil(N/256), ceil(N/256)); 
-  dim3 dimGrid(256, 256); 
+  dim3 dimBlock(4, 4); 
+  dim3 dimGrid(1, 1); 
 
   matrixNormKernel<<<dimBlock, dimGrid>>> (dA, dB, N);
 
