@@ -70,7 +70,7 @@ main()
 	            *d_o=0, *h_o=0;
 
 	h_a = (float*)malloc(num_bytes);
-	h_o = (float*)malloc(sizeof(float));
+	h_o = (float*)malloc(num_bytes);
 
 	for (int i=0; i < dimx; i++){   
 	    for (int j=0; j < dimy; j++){
@@ -122,7 +122,4 @@ main()
       }
     } 
 
-
-	free(h_a);
-	free(h_o);
 }
