@@ -182,6 +182,34 @@ int main(int argc, char **argv) {
 __global__ void matrixNormKernel(float **dA,float **dB, int N)
 {
 
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+
+  if (i < N && j < N) {
+
+    dB[i][j] = 1.0;
+  }
+};
+
+void matrixNorm() {
+
+  printf("Computing in CUDA.\n");
+
+  float **dA, **dB;
+  cudaMalloc((void**) &dA, N*sizeof(float) ); 
+  cudaMemcpy(dA, A, N*sizeof(float), cudaMemcpyHostToDevice );
+  cudaMemcpy(dB, B, N*sizeof(float), cudaMemcpyHostToDevice );
+
+  dim3 dimBlock(ceil(N/256), ceil(N/256)); 
+  dim3 dimGrid(256, 256); 
+
+  matrixNormKernel<<<dimBlock, dimGrid>>> (dA, dB, N);
+
+  cudaMemcpy(A, dA, N*sizeof(float), cudaMemcpyDeviceToHost );
+  cudaMemcpy(B, dB, N*sizeof(float), cudaMemcpyDeviceToHost );
+  cudaFree(dB);
+  cudaFree(dA);
+/*
   int row, col; 
   float mu, sigma; // Mean and Standard Deviation
 
@@ -202,24 +230,7 @@ __global__ void matrixNormKernel(float **dA,float **dB, int N)
             else
                 dB[row][col] = (dA[row][col] - mu) / sigma;
         }
-    }
-};
-
-void matrixNorm() {
-
-  printf("Computing in CUDA.\n");
-
-  float **dA, **dB;
-  cudaMalloc((void**) &dA, N*sizeof(float) ); 
-  cudaMemcpy(dA, A, N*sizeof(float), cudaMemcpyHostToDevice );
-  cudaMemcpy(dB, B, N*sizeof(float), cudaMemcpyHostToDevice );
-
-  matrixNormKernel<<<ceil(N/256), 256>>> (dA, dB, N);
-
-  cudaMemcpy(A, dA, N*sizeof(float), cudaMemcpyDeviceToHost );
-  cudaMemcpy(B, dB, N*sizeof(float), cudaMemcpyDeviceToHost );
-  cudaFree(dB);
-  cudaFree(dA);
+    }*/
 }
 
 // http://stackoverflow.com/questions/20086047/cuda-matrix-example-block-size
