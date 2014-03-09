@@ -179,7 +179,7 @@ int main(int argc, char **argv) {
 
 #define BLOCK_SIZE 32
 
-__global__ void matrixNormKernel(float **dA[N][N],float **dB[N][N], int N)
+__global__ void matrixNormKernel(float **dA,float **dB, int N)
 {
 
   int row, col; 
@@ -209,7 +209,7 @@ void matrixNorm() {
 
   printf("Computing in CUDA.\n");
 
-  float *dA[N][N], *dB[N][N];
+  float **dA, **dB;
   cudaMalloc((void**) &dA, N*sizeof(float) ); 
   cudaMemcpy(dA, A, N*sizeof(float), cudaMemcpyHostToDevice );
   cudaMemcpy(dB, B, N*sizeof(float), cudaMemcpyHostToDevice );
