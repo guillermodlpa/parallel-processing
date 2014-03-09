@@ -60,14 +60,14 @@ main()
 	grid.x = dimx / block.x;
 	grid.y = dimy / block.y;
 
-	reduce<<<grid, block>>> (d_a, d_o, block.x, block.y);
+	reduce<<<grid, block>>> (d_a, d_o, dimx, dimy);
 
 	std::cout << block.x << " " << block.y << std::endl;
 	std::cout << grid.x << " " << grid.y << std::endl;
 	std::cout << dimx <<  " " << dimy << " " << dimx*dimy << std::endl;
 
 	cudaMemcpy( h_a, d_a, num_bytes, cudaMemcpyDeviceToHost );
-	cudaMemcpy( h_o, d_o, sizeof(int), cudaMemcpyDeviceToHost );
+	cudaMemcpy( h_o, d_o, num_bytes, cudaMemcpyDeviceToHost );
 
 	cudaFree(d_a);
 	cudaFree(d_o);
