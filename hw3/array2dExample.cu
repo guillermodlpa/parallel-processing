@@ -121,5 +121,6 @@ main()
           printf("%1.0f%s", h_o[(row*dimy+col)], (col < dimy-1) ? ", " : ";\n\t");
       }
     } 
-
+    free(h_a);
+    free(h_o);
 }
