@@ -67,7 +67,7 @@ main()
 	std::cout << dimx <<  " " << dimy << " " << dimx*dimy << std::endl;
 
 	cudaMemcpy( h_a, d_a, num_bytes, cudaMemcpyDeviceToHost );
-	cudaMemcpy( h_o, d_o, sizeof(int), cudaMemcpyDeviceToHost );
+	cudaMemcpy( h_o, d_o, num_bytes, cudaMemcpyDeviceToHost );
 
 	cudaFree(d_a);
 	cudaFree(d_o);
