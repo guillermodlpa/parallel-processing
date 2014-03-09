@@ -42,9 +42,31 @@ int main()
 	dim3 dimGrid( 1, 1 );
 	hello<<<dimGrid, dimBlock>>>(ad, bd);
 	cudaMemcpy( a, ad, csize, cudaMemcpyDeviceToHost ); 
+	cudaMemcpy( A, dA, asize, cudaMemcpyDeviceToHost ); 
 	cudaFree( ad );
 	cudaFree( bd );
+	cudaFree( dA );
+
+	int row, col;
+	for (row = 0; row < N; row++) {
+        for (col = 0; col < N; col++) {
+            printf("%1.10f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
+        }
+    }
 	
 	printf("%s\n", a);
 	return EXIT_SUCCESS;
+}
+
+void print_array( float A[][]) {
+    int row, col;
+
+    if (N < 10) {
+        printf("\nB =\n\t");
+        for (row = 0; row < N; row++) {
+            for (col = 0; col < N; col++) {
+                printf("%1.10f%s", B[row][col], (col < N-1) ? ", " : ";\n\t");
+            }
+        }
+    }
 }
