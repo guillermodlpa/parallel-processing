@@ -185,14 +185,11 @@ void matrixNorm() {
 
   printf("Computing in CUDA.\n");
 
-  // TEST
-  float *dA[MAXN][MAXN];
+  float *dA[N][N];
   cudaMalloc((void**) &dA, N*sizeof(float) ); 
   cudaMemcpy(A, dA, N*sizeof(float), cudaMemcpyHostToDevice );
-  cudaFree(dA);
 
-  // END TEST
-
+    cudaFree(dA);
     for (col=0; col < N; col++) {
         mu = 0.0;
         for (row=0; row < N; row++)
@@ -211,6 +208,7 @@ void matrixNorm() {
                 B[row][col] = (A[row][col] - mu) / sigma;
         }
     }
+
 
 }
 
