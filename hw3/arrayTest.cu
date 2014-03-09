@@ -10,7 +10,7 @@ const int N = 16;
 const int blocksize = 16; 
  
 __global__ 
-void hello(float dA[N][N]) 
+void hello(float* dA) 
 {
 	int y = blockIdx.y * blockDim.y + threadIdx.y;
   	int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -20,8 +20,8 @@ void hello(float dA[N][N])
 int main()
 {
 
-	float A[N][N];
-	float dA[N][N];
+	float* A = new float [N][N];
+	float* dA;
 
 	int row, col;
 	for (col = 0; col < N; col++) {
