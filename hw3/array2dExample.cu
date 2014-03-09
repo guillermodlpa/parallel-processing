@@ -36,8 +36,6 @@ main()
 
 	h_a = (float*)malloc(num_bytes);
 	h_o = (float*)malloc(num_bytes);
-	d_a = (float*)malloc(num_bytes);
-	d_o = (float*)malloc(num_bytes);
 
 	for (int i=0; i < dimx; i++){   
 	    for (int j=0; j < dimy; j++){
@@ -51,10 +49,10 @@ main()
 	}
 
 	cudaMalloc( (void**)&d_a, num_bytes );
-	cudaMalloc( (void**)&d_o, sizeof(int) );
+	cudaMalloc( (void**)&d_o, num_bytes );
 
 	cudaMemcpy( d_a, h_a, num_bytes, cudaMemcpyHostToDevice);
-	cudaMemcpy( d_o, h_o, sizeof(int), cudaMemcpyHostToDevice); 
+	cudaMemcpy( d_o, h_o, num_bytes, cudaMemcpyHostToDevice); 
 
 	dim3 grid, block;
 	block.x = 4;
