@@ -62,8 +62,8 @@ reduce(float *g, float *o, const int dimx, const int dimy) {
 int
 main()
 {   
-	int dimx = 320;
-	int dimy = 160;
+	int dimx = 32;
+	int dimy = 16;
 	int num_bytes = dimx*dimy*sizeof(float);
 
 	float *d_a, *h_a, // device and host pointers
@@ -102,19 +102,19 @@ main()
 	cudaFree(d_a);
 	cudaFree(d_o);
 
-	for(int i = 0 ; i < dimx ; i++){
-		for(int j = 0 ; j < dimy ; j++){
-		  cout << "h_a[" << (i*dimy) + j << "]=" << h_a[(i*dimy) + j] << endl;
-		}
-	}
+	for (row = 0; row < dimx; row++) {
+      for (col = 0; col < dimy; col++) {
+          printf("%1.0f%s", h_a[(i*dimy), (col < dimy-1) ? ", " : ";\n\t");
+      }
+    } 
 
-	for(int i = 0 ; i < dimx ; i++){
-		for(int j = 0 ; j < dimy ; j++){
-		  cout << "h_o[" << (i*dimy) + j << "]=" << h_o[(i*dimy) + j] << endl;
-		}
-	}
+  	for (row = 0; row < dimx; row++) {
+      for (col = 0; col < dimy; col++) {
+          printf("%1.0f%s", h_o[(i*dimy), (col < dimy-1) ? ", " : ";\n\t");
+      }
+    } 
 
-	
+
 	free(h_a);
 	free(h_o);
 }
