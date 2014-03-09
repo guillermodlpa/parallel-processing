@@ -18,7 +18,7 @@ reduce(float *g, float *o, const int dimx, const int dimy) {
 	if (i >= dimx || j >= dimy)
 	    return;
 
-	o[i*blockDim.y + j] = g[i*blockDim.y + j] + 1;
+	o[i + j] = g[i + j] + 1;
 }
 
 
