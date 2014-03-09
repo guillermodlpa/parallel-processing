@@ -4,8 +4,9 @@
 
 using namespace std;
 
+
 __global__ void 
-reduce(float *g, float *o, const int dimx, const int dimy) {
+add(float *g, float *o, const int dimx, const int dimy, const int add) {
 
 	//extern __shared__ float sdata[];
 
@@ -18,9 +19,8 @@ reduce(float *g, float *o, const int dimx, const int dimy) {
 	if (i >= dimx || j >= dimy)
 	    return;
 
-	o[i*dimy+j] = g[i*dimy+j] + 2;
+	o[i*dimy+j] = g[i*dimy+j] + add;
 }
-
 
 
 
@@ -30,6 +30,7 @@ main()
 	int dimx = 32;
 	int dimy = 16;
 	int num_bytes = dimx*dimy*sizeof(float);
+	int add = 3;
 
 	float *d_a, *h_a, // device and host pointers
 	            *d_o, *h_o;
@@ -60,7 +61,7 @@ main()
 	grid.x = dimx / block.x;
 	grid.y = dimy / block.y;
 
-	reduce<<<grid, block>>> (d_a, d_o, dimx, dimy);
+	add<<<grid, block>>> (d_a, d_o, dimx, dimy, add);
 
 	std::cout << block.x << " " << block.y << std::endl;
 	std::cout << grid.x << " " << grid.y << std::endl;
