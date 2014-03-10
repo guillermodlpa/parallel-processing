@@ -112,9 +112,9 @@ main()
 	cudaFree(d_o);
 
 	printf("MATRIX AFTER\n\t");
-	for (row = 0; row < N; row++)
-    for (col=0; col < Noutput; col++)
-      printf("%1.1f%s", h_o[row*N+col], (col < N-1) ? ", " : ";\n\t");
+	for (row = 0; row < Noutput; row++)
+    for (col=0; col < N; col++)
+      printf("%1.1f%s", h_o[row+col*Noutput], (col < N-1) ? ", " : ";\n\t");
     free(h_a);
     free(h_o);
 }
