@@ -268,6 +268,12 @@ void matrixNorm() {
   for (int i=0; i < Nsums; i++)
       for (int j=0; j < N; j++)
           h_sums[i*N + j] = -1;
+
+  float *h_sums2;
+  h_sums2 = (float*)malloc(sizeSums2);
+  for (int i=0; i < Nsums2; i++)
+      for (int j=0; j < N; j++)
+          h_sums2[i*N + j] = -1;
       
 
   printf("MATRIX h_sums BEFORE\n\t");
@@ -314,6 +320,7 @@ void matrixNorm() {
   // Do we need to run more than one iteration?
   if ( Nsums > 1 ) {
     printError( cudaMalloc( (void**)&d_sums2, sizeSums2 ) );
+    printError( cudaMemcpy( d_A, A, size, cudaMemcpyHostToDevice) );
     partialSum<<< dimGrid, dimBlock>>> (d_sums, d_sums2, N, Nsums2);
   }
   
