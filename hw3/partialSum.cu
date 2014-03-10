@@ -47,7 +47,7 @@ main()
 
 	partialSum<<< ceil(N / 4), 4>>> (d_a);
 
-	cudaMemcpy( h_a, d_a, sizeof(float), cudaMemcpyDeviceToHost );
+	cudaMemcpy( h_a, d_a, num_bytes, cudaMemcpyDeviceToHost );
 
 	cudaFree(d_a);
 
