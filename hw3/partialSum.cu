@@ -5,6 +5,7 @@
 
 using namespace std;
 
+#define BLOCK_SIZE 8
 
 __global__ void 
 partialSum(float *partialSum, const int N) {
@@ -92,11 +93,10 @@ main()
 	cudaMemcpy( d_a, h_a, num_bytes, cudaMemcpyHostToDevice);
 	cudaMemcpy( d_o, h_o, num_bytes, cudaMemcpyHostToDevice);
 
-	int blocksize = 8;
-	dim3 dimBlock( blocksize, 1 );
-	dim3 dimGrid( ceil(  ((float)N)/blocksize), 1 );
+	dim3 dimBlock( BLOCK_SIZE, 1 );
+	dim3 dimGrid( ceil(  ((float)N)/BLOCK_SIZE), 1 );
 
-	partialSum<<< dimGrid, blocksize>>> (d_a, d_o N);
+	partialSum<<< dimGrid, BLOCK_SIZE>>> (d_a, d_o, N);
 
 	cudaMemcpy( h_a, d_a, num_bytes, cudaMemcpyDeviceToHost );
 	cudaMemcpy( h_o, d_o, num_bytes, cudaMemcpyDeviceToHost );
