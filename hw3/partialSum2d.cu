@@ -79,10 +79,10 @@ main()
 
 	for (int i=0; i < N; i++)
       for (int j=0; j < N; j++)
-	       h_a[i+j*N]=j;
+	       h_a[i*N+j]=i;
   for (int i=0; i < Noutput; i++)
       for (int j=0; j < N; j++)
-         h_o[i+j*Noutput]=0;
+         h_o[i*Noutput+j]=0;
 	
   printf("MATRIX O BEFORE\n\t");
   for (row = 0; row < Noutput; row++)
