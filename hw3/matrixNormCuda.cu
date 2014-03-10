@@ -247,7 +247,7 @@ void matrixNorm() {
   dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
   dim3 dimGrid( ceil(((float)N)/BLOCK_SIZE), ceil(((float)N)/BLOCK_SIZE) );
 
-  partialSum<<< dimGrid, BLOCK_SIZE>>> (d_A, d_means, N, Nmeans);
+  partialSum<<< dimGrid, dimBlock>>> (d_A, d_means, N, Nmeans);
 
   cudaMemcpy( h_means, d_means, sizeMeans, cudaMemcpyDeviceToHost );
 
