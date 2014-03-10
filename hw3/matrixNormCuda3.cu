@@ -318,12 +318,12 @@ printf("3\n\t");
   // Do we need to run more than one iteration?
   if ( Nsums > 1 ) {
     printError( cudaMalloc( (void**)&d_sums2, sizeSums2 ) );
-    printError( cudaMemcpy( d_A, A, size, cudaMemcpyHostToDevice) );
+    printError( cudaMemcpy( d_sums2, h_sums2, sizeSums2, cudaMemcpyHostToDevice) );
     partialSum<<< dimGrid, dimBlock>>> (d_sums, d_sums2, N, Nsums2);
   }
   printf("4\n\t");
   printError( cudaMemcpy( A, d_A, sizeSums, cudaMemcpyDeviceToHost ) );
-  printError( cudaMemcpy( h_sums, d_sums2, sizeSums2, cudaMemcpyDeviceToHost ) );
+  printError( cudaMemcpy( h_sums2, d_sums2, sizeSums2, cudaMemcpyDeviceToHost ) );
 printf("5\n\t");
   printError( cudaFree(d_A) );
   printError( cudaFree(d_B) );
