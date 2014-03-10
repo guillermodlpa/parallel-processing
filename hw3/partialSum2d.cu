@@ -85,28 +85,43 @@ main()
 	int sizeOutput = N*Noutput*sizeof(float);
   int row, col;
 
-	float *d_a, *h_a, *h_o, *d_o;
+  float h_a[N][N];
+  float h_o[N][Noutput];
+  for(int i = 0; i < N; i++) {
+    for(int j = 0; j < N; j++) {
+        h_a[i][j] = i;
+        h_o[i][j] = 0;
+    }
+  }
 
+  float (*d_A)[N]; //pointers to arrays of dimension N
+  float (*d_O)[N];
+
+  /*
+	float *d_a, *h_a, *h_o, *d_o;
+*//*
 	h_a = (float*)malloc(sizeInput);
 	h_o = (float*)malloc(sizeOutput);
-
+*/
+  /*
 	for (int i=0; i < N; i++)
       for (int j=0; j < N; j++)
 	       h_a[i*N+j]=i+1;
   for (int i=0; i < Noutput; i++)
       for (int j=0; j < N; j++)
          h_o[i*Noutput+j]=0;
-	
+	*/
+
   printf("MATRIX O BEFORE\n\t");
   for (row = 0; row < Noutput; row++)
     for (col=0; col < N; col++)
-      printf("%1.1f%s", h_o[row+col*Noutput], (col < N-1) ? ", " : ";\n\t");
+      printf("%1.1f%s", h_o[row][col], (col < N-1) ? ", " : ";\n\t");
 
 
 	printf("MATRIX A BEFORE\n\t");
 	for (row = 0; row < N; row++)
     for (col=0; col < N; col++)
-      printf("%1.1f%s", h_a[row+col*N], (col < N-1) ? ", " : ";\n\t");
+      printf("%1.1f%s", h_a[row][col], (col < N-1) ? ", " : ";\n\t");
 
 	printError( cudaMalloc( (void**)&d_a, sizeInput ) );
 	printError( cudaMalloc( (void**)&d_o, sizeOutput ) );
