@@ -36,7 +36,7 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned int ty = threadIdx.y;
-    unsigned int ty = threadIdx.y;
+    unsigned int tx = threadIdx.x;
 
 
     if ( y >= N )
