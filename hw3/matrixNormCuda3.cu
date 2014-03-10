@@ -203,7 +203,7 @@ partialSum(float *input, float *output, const int N) {
     if ( y >= N || x >= N )
       return;
 
-    output[tx] = input [ x ];
+    output[ tx + ty*BLOCK_SIZE ] = input [ x ];
 
 }
 
@@ -234,13 +234,6 @@ void matrixNorm() {
       }
   }
 
-  printf("MATRIX A\n\t");
-  for (row = 0; row < N; row++) {
-      for (col = 0; col < N; col++) {
-          printf("%1.1f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
-      }
-  }
-
   printError( cudaMalloc( (void**)&d_A, size ) );
   printError( cudaMalloc( (void**)&d_B, size ) );
   printError( cudaMalloc( (void**)&d_sums, sizeSums ) );
@@ -262,7 +255,7 @@ void matrixNorm() {
   printf("MATRIX h_sums AFTER\n\t");
   for (row = 0; row < BLOCK_SIZE; row++) {
       for (col = 0; col < BLOCK_SIZE; col++) {
-          printf("%1.1f%s", h_sums[row][col], (col < BLOCK_SIZE-1) ? ", " : ";\n\t");
+          printf("%1.2f%s", h_sums[row][col], (col < BLOCK_SIZE-1) ? ", " : ";\n\t");
       }
   }
 
