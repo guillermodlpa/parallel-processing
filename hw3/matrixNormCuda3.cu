@@ -195,7 +195,7 @@ The code there has been studied, as the comments indicate
 __global__ void 
 partialSum(float *input, float *output, const int N, const int gridSize) {
 
-    extern __shared__ float partialSum[BLOCK_SIZE*BLOCK_SIZE];
+    __shared__ float partialSum[BLOCK_SIZE*BLOCK_SIZE];
 
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned int ty = threadIdx.y;
@@ -205,13 +205,13 @@ partialSum(float *input, float *output, const int N, const int gridSize) {
     if ( y >= N || x >= N )
       return;
 
-    partialSum[ y + tx*BLOCK_SIZE ] += input [ x*MAXN + y ];
+    partialSum[ ty + blockIdx.x*BLOCK_SIZE ] += input [ x*MAXN + y ];
 
     __syncthreads();
 
     if ( blockIdx.x == gridSize-1  ) {
 
-      output[ y + tx*N ] += partialSum[ y + tx*BLOCK_SIZE ];
+      output[ blockIdx.y + x*N ] += partialSum[ ty + blockIdx.x*BLOCK_SIZE ];
 
     }
 }
