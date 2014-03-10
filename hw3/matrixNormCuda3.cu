@@ -224,20 +224,16 @@ void matrixNorm() {
   //float (*h_sums)[BLOCK_SIZE] = new float[N][BLOCK_SIZE];
   float *h_sums;
   h_sums = (float*)malloc(sizeSums);
-  for (int i=0; i < BLOCK_SIZE; i++){   
-      for (int j=0; j < N; j++){
-          h_sums[i*N + j] = 0;
-      }
-  }
-
   for (int i=0; i < BLOCK_SIZE; i++)
       for (int j=0; j < N; j++)
-         h_sums[i][j]=0;
+          h_sums[i*N + j] = 0;
+      
+  
 
   printf("MATRIX h_sums BEFORE\n\t");
   for (row = 0; row < BLOCK_SIZE; row++) {
       for (col = 0; col < N; col++) {
-          printf("%1.1f%s", h_sums[row][col], (col < N-1) ? ", " : ";\n\t");
+          printf("%1.1f%s", h_sums[row*N + col], (col < N-1) ? ", " : ";\n\t");
       }
   }
 
@@ -262,7 +258,7 @@ void matrixNorm() {
   printf("MATRIX h_sums AFTER\n\t");
   for (row = 0; row < BLOCK_SIZE; row++) {
       for (col = 0; col < N; col++) {
-          printf("%1.2f%s", h_sums[row][col], (col < N-1) ? ", " : ";\n\t");
+          printf("%1.2f%s", h_sums[row*N + col], (col < N-1) ? ", " : ";\n\t");
       }
   }
 
