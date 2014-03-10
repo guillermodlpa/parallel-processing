@@ -200,7 +200,8 @@ partialSum(float *input, float *output, const int N) {
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned int tx = threadIdx.x;
 
-    
+    if ( y >= N || x >= N )
+      return;
 
     output[ y + tx*N ] += input [ x*N + y ];
 
@@ -220,7 +221,7 @@ void matrixNorm() {
   float *d_sums, *d_A, *d_B;
 
   //Get user input into size;
-  float (*h_sums)[BLOCK_SIZE] = new float[N][BLOCK_SIZE];
+  float (*h_sums)[N] = new float[BLOCK_SIZE][N];
 
   for (int i=0; i < BLOCK_SIZE; i++)
       for (int j=0; j < N; j++)
