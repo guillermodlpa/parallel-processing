@@ -52,7 +52,6 @@ main()
 	cudaFree(d_a);
 
 	printf("MATRIX AFTER\n\t");
-    int i;
 	for (i = 0; i < N; i++) {
       cout << "h_a[" << i << "]=" << h_a[i] << endl;
     } 
