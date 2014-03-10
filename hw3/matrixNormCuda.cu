@@ -233,6 +233,9 @@ void matrixNorm() {
   float *d_means, *d_A, *d_B, *h_means;
 
   h_means = (float*)malloc(sizeMeans);
+  for (int i=0; i < N; i++){   
+      h_means[i]=0;
+  }
 
   cudaMalloc( (void**)&d_A, size );
   cudaMalloc( (void**)&d_B, size );
