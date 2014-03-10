@@ -16,8 +16,6 @@
 #include <time.h>
  #include <iostream>
 
-using namespace std;
-
 /* Program Parameters */
 #define MAXN 8000  /* Max value of N */
 #define DIVISOR 3276800000.0
@@ -197,7 +195,7 @@ The code there has been studied, as the comments indicate
 The code had to be adapted to operate with arrays of different dimensions, 
 as well as to operate adding columns instead of rows
 */
-__global__ void partialSum(float * input, float * output, const int Nx, const int Ny, const int inputNx,  const int Nmeans) {
+__global__ void partialSum(float * input, float * output, const int N, const int Nmeans) {
 
     // Load a segment of the input vector into shared memory
     __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
@@ -215,18 +213,18 @@ __global__ void partialSum(float * input, float * output, const int Nx, const in
     unsigned int column = 2 * BLOCK_SIZE * tx;
 
     // Verify that we are inside the array, so CUDA won't throw errors
-    if ( y >= Ny || x >= Nx )
+    if ( y >= N || x >= N )
       return;
 
     // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
-    if (start + ty < Ny)
-       partialSum[ ty + column ] = input[ (start + ty)*inputNx + x ];
+    if (start + ty < N)
+       partialSum[ ty + column ] = input[ (start + ty)*MAXN + x ];
     else
        partialSum[ ty + column ] = 0;
 
     // The same for the last element of the block, the other value that we're going to sum up
-    if (start + BLOCK_SIZE + ty < Ny)
-       partialSum[BLOCK_SIZE + ty + column] = input[ (start + BLOCK_SIZE + ty)*inputNx + x ];
+    if (start + BLOCK_SIZE + ty < N)
+       partialSum[BLOCK_SIZE + ty + column] = input[ (start + BLOCK_SIZE + ty)*MAXN + x ];
     else
        partialSum[BLOCK_SIZE + ty + column] = 0;  
 
@@ -239,7 +237,7 @@ __global__ void partialSum(float * input, float * output, const int Nx, const in
     // After the loop, the partial sum is found in partialSum[0]
     // So we have to put it in the output array
     if (ty == 0)
-       output[blockIdx.y*Nx + x] = partialSum[column];
+       output[blockIdx.y*N + x] = partialSum[column];
 }
 
 
@@ -255,8 +253,6 @@ void matrixNorm() {
   int Nsums2 = ceil( ((float)Nsums) / (BLOCK_SIZE<<1));
   int sizeSums2 = N*Nsums2*sizeof(float);
 
-  cout << "Nsums=" << Nsums <<" Nsums2=" << Nsums2 << endl;
-
   int row, col;
 
   float *d_sums, *d_sums2, *d_A, *d_B;
@@ -268,12 +264,6 @@ void matrixNorm() {
   for (int i=0; i < Nsums; i++)
       for (int j=0; j < N; j++)
           h_sums[i*N + j] = -1;
-
-  float *h_sums2;
-  h_sums2 = (float*)malloc(sizeSums2);
-  for (int i=0; i < Nsums2; i++)
-      for (int j=0; j < N; j++)
-          h_sums2[i*N + j] = -1;
       
 
   printf("MATRIX h_sums BEFORE\n\t");
@@ -303,7 +293,7 @@ void matrixNorm() {
   printError( cudaMalloc( (void**)&d_A, size ) );
   printError( cudaMalloc( (void**)&d_B, size ) );
   printError( cudaMalloc( (void**)&d_sums, sizeSums ) );
-  printf("2\n\t");
+
   printError( cudaMemcpy( d_A, A, size, cudaMemcpyHostToDevice) );
   printError( cudaMemcpy( d_sums, h_sums, sizeSums, cudaMemcpyHostToDevice ));
 
@@ -311,45 +301,26 @@ void matrixNorm() {
 
   dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
   dim3 dimGrid( gridSize, gridSize);
-  printf("3\n\t");
+
   // First iteration
-  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N, N, MAXN, Nsums);
+  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N, Nsums);
 
-  // Do we need to run more than one iteration?
-  if ( Nsums > 1 ) {
-    printError( cudaMalloc( (void**)&d_sums2, sizeSums2 ) );
-    printError( cudaMemcpy( d_sums2, h_sums2, sizeSums2, cudaMemcpyHostToDevice) );
-    partialSum<<< dimGrid, dimBlock>>> (d_sums, d_sums2, N, Nsums, N, Nsums2);
-  }
+  // Second iteration in case the output isn't a single value
+  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N, Nsums);
 
-  printf("4\n\t");
   printError( cudaMemcpy( A, d_A, sizeSums, cudaMemcpyDeviceToHost ) );
   printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
-  printf("5\n\t");
+
   printError( cudaFree(d_A) );
   printError( cudaFree(d_B) );
   printError( cudaFree(d_sums) );
-  printf("6\n\t");
-
-  if ( Nsums > 1 ) {
-    printError( cudaMemcpy( h_sums2, d_sums2, sizeSums2, cudaMemcpyDeviceToHost ) );
-    printError( cudaFree(d_sums2) );
-  }
 
   printf("MATRIX h_sums AFTER\n\t");
   for (row = 0; row < Nsums; row++) {
       for (col = 0; col < N; col++) {
-          printf("%1.2f%s", h_sums2[row*N + col], (col < N-1) ? ", " : ";\n\t");
+          printf("%1.2f%s", h_sums[row*N + col], (col < N-1) ? ", " : ";\n\t");
       }
   }
-
-  printf("MATRIX h_sums2 AFTER\n\t");
-  for (row = 0; row < Nsums2; row++) {
-      for (col = 0; col < N; col++) {
-          printf("%1.2f%s", h_sums2[row*N + col], (col < N-1) ? ", " : ";\n\t");
-      }
-  }
-
 
   printf("MATRIX A AFTER\n\t");
   for (row = 0; row < N; row++) {
