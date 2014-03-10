@@ -269,6 +269,7 @@ void matrixNorm() {
   cudaMalloc( (void**)&d_means, sizeMeans );
 
   cudaMemcpy( d_A, A, size, cudaMemcpyHostToDevice);
+  cudaMemcpy( d_means, h_means, sizeMeans, cudaMemcpyHostToDevice);
 
   dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
   dim3 dimGrid( ceil(((float)N)/BLOCK_SIZE), ceil(((float)N)/BLOCK_SIZE) );
