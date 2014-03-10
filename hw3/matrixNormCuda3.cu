@@ -220,7 +220,7 @@ void matrixNorm() {
 
   float *d_sums, *d_A, *d_B;
 
-  float *h_sums = new float [BLOCK_SIZE][BLOCK_SIZE];
+  float (*h_sums)[BLOCK_SIZE][BLOCK_SIZE] = new float [BLOCK_SIZE][BLOCK_SIZE];
 
   for (int i=0; i < BLOCK_SIZE; i++)
       for (int j=0; j < BLOCK_SIZE; j++)
