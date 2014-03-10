@@ -16,6 +16,8 @@
 #include <time.h>
  #include <iostream>
 
+using namespace std;
+
 /* Program Parameters */
 #define MAXN 8000  /* Max value of N */
 #define DIVISOR 3276800000.0
@@ -253,6 +255,8 @@ void matrixNorm() {
   int Nsums2 = ceil( ((float)Nsums) / (BLOCK_SIZE<<1));
   int sizeSums2 = N*Nsums2*sizeof(float);
 
+  cout << "Nsums=" << Nsums <<" Nsums2=" << Nsums2 << endl;
+
   int row, col;
 
   float *d_sums, *d_sums2, *d_A, *d_B;
@@ -309,7 +313,6 @@ void matrixNorm() {
 
   // Do we need to run more than one iteration?
   if ( Nsums > 1 ) {
-
     printError( cudaMalloc( (void**)&d_sums2, sizeSums2 ) );
     partialSum<<< dimGrid, dimBlock>>> (d_sums, d_sums2, N, Nsums2);
   }
