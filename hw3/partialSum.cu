@@ -9,7 +9,7 @@ using namespace std;
 __global__ void 
 partialSum(float *partialSum) {
 
-	unsigned int t = threadId.x;
+	unsigned int t = threadIdx.x;
 	for (unsigned int stride = blockDim.x >> 1; stride > 0; stride >>= 1) {
 	__syncthreads();
 	if (t < stride)
@@ -22,8 +22,8 @@ partialSum(float *partialSum) {
 int
 main()
 {   
-	int size = 12;
-	int num_bytes = size*sizeof(float);
+	int N = 12;
+	int num_bytes = N*sizeof(float);
 
 	float *d_a, *h_a;
 
@@ -36,11 +36,10 @@ main()
 	h_a[0]=1; h_a[1]=3;h_a[2]=2;
 
 	cudaMalloc( (void**)&d_a, num_bytes );
-
 	cudaMemcpy( d_a, h_a, num_bytes, cudaMemcpyHostToDevice);
 
 
-	partialSum<<< ceil(size / 4), 4>>> (d_a);
+	partialSum<<< ceil(N / 4), 4>>> (d_a);
 
 	cudaMemcpy( h_a, d_a, num_bytes, cudaMemcpyDeviceToHost );
 
@@ -48,8 +47,8 @@ main()
 
 	printf("MATRIX A\n\t");
     int i;
-	for (i = 0; i < size; i++) {
-      cout << "h_array[" << (i) + j << "]=" << h_array[i] << endl;
+	for (i = 0; i < N; i++) {
+      cout << "h_array[" << i << "]=" << h_array[i] << endl;
     } 
     free(h_a);
 }
