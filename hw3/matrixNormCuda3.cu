@@ -197,7 +197,7 @@ The code there has been studied, as the comments indicate
 The code had to be adapted to operate with arrays of different dimensions, 
 as well as to operate adding columns instead of rows
 */
-__global__ void partialSum(float * input, float * output, const int Nx, const int Ny const int Nmeans) {
+__global__ void partialSum(float * input, float * output, const int Nx, const int Ny, const int Nmeans) {
 
     // Load a segment of the input vector into shared memory
     __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
@@ -319,7 +319,7 @@ void matrixNorm() {
   if ( Nsums > 1 ) {
     printError( cudaMalloc( (void**)&d_sums2, sizeSums2 ) );
     printError( cudaMemcpy( d_sums2, h_sums2, sizeSums2, cudaMemcpyHostToDevice) );
-    partialSum<<< dimGrid, dimBlock>>> (d_sums, d_sums2, N, Nsums1, Nsums2);
+    partialSum<<< dimGrid, dimBlock>>> (d_sums, d_sums2, N, Nsums, Nsums2);
   }
 
   printf("4\n\t");
