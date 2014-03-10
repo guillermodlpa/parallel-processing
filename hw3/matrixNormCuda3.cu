@@ -262,7 +262,7 @@ void matrixNorm() {
 
   for (int i=0; i < N; i++)
       for (int j=0; j < N; j++)
-          A[i][j] = i;
+          A[i][j] = i+1;
 
   printf("MATRIX A BEFORE\n\t");
   for (row = 0; row < N; row++) {
