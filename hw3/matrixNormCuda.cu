@@ -232,8 +232,8 @@ void matrixNorm() {
 
   float *d_means, *d_A, *d_B;
 
-  cudaMalloc( (void**)&d_A, sizeInput );
-  cudaMalloc( (void**)&d_B, sizeInput );
+  cudaMalloc( (void**)&d_A, size );
+  cudaMalloc( (void**)&d_B, size );
   cudaMalloc( (void**)&d_means, sizeMeans );
 
   cudaMemcpy( d_A, A, size, cudaMemcpyHostToDevice);
