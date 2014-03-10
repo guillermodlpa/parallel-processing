@@ -211,7 +211,7 @@ partialSum(float *input, float *output, const int N, const int gridSize) {
 
     if ( blockIdx.y == gridSize-1 && blockIdx.x == gridSize-1  ) {
 
-      output[ y + tx*N ] += partialSum[ y + tx*BLOCK_SIZE ]
+      output[ y + tx*N ] += partialSum[ y + tx*BLOCK_SIZE ];
 
     }
 }
