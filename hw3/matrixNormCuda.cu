@@ -178,17 +178,16 @@ int main(int argc, char **argv) {
 #define BLOCK_SIZE 32;
 
 __global__ void 
-partialSum(float *input, float *output, const int N, const int Nmeans) {
+partialSum(float *input, float *output, const int N) {
 
   // Load a segment of the input vector into shared memory
   // This is because the entire array might be too big and is stored into the global memory
-  int partialSumSize = 2*N*BLOCK_SIZE;
-    __shared__ float partialSum[partialSumSize];
+    __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
+
+    unsigned int y = threadIdx.y;
 
     // Position in the input array
     unsigned int t = threadIdx.x;
-
-    unsigned int y = blockDim.y * blockIdx.y + threadIdx.y; 
 
     // Start is the beining of the current calculations
     // If blockIdx is not 0, then the result will go to the blockIdx position of the output array
@@ -196,27 +195,27 @@ partialSum(float *input, float *output, const int N, const int Nmeans) {
 
     // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
     if (start + t < N)
-       partialSum[t + y*N] = input[start + t + y*N];
+       partialSum[t + y*BLOCK_SIZE] = input[start + t + y*BLOCK_SIZE];
     else
-       partialSum[t + y*N] = 0;
+       partialSum[t + y*BLOCK_SIZE] = 0;
    
     // The same for the last element of the block, the other value that we're going to sum up
     if (start + BLOCK_SIZE + t < N)
-       partialSum[BLOCK_SIZE + t + y*N] = input[start + BLOCK_SIZE + t + y*N];
+       partialSum[BLOCK_SIZE + t + y*BLOCK_SIZE] = input[start + BLOCK_SIZE + t + y*BLOCK_SIZE];
     else
-       partialSum[BLOCK_SIZE + t + y*N] = 0;
+       partialSum[BLOCK_SIZE + t + y*BLOCK_SIZE] = 0;
    
     // Perform the partial sum
     for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
        __syncthreads();
        if (t < stride)
-          partialSum[t + y*N] += partialSum[t+stride + y*N];
+          partialSum[t + y*BLOCK_SIZE] += partialSum[t+stride + y*BLOCK_SIZE];
     }
 
     // After the loop, the partial sum is found in partialSum[0]
     // So we have to put it in the output array
     if (t == 0)
-       output[blockIdx.x + y*Nmeans] = partialSum[0 + y*N];
+       output[blockIdx.x + y*BLOCK_SIZE] = partialSum[0 + y*BLOCK_SIZE];
 }
 
 
@@ -230,9 +229,7 @@ void matrixNorm() {
   int Nmeans = ceil( ((float)N) / (BLOCK_SIZE<<1));
   int sizeMeans = N*Nmeans*sizeof(float);
 
-  float *d_means, *d_A, *d_B, *h_means;
-
-  h_means = (float*)malloc(sizeMeans);
+  float *d_means, *d_A, *d_B;
 
   cudaMalloc( (void**)&d_A, sizeInput );
   cudaMalloc( (void**)&d_B, sizeInput );
@@ -243,9 +240,7 @@ void matrixNorm() {
   dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
   dim3 dimGrid( ceil(((float)N)/BLOCK_SIZE), ceil(((float)N)/BLOCK_SIZE) );
 
-  partialSum<<< dimGrid, BLOCK_SIZE>>> (d_A, d_means, N, Nmeans);
-
-  cudaMemcpy( h_means, d_means, sizeMeans, cudaMemcpyDeviceToHost );
+  partialSum<<< dimGrid, BLOCK_SIZE>>> (d_A, d_means, N);
 
   cudaFree(d_A);
   cudaFree(d_B);
@@ -255,7 +250,7 @@ void matrixNorm() {
   int row, col;
   for (row = 0; row < N; row++) {
       for (col = 0; col < N; col++) {
-          printf("%1.10f%s", h_means[row][col], (col < N-1) ? ", " : ";\n\t");
+          printf("%1.10f%s", B[row][col], (col < N-1) ? ", " : ";\n\t");
       }
   }
 
