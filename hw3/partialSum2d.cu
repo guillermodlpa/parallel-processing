@@ -92,7 +92,7 @@ main()
 
 	for (int i=0; i < N; i++)
       for (int j=0; j < N; j++)
-	       h_a[i*N+j]=j;
+	       h_a[i*N+j]=i;
   for (int i=0; i < Noutput; i++)
       for (int j=0; j < N; j++)
          h_o[i*Noutput+j]=0;
