@@ -29,10 +29,8 @@ main()
 
 	h_a = (float*)malloc(num_bytes);
 
-	for (int i=0; i < dimx; i++){   
-	    for (int j=0; j < dimy; j++){
-	        h_a[i*dimy + j] = 1;
-	    }
+	for (int i=0; i < N; i++){   
+	    h_a[i]=0;
 	}
 
 	h_a[0]=1; h_a[1]=3;h_a[2]=2;
