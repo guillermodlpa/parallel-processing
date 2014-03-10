@@ -260,6 +260,17 @@ void matrixNorm() {
       }
   }
 
+  for (int i=0; i < N; i++)
+      for (int j=0; j < N; j++)
+          A[i*N + j] = i;
+
+  printf("MATRIX A BEFORE\n\t");
+  for (row = 0; row < N; row++) {
+      for (col = 0; col < N; col++) {
+          printf("%1.1f%s", A[row*N + col], (col < N-1) ? ", " : ";\n\t");
+      }
+  }
+
   printError( cudaMalloc( (void**)&d_A, size ) );
   printError( cudaMalloc( (void**)&d_B, size ) );
   printError( cudaMalloc( (void**)&d_sums, sizeSums ) );
