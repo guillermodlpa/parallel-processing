@@ -200,19 +200,19 @@ partialSum(float *input, float *output, const int N, const int Nsums) {
     __shared__ float partialSum[2* BLOCK_SIZE*BLOCK_SIZE];
 
     // Position in the input array
-    unsigned int t = threadIdx.y;
+    unsigned int t = threadIdx.x;
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned int ty = threadIdx.y;
     unsigned int tx = threadIdx.x;
 
 
-    if ( y >= N )
+    if ( y >= N || x >= N )
       return;
 
     // Start is the beining of the current calculations
     // If blockIdx is not 0, then the result will go to the blockIdx position of the output array
-    unsigned int start = 2 * blockIdx.y * BLOCK_SIZE;
+    unsigned int start = 2 * blockIdx.x * BLOCK_SIZE;
 
     // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
     if (start + t < N)
