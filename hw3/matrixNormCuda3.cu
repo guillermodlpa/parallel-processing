@@ -222,7 +222,7 @@ partialSum(float *input, float *output, const int N, const int Nsums) {
    
     // The same for the last element of the block, the other value that we're going to sum up
     if (start + BLOCK_SIZE + t < N)
-      partialSum[BLOCK_SIZE + t + ty*2*BLOCK_SIZE] = input[blockIdx.y*2*MAXN + BLOCK_SIZE*MAXN + ty*NMAX + x];
+      partialSum[BLOCK_SIZE + t + ty*2*BLOCK_SIZE] = input[blockIdx.y*2*MAXN + BLOCK_SIZE*MAXN + ty*MAXN + x];
     else
       partialSum[BLOCK_SIZE + t + ty*2*BLOCK_SIZE] = 0; //
    
