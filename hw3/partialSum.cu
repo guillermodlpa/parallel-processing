@@ -7,16 +7,22 @@ using namespace std;
 
 
 __global__ void 
-partialSum(float *partialSum) {
+partialSum(float *partialSum, const int N) {
 
 	unsigned int t = threadIdx.x;
 
-	
 	for (unsigned int stride = blockDim.x; stride > 0; stride >>= 1) {
 
 		__syncthreads();
-		if (t < stride)
-			partialSum[t] += partialSum[t+stride];
+		if (t < stride) {
+			int i = 1;
+			do {
+				partialSum[t] += partialSum[t+stride*i];
+				i++;
+			} while ( t+stride*i < N )
+
+		}
+			
 	}
 }
 
@@ -49,7 +55,7 @@ main()
 	cudaMemcpy( d_a, h_a, num_bytes, cudaMemcpyHostToDevice);
 
 
-	partialSum<<< ceil(N / 4), 4>>> (d_a);
+	partialSum<<< ceil(N / 4), 4>>> (d_a, N);
 
 	cudaMemcpy( h_a, d_a, num_bytes, cudaMemcpyDeviceToHost );
 
