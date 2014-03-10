@@ -298,7 +298,7 @@ void matrixNorm() {
   dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
   dim3 dimGrid( gridSize, gridSize);
 
-  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N, Noutput);
+  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N, Nsums);
 
   printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
 
