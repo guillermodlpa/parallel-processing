@@ -59,7 +59,7 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
     // So we have to put it in the output array
     if (t == 0)
        //output[blockIdx.x + y*Noutput] += partialSum[0+ty*BLOCK_SIZE];
-      output[blockIdx.x] += partialSum[0];
+      output[blockIdx.x + ty] += partialSum[0];
 }
 
 
