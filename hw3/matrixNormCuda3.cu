@@ -205,12 +205,12 @@ partialSum(float *input, float *output, const int N, const int gridSize) {
     if ( y >= N || x >= N )
       return;
 
-    if ( blockIdx == 0 )
+    if ( blockIdx.x == 0 )
       partialSum[ ty ] += input [ x*MAXN + y ];
 
     __syncthreads();
 
-    if ( blockIdx == 1 )
+    if ( blockIdx.y == 1 )
       partialSum[ ty ] += input [ x*MAXN + y ];
 
     __syncthreads();
