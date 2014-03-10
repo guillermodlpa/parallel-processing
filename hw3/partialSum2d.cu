@@ -31,10 +31,10 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
     __shared__ float partialSum[2* BLOCK_SIZE*BLOCK_SIZE];
 
     // Position in the input array
-    unsigned int t = threadIdx.y;
+    unsigned int t = threadIdx.x;
 
-    unsigned int y = blockIdx.x * blockDim.x + threadIdx.x;
-    unsigned int ty = threadIdx.x;
+    unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int ty = threadIdx.y;
 
 
     if ( y >= N )
@@ -65,14 +65,14 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
        __syncthreads();
        if (t < stride)
           //partialSum[t+ty*BLOCK_SIZE] += partialSum[t+stride+ty*BLOCK_SIZE];
-          partialSum[t + ty*2*BLOCK_SIZE] += partialSum[t+stride + ty*2*BLOCK_SIZE];
+          partialSum[t*2*BLOCK_SIZE + ty] += partialSum[t*2*BLOCK_SIZE+stride + ty];
     }
 
     // After the loop, the partial sum is found in partialSum[0]
     // So we have to put it in the output array
     if (t == 0)
        //output[blockIdx.x + y*Noutput] += partialSum[0+ty*BLOCK_SIZE];
-      output[blockIdx.y + y*Noutput] = partialSum[ty*2*BLOCK_SIZE];
+      output[blockIdx.x + y*Noutput] = partialSum[ty*2*BLOCK_SIZE];
 }
 
 
