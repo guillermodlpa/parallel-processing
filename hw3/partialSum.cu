@@ -47,8 +47,10 @@ main()
 	cudaMalloc( (void**)&d_a, num_bytes );
 	cudaMemcpy( d_a, h_a, num_bytes, cudaMemcpyHostToDevice);
 
-
-	partialSum<<< ceil(N / 2), 2>>> (d_a, N);
+	int blocksize = 6;
+	dim3 dimBlock( blocksize, 1 );
+	dim3 dimGrid( ceil(N/blocksize), 1 );
+	partialSum<<< dimGrid, blocksize>>> (d_a, N);
 
 	cudaMemcpy( h_a, d_a, num_bytes, cudaMemcpyDeviceToHost );
 
