@@ -256,6 +256,9 @@ __global__ void partialSum(float * input, float * output, const int N, const int
 
     unsigned int start = 2 * blockIdx.y * BLOCK_SIZE;
 
+    if ( y >= N || x >= N )
+      return;
+
     if (start + ty < N)
        partialSum[ty] = input[ (start + tx)*MAXN ];
     else
