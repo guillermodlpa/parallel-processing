@@ -309,6 +309,11 @@ void matrixNorm() {
   for (int i=0; i < Nsums; i++)
       for (int j=0; j < N; j++)
           h_sums[i*N + j] = -1;
+  float *h_sums2;
+  h_sums2 = (float*)malloc(sizeSums2);
+  for (int i=0; i < Nsums2; i++)
+      for (int j=0; j < N; j++)
+          h_sums2[i*N + j] = -1;
       
 
   printf("MATRIX h_sums BEFORE\n\t");
