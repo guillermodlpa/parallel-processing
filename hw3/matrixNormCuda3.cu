@@ -240,7 +240,7 @@ __global__ void partialSum1(float * input, float * output, const int N, const in
        output[blockIdx.y*N + x] = partialSum[column];
 }
 
-__global__ void partialSum2(float * input, float * output, const int N, const int Nmeans) {
+__global__ void partialSum2(float * input, float * output, const int Nx, const int Ny, const int Nmeans) {
 
     // Load a segment of the input vector into shared memory
     __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
@@ -258,18 +258,18 @@ __global__ void partialSum2(float * input, float * output, const int N, const in
     unsigned int column = 2 * BLOCK_SIZE * tx;
 
     // Verify that we are inside the array, so CUDA won't throw errors
-    if ( y >= N || x >= N )
+    if ( y >= Ny || x >= Nx )
       return;
 
     // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
-    if (start + ty < N)
-       partialSum[ ty + column ] = input[ (start + ty)*N + x ];
+    if (start + ty < Ny)
+       partialSum[ ty + column ] = input[ (start + ty)*Nx + x ];
     else
        partialSum[ ty + column ] = 0;
 
     // The same for the last element of the block, the other value that we're going to sum up
-    if (start + BLOCK_SIZE + ty < N)
-       partialSum[BLOCK_SIZE + ty + column] = input[ (start + BLOCK_SIZE + ty)*N + x ];
+    if (start + BLOCK_SIZE + ty < Ny)
+       partialSum[BLOCK_SIZE + ty + column] = input[ (start + BLOCK_SIZE + ty)*Nx + x ];
     else
        partialSum[BLOCK_SIZE + ty + column] = 0;  
 
@@ -282,7 +282,7 @@ __global__ void partialSum2(float * input, float * output, const int N, const in
     // After the loop, the partial sum is found in partialSum[0]
     // So we have to put it in the output array
     if (ty == 0)
-       output[blockIdx.y*N + x] = partialSum[column];
+       output[blockIdx.y*Nx + x] = partialSum[column];
 }
 
 
@@ -357,7 +357,7 @@ void matrixNorm() {
   partialSum1<<< dimGrid, dimBlock>>> (d_A, d_sums, N, Nsums);
 
   // Second iteration in case the output isn't a single value
-  partialSum2<<< dimGrid, dimBlock>>> (d_sums, d_sums2, N, Nsums2);
+  partialSum2<<< dimGrid, dimBlock>>> (d_sums, d_sums2, N, Nsums, Nsums2);
 
   printError( cudaMemcpy( A, d_A, sizeSums, cudaMemcpyDeviceToHost ) );
   printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
