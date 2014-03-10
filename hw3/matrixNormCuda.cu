@@ -176,7 +176,7 @@ int main(int argc, char **argv) {
  * defined in the beginning of this code.  B[][] is initialized to zeros.;
  */
 
-#define BLOCK_SIZE 32
+#define BLOCK_SIZE 4
 
 __global__ void 
 partialSum(float *input, float *output, const int N, const int Nmeans) {
