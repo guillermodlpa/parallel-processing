@@ -34,8 +34,8 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
     unsigned int t = threadIdx.x;
 
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
-    unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned int ty = threadIdx.y;
+
 
     if ( y >= N )
       return;
@@ -103,7 +103,7 @@ main()
       printf("%1.1f%s", h_o[row+col*Noutput], (col < N-1) ? ", " : ";\n\t");
 
 
-	 printf("MATRIX A BEFORE\n\t");
+	printf("MATRIX A BEFORE\n\t");
 	for (row = 0; row < N; row++)
     for (col=0; col < N; col++)
       printf("%1.1f%s", h_a[row+col*N], (col < N-1) ? ", " : ";\n\t");
