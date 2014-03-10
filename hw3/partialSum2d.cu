@@ -72,14 +72,14 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
     // So we have to put it in the output array
     if (t == 0)
        //output[blockIdx.x + y*Noutput] += partialSum[0+ty*BLOCK_SIZE];
-      output[blockIdx.y + x*Noutput] = partialSum[ty*2*BLOCK_SIZE];
+      output[blockIdx.x + y*Noutput] = partialSum[ty*2*BLOCK_SIZE];
 }
 
 
 int
 main()
 {   
-	int N = 8;
+	int N = 16;
 	int sizeInput = N*N*sizeof(float);
 	int Noutput = ceil( ((float)N) / (BLOCK_SIZE<<1));
 	int sizeOutput = N*Noutput*sizeof(float);
