@@ -7,58 +7,48 @@ using namespace std;
 
 #define BLOCK_SIZE 8
 
+
+/**
+This function performs the partial sum of the given arrays
+It is an improvement over the partial sum example from class
+Inspired in the code found in https://gist.github.com/wh5a/4424992
+The code there has been studied, as the comments indicate
+*/
 __global__ void 
 partialSum(float *input, float *output, const int N) {
 
-	//@@ Load a segment of the input vector into shared memory
+	// Load a segment of the input vector into shared memory
+	// This is because the entire array might be too big and is stored into the global memory
     __shared__ float partialSum[2 * BLOCK_SIZE];
-    unsigned int t = threadIdx.x, start = 2 * blockIdx.x * BLOCK_SIZE;
 
+    // Position in the input array
+    unsigned int t = threadIdx.x;
+
+    // Start is the beining of the current calculations
+    // If blockIdx is not 0, then the result will go to the blockIdx position of the output array
+    unsigned int start = 2 * blockIdx.x * BLOCK_SIZE;
+
+    // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
     if (start + t < N)
        partialSum[t] = input[start + t];
     else
        partialSum[t] = 0;
    
+    // The same for the last element of the block, the other value that we're going to sum up
     if (start + BLOCK_SIZE + t < N)
        partialSum[BLOCK_SIZE + t] = input[start + BLOCK_SIZE + t];
     else
        partialSum[BLOCK_SIZE + t] = 0;
    
-    //@@ Traverse the reduction tree
+    // Perform the partial sum
     for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
        __syncthreads();
        if (t < stride)
           partialSum[t] += partialSum[t+stride];
     }
 
-    //@@ Write the computed sum of the block to the output vector at the 
-    //@@ correct index
-    if (t == 0)
-       output[blockIdx.x] = partialSum[0];
-
-}
-
-__global__ void total(float * input, float * output, int len) {
-
-    //@@ Load a segment of the input vector into shared memory
-    __shared__ float partialSum[2 * BLOCK_SIZE];
-    unsigned int t = threadIdx.x, start = 2 * blockIdx.x * BLOCK_SIZE;
-    if (start + t < len)
-       partialSum[t] = input[start + t];
-    else
-       partialSum[t] = 0;
-    if (start + BLOCK_SIZE + t < len)
-       partialSum[BLOCK_SIZE + t] = input[start + BLOCK_SIZE + t];
-    else
-       partialSum[BLOCK_SIZE + t] = 0;
-    //@@ Traverse the reduction tree
-    for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
-       __syncthreads();
-       if (t < stride)
-          partialSum[t] += partialSum[t+stride];
-    }
-    //@@ Write the computed sum of the block to the output vector at the 
-    //@@ correct index
+    // After the loop, the partial sum is found in partialSum[0]
+    // So we have to put it in the output array
     if (t == 0)
        output[blockIdx.x] = partialSum[0];
 }
@@ -69,45 +59,21 @@ main()
 {   
 	int N = 25;
 	int sizeInput = N*sizeof(float);
-	int Noutput = ceil( ((float)N) / (BLOCK_SIZE<<1));
-	int sizeOutput = Noutput*sizeof(float);
 
-	cout << "Noutput " << Noutput << endl;
+	int Noutput1 = ceil( ((float)N) / (BLOCK_SIZE<<1));
+	int sizeOutput1 = Noutput1*sizeof(float);
 
-	float *d_a, *h_a, *h_o, *d_o;
+	int Noutput2 = ceil( ((float)Noutput1) / (BLOCK_SIZE<<1));
+	int sizeOutput2 = Noutput1*sizeof(float);
+
+	float *d_a, *h_a, *d_b, *h_o, *d_o;
 
 	h_a = (float*)malloc(sizeInput);
 	h_o = (float*)malloc(sizeOutput);
 
 	for (int i=0; i < N; i++){   
-	    h_a[i]=0;
+	    h_a[i]=1;
 	}
-
-	h_a[0]=1; 
-	h_a[1]=1;
-	h_a[2]=1;
-	h_a[3]=1;
-	h_a[4]=1;
-	h_a[5]=1;
-	h_a[6]=1;
-	h_a[7]=1;
-	h_a[8]=1;
-	h_a[9]=1;
-	h_a[10]=1;
-	h_a[11]=1;
-	h_a[12]=1;
-	h_a[13]=1;
-	h_a[14]=1;
-	h_a[15]=1;
-	h_a[16]=1;
-	h_a[17]=1;
-	h_a[18]=1;
-	h_a[19]=1;
-	h_a[20]=1;
-	h_a[21]=1;
-	h_a[22]=1;
-	h_a[23]=1;
-	h_a[24]=1;
 
 	printf("MATRIX BEFORE\n\t");
     int i;
@@ -116,23 +82,27 @@ main()
     } 
 
 	cudaMalloc( (void**)&d_a, sizeInput );
-	cudaMalloc( (void**)&d_o, sizeOutput );
+	cudaMalloc( (void**)&d_b, sizeOutput1 );
+	cudaMalloc( (void**)&d_o, sizeOutput2 );
 	cudaMemcpy( d_a, h_a, sizeInput, cudaMemcpyHostToDevice);
-	cudaMemcpy( d_o, h_o, sizeOutput, cudaMemcpyHostToDevice);
+	cudaMemcpy( d_o, h_o, sizeOutput2, cudaMemcpyHostToDevice);
 
 	dim3 dimBlock( BLOCK_SIZE, 1 );
 	dim3 dimGrid( ceil(  ((float)N)/BLOCK_SIZE), 1 );
 
-	partialSum<<< dimGrid, BLOCK_SIZE>>> (d_a, d_o, N);
+	partialSum<<< dimGrid, BLOCK_SIZE>>> (d_a, d_b, N);
 
-	cudaMemcpy( h_a, d_a, sizeInput, cudaMemcpyDeviceToHost );
+	partialSum<<< dimGrid, BLOCK_SIZE>>> (d_b, d_o, N);
+
 	cudaMemcpy( h_o, d_o, sizeOutput, cudaMemcpyDeviceToHost );
 
 	cudaFree(d_a);
+	cudaFree(d_b);
 	cudaFree(d_o);
 
-	printf("MATRIX AFTER\n\t");
-	for (i = 0; i < Noutput; i++) {
+
+    printf("MATRIX AFTER 2\n\t");
+	for (i = 0; i < Noutput2; i++) {
       cout << "h_o[" << i << "]=" << h_o[i] << endl;
     } 
     free(h_a);
