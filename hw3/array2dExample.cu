@@ -1,3 +1,12 @@
+/*
+
+FIRST WORKING EXAMPLE WITH CUDA AND 2D ARRAYS!!
+
+Code has been modified from its original source
+http://stackoverflow.com/questions/17762186/cuda-reduction-in-2d-array
+
+*/
+
 
 #include <stdio.h>
 #include <iostream>
@@ -7,11 +16,6 @@ using namespace std;
 
 __global__ void 
 add(float *g, float *o, const int dimx, const int dimy, const int value) {
-
-	//extern __shared__ float sdata[];
-
-	//unsigned int tid_x = threadIdx.x;
-	//unsigned int tid_y = threadIdx.y;
 
 	unsigned int i = blockDim.x * blockIdx.x + threadIdx.x;
 	unsigned int j = blockDim.y * blockIdx.y + threadIdx.y; 

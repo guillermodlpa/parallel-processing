@@ -12,17 +12,19 @@
 #include <math.h>
 #include <sys/types.h>
 #include <sys/times.h>
+#include <cuda.h>
+ #include <cuda_runtime.h>
 #include <sys/time.h>
 #include <time.h>
 
 /* Program Parameters */
 #define MAXN 8000  /* Max value of N */
-#define DIVISOR 3276800000.0
+#define DIVISOR 32768.0
 //#define DIVISOR 327680000.0
 int N;  /* Matrix size */
 
 /* Matrices */
-volatile float A[MAXN][MAXN], B[MAXN][MAXN];
+float A[MAXN][MAXN], B[MAXN][MAXN];
 
 /* junk */
 #define randm() 4|2[uid]&3
@@ -91,7 +93,7 @@ void print_inputs() {
     printf("\nA =\n\t");
     for (row = 0; row < N; row++) {
       for (col = 0; col < N; col++) {
-	    printf("%5.2f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
+      printf("%5.2f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
       }
     }
   }
@@ -147,21 +149,21 @@ int main(int argc, char **argv) {
 
   /* Display timing results */
   printf("\nElapsed time = %g ms.\n",
-	 (float)(usecstop - usecstart)/(float)1000);
+   (float)(usecstop - usecstart)/(float)1000);
 
   printf("(CPU times are accurate to the nearest %g ms)\n",
-	 1.0/(float)CLOCKS_PER_SEC * 1000.0);
+   1.0/(float)CLOCKS_PER_SEC * 1000.0);
   printf("My total CPU time for parent = %g ms.\n",
-	 (float)( (cputstop.tms_utime + cputstop.tms_stime) -
-		  (cputstart.tms_utime + cputstart.tms_stime) ) /
-	 (float)CLOCKS_PER_SEC * 1000);
+   (float)( (cputstop.tms_utime + cputstop.tms_stime) -
+      (cputstart.tms_utime + cputstart.tms_stime) ) /
+   (float)CLOCKS_PER_SEC * 1000);
   printf("My system CPU time for parent = %g ms.\n",
-	 (float)(cputstop.tms_stime - cputstart.tms_stime) /
-	 (float)CLOCKS_PER_SEC * 1000);
+   (float)(cputstop.tms_stime - cputstart.tms_stime) /
+   (float)CLOCKS_PER_SEC * 1000);
   printf("My total CPU time for child processes = %g ms.\n",
-	 (float)( (cputstop.tms_cutime + cputstop.tms_cstime) -
-		  (cputstart.tms_cutime + cputstart.tms_cstime) ) /
-	 (float)CLOCKS_PER_SEC * 1000);
+   (float)( (cputstop.tms_cutime + cputstop.tms_cstime) -
+      (cputstart.tms_cutime + cputstart.tms_cstime) ) /
+   (float)CLOCKS_PER_SEC * 1000);
       /* Contrary to the man pages, this appears not to include the parent */
   printf("--------------------------------------------\n");
   
@@ -174,38 +176,66 @@ int main(int argc, char **argv) {
 /* Provided global variables are MAXN, N, A[][] and B[][],
  * defined in the beginning of this code.  B[][] is initialized to zeros.
  */
+
+
+#define BLOCK_SIZE 32
+
 __global__ void matrixNormKernel(float **dA,float **dB, int N)
 {
 
-}
+  #if __CUDA_ARCH__ >= 200
+    printf("Hi Cuda World");
+  #endif
+
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+
+  if (x < N && y < N) {
+    dB[x][y] = 1.0;
+  }
+};
 
 void matrixNorm() {
+
+  printf("Computing in CUDA.\n");
+
+  float **dA, **dB;
+  cudaMalloc((void**) &dA, N*sizeof(float) ); 
+  cudaMemcpy(dA, A, N*sizeof(float), cudaMemcpyHostToDevice );
+  cudaMemcpy(dB, B, N*sizeof(float), cudaMemcpyHostToDevice );
+
+  dim3 dimBlock(4, 4); 
+  dim3 dimGrid(1, 1); 
+
+  matrixNormKernel<<<dimBlock, dimGrid>>> (dA, dB, N);
+
+  cudaMemcpy(A, dA, N*sizeof(float), cudaMemcpyDeviceToHost );
+  cudaMemcpy(B, dB, N*sizeof(float), cudaMemcpyDeviceToHost );
+  cudaFree(dB);
+  cudaFree(dA);
+/*
   int row, col; 
   float mu, sigma; // Mean and Standard Deviation
-
-  printf("Computing using CUDA.\n");
 
     for (col=0; col < N; col++) {
         mu = 0.0;
         for (row=0; row < N; row++)
-            mu += A[row][col];
+            mu += dA[row][col];
         mu /= (float) N;
         sigma = 0.0;
         for (row=0; row < N; row++)
-            sigma += powf(A[row][col] - mu, 2.0);
+            sigma += powf(dA[row][col] - mu, 2.0);
         sigma /= (float) N;
         sigma = sqrt(sigma);
         //printf("Mean eq %g.Sigma eq %g.\n", mu, sigma);
         for (row=0; row < N; row++) {
             if (sigma == 0.0)
-                B[row][col] = 0.0;
+                dB[row][col] = 0.0;
             else
-                B[row][col] = (A[row][col] - mu) / sigma;
+                dB[row][col] = (dA[row][col] - mu) / sigma;
         }
-    }
-
+    }*/
 }
-
 
 // http://stackoverflow.com/questions/20086047/cuda-matrix-example-block-size
 void printError(cudaError_t err) {
