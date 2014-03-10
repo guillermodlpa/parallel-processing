@@ -323,7 +323,7 @@ printf("3\n\t");
   }
   printf("4\n\t");
   printError( cudaMemcpy( A, d_A, sizeSums, cudaMemcpyDeviceToHost ) );
-  printError( cudaMemcpy( h_sums, d_sums2, sizeSums, cudaMemcpyDeviceToHost ) );
+  printError( cudaMemcpy( h_sums, d_sums2, sizeSums2, cudaMemcpyDeviceToHost ) );
 
   printError( cudaFree(d_A) );
   printError( cudaFree(d_B) );
