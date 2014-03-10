@@ -247,12 +247,21 @@ void matrixNorm() {
   int size = N*N*sizeof(float);
   int Nmeans = ceil( ((float)N) / (BLOCK_SIZE<<1));
   int sizeMeans = N*Nmeans*sizeof(float);
+  int row, col;
 
   float *d_means, *d_A, *d_B, *h_means;
 
   h_means = (float*)malloc(sizeMeans);
-  for (int i=0; i < N; i++){   
-      h_means[i]=0;
+  for (int i=0; i < Noutput; i++)
+      for (int j=0; j < N; j++)
+         h_means[i*Nmeans+j]=0;
+
+       printf("MATRIX BEFORE\n\t");
+  
+  for (row = 0; row < Nmeans; row++) {
+      for (col = 0; col < N; col++) {
+          printf("%1.1f%s", h_means[row +N*col], (col < N-1) ? ", " : ";\n\t");
+      }
   }
 
   cudaMalloc( (void**)&d_A, size );
@@ -273,7 +282,7 @@ void matrixNorm() {
   cudaFree(d_means);
 
   printf("MATRIX AFTER\n\t");
-  int row, col;
+  
   for (row = 0; row < Nmeans; row++) {
       for (col = 0; col < N; col++) {
           printf("%1.1f%s", h_means[row +N*col], (col < N-1) ? ", " : ";\n\t");
