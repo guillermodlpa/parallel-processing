@@ -69,7 +69,7 @@ main()
 	float *d_a, *h_a, *d_b, *h_o, *d_o;
 
 	h_a = (float*)malloc(sizeInput);
-	h_o = (float*)malloc(sizeOutput);
+	h_o = (float*)malloc(sizeOutput2);
 
 	for (int i=0; i < N; i++){   
 	    h_a[i]=1;
