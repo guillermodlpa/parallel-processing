@@ -178,7 +178,7 @@ int main(int argc, char **argv) {
 #define BLOCK_SIZE 32;
 
 __global__ void 
-partialSum(float *input, float *output, const int N) {
+partialSum(float *input, float *output, const int N, const int Nmeans) {
 
   // Load a segment of the input vector into shared memory
   // This is because the entire array might be too big and is stored into the global memory
@@ -215,7 +215,7 @@ partialSum(float *input, float *output, const int N) {
     // After the loop, the partial sum is found in partialSum[0]
     // So we have to put it in the output array
     if (t == 0)
-       output[blockIdx.x + y*N] = partialSum[0 + y*N];
+       output[blockIdx.x + y*Nmeans] = partialSum[0 + y*N];
 }
 
 
@@ -242,7 +242,7 @@ void matrixNorm() {
   dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
   dim3 dimGrid( ceil(((float)N)/BLOCK_SIZE), ceil(((float)N)/BLOCK_SIZE) );
 
-  partialSum<<< dimGrid, BLOCK_SIZE>>> (d_A, d_means, N);
+  partialSum<<< dimGrid, BLOCK_SIZE>>> (d_A, d_means, N, Nmeans);
 
   cudaMemcpy( h_means, d_means, sizeMeans, cudaMemcpyDeviceToHost );
 
