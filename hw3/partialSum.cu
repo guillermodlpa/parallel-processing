@@ -15,12 +15,7 @@ partialSum(float *partialSum, const int N) {
 
 		__syncthreads();
 		if (t < stride) {
-			int i = 1;
-			do {
-				partialSum[t] += partialSum[t+stride*i];
-				i++;
-			} while ( t+stride*i < N/(i*i) );
-
+			partialSum[t] += partialSum[t+stride*i];
 		}
 			
 	}
@@ -55,7 +50,7 @@ main()
 	cudaMemcpy( d_a, h_a, num_bytes, cudaMemcpyHostToDevice);
 
 
-	partialSum<<< ceil(N / 4), 4>>> (d_a, N);
+	partialSum<<< ceil(N / 6), 6>>> (d_a, N);
 
 	cudaMemcpy( h_a, d_a, num_bytes, cudaMemcpyDeviceToHost );
 
