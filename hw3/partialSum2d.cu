@@ -115,9 +115,9 @@ main()
 
 	dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
 	dim3 dimGrid( ceil(  ((float)N)/BLOCK_SIZE), ceil(  ((float)N)/BLOCK_SIZE) );
-  printf("MATRIX A BEFORE\n\t");
+
 	partialSum<<< dimGrid, dimBlock>>> (d_a, d_o, N, Noutput);
-  printf("MATRIX A BEFORE\n\t");
+
 	printError( cudaMemcpy( h_a, d_a, sizeInput, cudaMemcpyDeviceToHost ) );
 	printError( cudaMemcpy( h_o, d_o, sizeOutput, cudaMemcpyDeviceToHost ) );
 
@@ -128,8 +128,7 @@ main()
 	for (row = 0; row < Noutput; row++)
     for (col=0; col < N; col++)
       printf("%1.1f%s", h_o[row+col*Noutput], (col < N-1) ? ", " : ";\n\t");
-    free(h_a);
-    free(h_o);
+
 }
 
 
