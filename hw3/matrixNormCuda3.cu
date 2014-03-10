@@ -195,7 +195,7 @@ The code there has been studied, as the comments indicate
 The code had to be adapted to operate with arrays of different dimensions, 
 as well as to operate adding columns instead of rows
 */
-__global__ void partialSum(float * input, float * output, const int N, const int Nmeans) {
+__global__ void partialSum1(float * input, float * output, const int N, const int Nmeans) {
 
     // Load a segment of the input vector into shared memory
     __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
@@ -225,6 +225,51 @@ __global__ void partialSum(float * input, float * output, const int N, const int
     // The same for the last element of the block, the other value that we're going to sum up
     if (start + BLOCK_SIZE + ty < N)
        partialSum[BLOCK_SIZE + ty + column] = input[ (start + BLOCK_SIZE + ty)*MAXN + x ];
+    else
+       partialSum[BLOCK_SIZE + ty + column] = 0;  
+
+    // Perform the partial sum
+    for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
+       __syncthreads();
+       if (ty < stride)
+          partialSum[ty + column] += partialSum[ty+stride + column];
+    }
+    // After the loop, the partial sum is found in partialSum[0]
+    // So we have to put it in the output array
+    if (ty == 0)
+       output[blockIdx.y*N + x] = partialSum[column];
+}
+
+__global__ void partialSum2(float * input, float * output, const int N, const int Nmeans) {
+
+    // Load a segment of the input vector into shared memory
+    __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
+
+    // Position variables
+    unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int ty = threadIdx.y;
+    unsigned int tx = threadIdx.x;
+
+    // Where does the calculation start for this iteration, based on the block X position
+    unsigned int start = 2 * blockIdx.y * BLOCK_SIZE;
+
+    // column modifier that we apply to partialSum[]
+    unsigned int column = 2 * BLOCK_SIZE * tx;
+
+    // Verify that we are inside the array, so CUDA won't throw errors
+    if ( y >= N || x >= N )
+      return;
+
+    // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
+    if (start + ty < N)
+       partialSum[ ty + column ] = input[ (start + ty)*N + x ];
+    else
+       partialSum[ ty + column ] = 0;
+
+    // The same for the last element of the block, the other value that we're going to sum up
+    if (start + BLOCK_SIZE + ty < N)
+       partialSum[BLOCK_SIZE + ty + column] = input[ (start + BLOCK_SIZE + ty)*N + x ];
     else
        partialSum[BLOCK_SIZE + ty + column] = 0;  
 
@@ -293,6 +338,7 @@ void matrixNorm() {
   printError( cudaMalloc( (void**)&d_A, size ) );
   printError( cudaMalloc( (void**)&d_B, size ) );
   printError( cudaMalloc( (void**)&d_sums, sizeSums ) );
+  printError( cudaMalloc( (void**)&d_sums2, sizeSums2 ) );
 
   printError( cudaMemcpy( d_A, A, size, cudaMemcpyHostToDevice) );
   printError( cudaMemcpy( d_sums, h_sums, sizeSums, cudaMemcpyHostToDevice ));
@@ -303,31 +349,37 @@ void matrixNorm() {
   dim3 dimGrid( gridSize, gridSize);
 
   // First iteration
-  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N, Nsums);
+  partialSum1<<< dimGrid, dimBlock>>> (d_A, d_sums, N, Nsums);
 
   // Second iteration in case the output isn't a single value
-  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N, Nsums);
+  partialSum2<<< dimGrid, dimBlock>>> (d_sums, d_sums2, N, Nsums2);
 
   printError( cudaMemcpy( A, d_A, sizeSums, cudaMemcpyDeviceToHost ) );
   printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
+  printError( cudaMemcpy( h_sums2, d_sums2, sizeSums, cudaMemcpyDeviceToHost ) );
 
   printError( cudaFree(d_A) );
   printError( cudaFree(d_B) );
   printError( cudaFree(d_sums) );
+  printError( cudaFree(d_sums2) );
 
   printf("MATRIX h_sums AFTER\n\t");
-  for (row = 0; row < Nsums; row++) {
-      for (col = 0; col < N; col++) {
+  for (row = 0; row < Nsums; row++)
+      for (col = 0; col < N; col++)
           printf("%1.2f%s", h_sums[row*N + col], (col < N-1) ? ", " : ";\n\t");
-      }
-  }
 
+  printf("MATRIX h_sums2 AFTER\n\t");
+  for (row = 0; row < Nsums2; row++)
+      for (col = 0; col < N; col++)
+          printf("%1.2f%s", h_sums2[row*N + col], (col < N-1) ? ", " : ";\n\t");
+
+/*
   printf("MATRIX A AFTER\n\t");
   for (row = 0; row < N; row++) {
       for (col = 0; col < N; col++) {
           printf("%1.1f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
       }
-  }
+  }*/
 
 }
 
