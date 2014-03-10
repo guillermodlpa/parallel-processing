@@ -34,7 +34,7 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
     // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
     if (start + t < N)
        //partialSum[t+ty*BLOCK_SIZE] = input[start + t +y*N];
-      partialSum[t+ty*BLOCK_SIZE] = input[start + t];
+      partialSum[t] = input[start + t];
     else
        //partialSum[t+ty*BLOCK_SIZE] = 0;
       partialSum[t] = 0;
