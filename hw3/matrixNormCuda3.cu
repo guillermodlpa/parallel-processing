@@ -312,8 +312,8 @@ void matrixNorm() {
 
   float *means;
   means = (float*)malloc( N*sizeof(float) );
-  for ( int i = 0; i < N; i++ )
-    for ( int j = 0; j < Nsums; j++ )
+  for ( int i = 0; i < Nsums; i++ )
+    for ( int j = 0; j < N; j++ )
       means[i] += h_sums[i*N+j];
 
   printError( cudaFree(d_A) );
