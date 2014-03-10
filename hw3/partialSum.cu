@@ -69,7 +69,10 @@ main()
 {   
 	int N = 25;
 	int sizeInput = N*sizeof(float);
-	int sizeOutput = ceil( ((float)N) / (BLOCK_SIZE<<1)) *sizeof(float);
+	int Noutput = ceil( ((float)N) / (BLOCK_SIZE<<1));
+	int sizeOutput = Noutput*sizeof(float);
+
+	cout << "Noutput " << Noutput << endl;
 
 	float *d_a, *h_a, *h_o, *d_o;
 
@@ -77,7 +80,7 @@ main()
 	h_o = (float*)malloc(sizeOutput);
 
 	for (int i=0; i < N; i++){   
-	    h_a[i]=0; h_o[i]=0;
+	    h_a[i]=0;
 	}
 
 	h_a[0]=1; 
