@@ -211,9 +211,9 @@ void matrixNorm() {
   int sizeSums = BLOCK_SIZE*BLOCK_SIZE*sizeof(float);
   int row, col;
 
-  float *d_sums, *d_A, *d_B, *h_sums;
+  float *d_sums, *d_A, *d_B;
 
-  h_sums = new float [BLOCK_SIZE][BLOCK_SIZE];
+  float h_sums = new float [BLOCK_SIZE][BLOCK_SIZE];
 
   for (int i=0; i < BLOCK_SIZE; i++)
       for (int j=0; j < BLOCK_SIZE; j++)
