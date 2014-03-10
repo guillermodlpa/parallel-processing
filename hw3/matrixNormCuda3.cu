@@ -303,17 +303,15 @@ void matrixNorm() {
   printError( cudaMalloc( (void**)&d_A, size ) );
   printError( cudaMalloc( (void**)&d_B, size ) );
   printError( cudaMalloc( (void**)&d_sums, sizeSums ) );
-
+printf("2\n\t");
   printError( cudaMemcpy( d_A, A, size, cudaMemcpyHostToDevice) );
   printError( cudaMemcpy( d_sums, h_sums, sizeSums, cudaMemcpyHostToDevice ));
-
-
 
   int gridSize = ceil(((float)N)/BLOCK_SIZE);
 
   dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
   dim3 dimGrid( gridSize, gridSize);
-
+printf("3\n\t");
   // First iteration
   partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N, Nsums);
 
@@ -323,7 +321,7 @@ void matrixNorm() {
     printError( cudaMemcpy( d_A, A, size, cudaMemcpyHostToDevice) );
     partialSum<<< dimGrid, dimBlock>>> (d_sums, d_sums2, N, Nsums2);
   }
-  
+  printf("4\n\t");
   printError( cudaMemcpy( A, d_A, sizeSums, cudaMemcpyDeviceToHost ) );
   printError( cudaMemcpy( h_sums, d_sums2, sizeSums, cudaMemcpyDeviceToHost ) );
 
