@@ -33,7 +33,7 @@ main()
 	    h_a[i]=0;
 	}
 
-	h_a[0]=1; h_a[1]=3;h_a[2]=2;
+	h_a[0]=1; h_a[1]=3;h_a[2]=2;h_a[3]=1; h_a[4]=3;h_a[5]=2;h_a[6]=0.5;
 
 	printf("MATRIX BEFORE\n\t");
     int i;
