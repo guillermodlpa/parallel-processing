@@ -239,7 +239,7 @@ __global__ void partialSum(float * input, float * output, const int Nx, const in
     // After the loop, the partial sum is found in partialSum[0]
     // So we have to put it in the output array
     if (ty == 0)
-       output[blockIdx.y*Nx + x] = partialSum[column];
+       output[blockIdx.y*Ny + x] = partialSum[column];
 }
 
 
