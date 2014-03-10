@@ -203,7 +203,7 @@ partialSum(float *input, float *output, const int N, const int Nsums) {
     unsigned int t = threadIdx.x;
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned int y = 0;
-    unsigned int ty = 0;
+    unsigned int ty = threadIdx.y;
     unsigned int tx = threadIdx.x;
 
 
