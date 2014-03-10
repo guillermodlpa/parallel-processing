@@ -33,27 +33,27 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
 
     // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
     if (start + t < N)
-       partialSum[t+ty*2*BLOCK_SIZE] = input[start + t];
+       partialSum[t+y*2*BLOCK_SIZE] = input[start + t];
     else
-       partialSum[t+ty*2*BLOCK_SIZE] = 0;
+       partialSum[t+y*2*BLOCK_SIZE] = 0;
    
     // The same for the last element of the block, the other value that we're going to sum up
     if (start + BLOCK_SIZE + t < N)
-       partialSum[BLOCK_SIZE + t+ty*2*BLOCK_SIZE] = input[start + BLOCK_SIZE + t +ty*2*BLOCK_SIZE];
+       partialSum[BLOCK_SIZE + t+y*2*BLOCK_SIZE] = input[start + BLOCK_SIZE + t +y*2*BLOCK_SIZE];
     else
-       partialSum[BLOCK_SIZE + t+ty*2*BLOCK_SIZE] = 0;
+       partialSum[BLOCK_SIZE + t+y*2*BLOCK_SIZE] = 0;
    
     // Perform the partial sum
     for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
        __syncthreads();
        if (t < stride)
-          partialSum[t+ty*2*BLOCK_SIZE] += partialSum[t+stride+ty*2*BLOCK_SIZE];
+          partialSum[t+y*2*BLOCK_SIZE] += partialSum[t+stride+y*2*BLOCK_SIZE];
     }
 
     // After the loop, the partial sum is found in partialSum[0]
     // So we have to put it in the output array
     if (t == 0)
-       output[blockIdx.x + ty*Noutput] = partialSum[0+ty*2*BLOCK_SIZE];
+       output[blockIdx.x + y*Noutput] = partialSum[0+y*2*BLOCK_SIZE];
 }
 
 
