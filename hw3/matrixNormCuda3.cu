@@ -297,7 +297,6 @@ void matrixNorm() {
 
   printError( cudaMemcpy( d_A, A, size, cudaMemcpyHostToDevice) );
   printError( cudaMemcpy( d_sums, h_sums, sizeSums, cudaMemcpyHostToDevice ));
-  printError( cudaMemcpy( d_sums2, h_sums2, sizeSums2, cudaMemcpyHostToDevice ));
 
   int gridSize = ceil(((float)N)/BLOCK_SIZE);
 
