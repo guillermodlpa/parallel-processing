@@ -203,7 +203,7 @@ partialSum(float *input, float *output, const int N) {
     if ( y >= N || x >= N )
       return;
 
-    output[ tx + ty*BLOCK_SIZE ] = input [ x ];
+    output[ tx + ty*BLOCK_SIZE ] += input [ x + y*N ];
 
 }
 
@@ -215,16 +215,16 @@ void matrixNorm() {
 
   // CALCULATING MEAN
   int size = N*N*sizeof(float);
-  int sizeSums = BLOCK_SIZE*BLOCK_SIZE*sizeof(float);
+  int sizeSums = N*BLOCK_SIZE*sizeof(float);
   int row, col;
 
   float *d_sums, *d_A, *d_B;
 
   //Get user input into size;
-  float (*h_sums)[BLOCK_SIZE] = new float[BLOCK_SIZE][BLOCK_SIZE];
+  float (*h_sums)[BLOCK_SIZE] = new float[N][BLOCK_SIZE];
 
   for (int i=0; i < BLOCK_SIZE; i++)
-      for (int j=0; j < BLOCK_SIZE; j++)
+      for (int j=0; j < N; j++)
          h_sums[i][j]=0;
 
   printf("MATRIX h_sums BEFORE\n\t");
@@ -254,7 +254,7 @@ void matrixNorm() {
 
   printf("MATRIX h_sums AFTER\n\t");
   for (row = 0; row < BLOCK_SIZE; row++) {
-      for (col = 0; col < BLOCK_SIZE; col++) {
+      for (col = 0; col < N; col++) {
           printf("%1.2f%s", h_sums[row][col], (col < BLOCK_SIZE-1) ? ", " : ";\n\t");
       }
   }
