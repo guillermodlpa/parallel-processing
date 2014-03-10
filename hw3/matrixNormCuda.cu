@@ -172,13 +172,94 @@ int main(int argc, char **argv) {
 
 /****** You will replace this routine with your own parallel version *******/
 /* Provided global variables are MAXN, N, A[][] and B[][],
- * defined in the beginning of this code.  B[][] is initialized to zeros.
+ * defined in the beginning of this code.  B[][] is initialized to zeros.;
  */
-__global__ void matrixNormKernel(float **dA,float **dB, int N)
-{
 
+#define BLOCK_SIZE 32;
+
+__global__ void 
+partialSum(float *input, float *output, const int N) {
+
+  // Load a segment of the input vector into shared memory
+  // This is because the entire array might be too big and is stored into the global memory
+    __shared__ float partialSum[2 * BLOCK_SIZE][2 * BLOCK_SIZE];
+
+    // Position in the input array
+    unsigned int t = threadIdx.x;
+
+    unsigned int y = blockDim.y * blockIdx.y + threadIdx.y; 
+
+    // Start is the beining of the current calculations
+    // If blockIdx is not 0, then the result will go to the blockIdx position of the output array
+    unsigned int start = 2 * blockIdx.x * BLOCK_SIZE;
+
+    // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
+    if (start + t < N)
+       partialSum[t][y] = input[start + t][y];
+    else
+       partialSum[t][y] = 0;
+   
+    // The same for the last element of the block, the other value that we're going to sum up
+    if (start + BLOCK_SIZE + t < N)
+       partialSum[BLOCK_SIZE + t][y] = input[start + BLOCK_SIZE + t][y];
+    else
+       partialSum[BLOCK_SIZE + t][y] = 0;
+   
+    // Perform the partial sum
+    for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
+       __syncthreads();
+       if (t < stride)
+          partialSum[t][y] += partialSum[t+stride][y];
+    }
+
+    // After the loop, the partial sum is found in partialSum[0]
+    // So we have to put it in the output array
+    if (t == 0)
+       output[blockIdx.x][y] = partialSum[0][y];
 }
 
+
+
+void matrixNorm() {
+
+  printf("Computing using CUDA.\n");
+
+  // CALCULATING MEAN
+  int size = N*N*sizeof(float);
+  int Nmeans = ceil( ((float)N) / (BLOCK_SIZE<<1));
+  int sizeMeans = N*Nmeans*sizeof(float);
+
+  float *d_means, *d_A, *d_B, *h_means;
+
+  h_means = (float*)malloc(sizeMeans);
+
+  cudaMalloc( (void**)&d_A, sizeInput );
+  cudaMalloc( (void**)&d_B, sizeInput );
+  cudaMalloc( (void**)&d_means, sizeMeans );
+
+  cudaMemcpy( d_A, A, size, cudaMemcpyHostToDevice);
+
+  dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
+  dim3 dimGrid( ceil(((float)N)/BLOCK_SIZE), ceil(((float)N)/BLOCK_SIZE) );
+
+  partialSum<<< dimGrid, BLOCK_SIZE>>> (d_A, d_means, N);
+
+  cudaMemcpy( h_means, d_means, sizeMeans, cudaMemcpyDeviceToHost );
+
+  cudaFree(d_A);
+  cudaFree(d_B);
+  cudaFree(d_means);
+
+  printf("MATRIX AFTER\n\t");
+  int row, col;
+  for (row = 0; row < N; row++) {
+      for (col = 0; col < N; col++) {
+          printf("%1.10f%s", h_means[row][col], (col < N-1) ? ", " : ";\n\t");
+      }
+  }
+
+}
+/*
 void matrixNorm() {
   int row, col; 
   float mu, sigma; // Mean and Standard Deviation
@@ -204,7 +285,7 @@ void matrixNorm() {
         }
     }
 
-}
+}*/
 
 
 // http://stackoverflow.com/questions/20086047/cuda-matrix-example-block-size

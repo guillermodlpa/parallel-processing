@@ -59,17 +59,13 @@ main()
 {   
 	int N = 25;
 	int sizeInput = N*sizeof(float);
+	int Noutput = ceil( ((float)N) / (BLOCK_SIZE<<1));
+	int sizeOutput = Noutput*sizeof(float);
 
-	int Noutput1 = ceil( ((float)N) / (BLOCK_SIZE<<1));
-	int sizeOutput1 = Noutput1*sizeof(float);
-
-	int Noutput2 = ceil( ((float)Noutput1) / (BLOCK_SIZE<<1));
-	int sizeOutput2 = Noutput1*sizeof(float);
-
-	float *d_a, *h_a, *d_b, *h_o, *d_o;
+	float *d_a, *h_a, *h_o, *d_o;
 
 	h_a = (float*)malloc(sizeInput);
-	h_o = (float*)malloc(sizeOutput2);
+	h_o = (float*)malloc(sizeOutput);
 
 	for (int i=0; i < N; i++){   
 	    h_a[i]=1;
@@ -82,27 +78,23 @@ main()
     } 
 
 	cudaMalloc( (void**)&d_a, sizeInput );
-	cudaMalloc( (void**)&d_b, sizeOutput1 );
-	cudaMalloc( (void**)&d_o, sizeOutput2 );
+	cudaMalloc( (void**)&d_o, sizeOutput );
 	cudaMemcpy( d_a, h_a, sizeInput, cudaMemcpyHostToDevice);
-	cudaMemcpy( d_o, h_o, sizeOutput2, cudaMemcpyHostToDevice);
+	cudaMemcpy( d_o, h_o, sizeOutput, cudaMemcpyHostToDevice);
 
 	dim3 dimBlock( BLOCK_SIZE, 1 );
 	dim3 dimGrid( ceil(  ((float)N)/BLOCK_SIZE), 1 );
 
-	partialSum<<< dimGrid, BLOCK_SIZE>>> (d_a, d_b, N);
+	partialSum<<< dimGrid, BLOCK_SIZE>>> (d_a, d_o, N);
 
-	partialSum<<< dimGrid, BLOCK_SIZE>>> (d_b, d_o, N);
-
-	cudaMemcpy( h_o, d_o, sizeOutput2, cudaMemcpyDeviceToHost );
+	cudaMemcpy( h_a, d_a, sizeInput, cudaMemcpyDeviceToHost );
+	cudaMemcpy( h_o, d_o, sizeOutput, cudaMemcpyDeviceToHost );
 
 	cudaFree(d_a);
-	cudaFree(d_b);
 	cudaFree(d_o);
 
-
-    printf("MATRIX AFTER 2\n\t");
-	for (i = 0; i < Noutput2; i++) {
+	printf("MATRIX AFTER\n\t");
+	for (i = 0; i < Noutput; i++) {
       cout << "h_o[" << i << "]=" << h_o[i] << endl;
     } 
     free(h_a);
