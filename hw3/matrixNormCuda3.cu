@@ -193,9 +193,7 @@ Inspired in the code found in https://gist.github.com/wh5a/4424992
 The code there has been studied, as the comments indicate
 */
 __global__ void 
-partialSum(float *input, float *output, const int N, const int gridSize) {
-
-    __shared__ float partialSum[BLOCK_SIZE*BLOCK_SIZE];
+partialSum(float *input, float *output, float *sumBlock, const int N, const int gridSize) {
 
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned int ty = threadIdx.y;
@@ -205,13 +203,13 @@ partialSum(float *input, float *output, const int N, const int gridSize) {
     if ( y >= N || x >= N )
       return;
 
-    partialSum[ y + tx*BLOCK_SIZE ] += input [ x*MAXN + y ];
+    sumBlock[ y + tx*BLOCK_SIZE ] += input [ x*MAXN + y ];
 
     __syncthreads();
 
     if ( blockIdx.x == gridSize-1  ) {
 
-      output[ y + tx*N ] = partialSum[ y + tx*BLOCK_SIZE ];
+      output[ y + tx*N ] = sumBlock[ y + tx*BLOCK_SIZE ];
 
     }
 }
@@ -257,7 +255,9 @@ void matrixNorm() {
   dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
   dim3 dimGrid( gridSize, gridSize);
 
-  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N, gridSize);
+  __shared__ float sumBlock[BLOCK_SIZE*BLOCK_SIZE];
+
+  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, sumBlock, N, gridSize);
 
   printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
 
