@@ -182,7 +182,7 @@ partialSum(float *input, float *output, const int N) {
 
   // Load a segment of the input vector into shared memory
   // This is because the entire array might be too big and is stored into the global memory
-    __shared__ float partialSum[2 * BLOCK_SIZE][2 * BLOCK_SIZE];
+    __shared__ float partialSum[2 * BLOCK_SIZE * N];
 
     // Position in the input array
     unsigned int t = threadIdx.x;
@@ -195,27 +195,27 @@ partialSum(float *input, float *output, const int N) {
 
     // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
     if (start + t < N)
-       partialSum[t][y] = input[start + t][y];
+       partialSum[t + y*N] = input[start + t + y*N];
     else
-       partialSum[t][y] = 0;
+       partialSum[t + y*N] = 0;
    
     // The same for the last element of the block, the other value that we're going to sum up
     if (start + BLOCK_SIZE + t < N)
-       partialSum[BLOCK_SIZE + t][y] = input[start + BLOCK_SIZE + t][y];
+       partialSum[BLOCK_SIZE + t + y*N] = input[start + BLOCK_SIZE + t + y*N];
     else
-       partialSum[BLOCK_SIZE + t][y] = 0;
+       partialSum[BLOCK_SIZE + t + y*N] = 0;
    
     // Perform the partial sum
     for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
        __syncthreads();
        if (t < stride)
-          partialSum[t][y] += partialSum[t+stride][y];
+          partialSum[t + y*N] += partialSum[t+stride + y*N];
     }
 
     // After the loop, the partial sum is found in partialSum[0]
     // So we have to put it in the output array
     if (t == 0)
-       output[blockIdx.x][y] = partialSum[0][y];
+       output[blockIdx.x + y*N] = partialSum[0 + y*N];
 }
 
 
