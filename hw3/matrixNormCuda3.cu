@@ -324,10 +324,14 @@ printf("3\n\t");
   printf("4\n\t");
   printError( cudaMemcpy( A, d_A, sizeSums, cudaMemcpyDeviceToHost ) );
   printError( cudaMemcpy( h_sums, d_sums2, sizeSums2, cudaMemcpyDeviceToHost ) );
-
+printf("5\n\t");
   printError( cudaFree(d_A) );
   printError( cudaFree(d_B) );
   printError( cudaFree(d_sums) );
+  printf("6\n\t");
+  if ( Nsums > 1 ) {
+    printError( cudaFree(d_sums2) );
+  }
 
   printf("MATRIX h_sums AFTER\n\t");
   for (row = 0; row < Nsums; row++) {
