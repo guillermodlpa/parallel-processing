@@ -73,7 +73,7 @@ main()
 
 	float *d_a, *h_a, *h_o, *d_o;
 
-	h_a = (float*)malloc(num_bytes);
+	h_a = (float*)malloc(sizeInput);
 	h_o = (float*)malloc(sizeOutput);
 
 	for (int i=0; i < N; i++){   
