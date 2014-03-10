@@ -242,7 +242,7 @@ partialSum(float *input, float *output, const int N, const int Nsums) {
     // So we have to put it in the output array
     if (t == 0)
        //output[blockIdx.x + y*Noutput] += partialSum[0+ty*BLOCK_SIZE];
-      output[blockIdx.x + y*Nsums] = -1 + partialSum[ty*2*BLOCK_SIZE];
+      output[blockIdx.x + y*Nsums] = partialSum[ty*2*BLOCK_SIZE];
 }
 
 
@@ -265,7 +265,7 @@ void matrixNorm() {
   h_sums = (float*)malloc(sizeSums);
   for (int i=0; i < Nsums; i++)
       for (int j=0; j < N; j++)
-          h_sums[i*N + j] = 0;
+          h_sums[i*N + j] = -1;
       
 
   printf("MATRIX h_sums BEFORE\n\t");
