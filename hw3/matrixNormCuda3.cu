@@ -230,14 +230,14 @@ void matrixNorm() {
       for (int j=0; j < BLOCK_SIZE; j++)
          h_sums[i][j]=0;
 
-       printf("MATRIX BEFORE\n\t");
-  
+  printf("MATRIX h_sums BEFORE\n\t");
   for (row = 0; row < BLOCK_SIZE; row++) {
       for (col = 0; col < BLOCK_SIZE; col++) {
           printf("%1.1f%s", h_sums[row][col], (col < N-1) ? ", " : ";\n\t");
       }
   }
 
+  printf("MATRIX A\n\t");
   for (row = 0; row < N; row++) {
       for (col = 0; col < N; col++) {
           printf("%1.1f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
@@ -262,8 +262,7 @@ void matrixNorm() {
   printError( cudaFree(d_B) );
   printError( cudaFree(d_sums) );
 
-  printf("MATRIX AFTER\n\t");
-  
+  printf("MATRIX h_sums AFTER\n\t");
   for (row = 0; row < BLOCK_SIZE; row++) {
       for (col = 0; col < BLOCK_SIZE; col++) {
           printf("%1.1f%s", h_sums[row][col], (col < N-1) ? ", " : ";\n\t");
@@ -271,31 +270,5 @@ void matrixNorm() {
   }
 
 }
-/*
-void matrixNorm() {
-  int row, col; 
-  float mu, sigma; // Mean and Standard Deviation
 
-  printf("Computing using CUDA.\n");
-
-    for (col=0; col < N; col++) {
-        mu = 0.0;
-        for (row=0; row < N; row++)
-            mu += A[row][col];
-        mu /= (float) N;
-        sigma = 0.0;
-        for (row=0; row < N; row++)
-            sigma += powf(A[row][col] - mu, 2.0);
-        sigma /= (float) N;
-        sigma = sqrt(sigma);
-        //printf("Mean eq %g.Sigma eq %g.\n", mu, sigma);
-        for (row=0; row < N; row++) {
-            if (sigma == 0.0)
-                B[row][col] = 0.0;
-            else
-                B[row][col] = (A[row][col] - mu) / sigma;
-        }
-    }
-
-}*/
 
