@@ -53,7 +53,7 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
     // After the loop, the partial sum is found in partialSum[0]
     // So we have to put it in the output array
     if (t == 0)
-       output[blockIdx.x + y*Noutput] = partialSum[0+ty*BLOCK_SIZE];
+       output[blockIdx.x + y*Noutput] =+ partialSum[0+ty*BLOCK_SIZE];
 }
 
 
@@ -94,8 +94,8 @@ main()
 	cudaMemcpy( d_a, h_a, sizeInput, cudaMemcpyHostToDevice);
 	cudaMemcpy( d_o, h_o, sizeOutput, cudaMemcpyHostToDevice);
 
-	dim3 dimBlock( BLOCK_SIZE, 1 );
-	dim3 dimGrid( ceil(((float)N)/BLOCK_SIZE), 1 );
+	dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
+	dim3 dimGrid( ceil(  ((float)N)/BLOCK_SIZE), ceil(  ((float)N)/BLOCK_SIZE) );
 
 	partialSum<<< dimGrid, dimBlock>>> (d_a, d_o, N, Noutput);
 
