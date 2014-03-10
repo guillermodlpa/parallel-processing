@@ -43,12 +43,12 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
 
     // Start is the beining of the current calculations
     // If blockIdx is not 0, then the result will go to the blockIdx position of the output array
-    unsigned int start = 2 * blockIdx.x * BLOCK_SIZE;
+    unsigned int start = 2 * blockIdx.y * BLOCK_SIZE;
 
     // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
     if (start + t < N)
        //partialSum[t+ty*BLOCK_SIZE] = input[start + t +y*N];
-      partialSum[t + tx*2*BLOCK_SIZE] = input[start + t + y*N];
+      partialSum[t + tx*2*BLOCK_SIZE] = input[start + t + x*N];
     else
        //partialSum[t+ty*BLOCK_SIZE] = 0;
       partialSum[t + tx*2*BLOCK_SIZE] = 0;
@@ -56,7 +56,7 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
     // The same for the last element of the block, the other value that we're going to sum up
     if (start + BLOCK_SIZE + t < N)
        //partialSum[BLOCK_SIZE + t+ty*BLOCK_SIZE] = input[start + BLOCK_SIZE + t +y*N];
-      partialSum[BLOCK_SIZE + t + tx*2*BLOCK_SIZE] = input[start + BLOCK_SIZE + t + y*N];
+      partialSum[BLOCK_SIZE + t + tx*2*BLOCK_SIZE] = input[start + BLOCK_SIZE + t + x*N];
     else
        //partialSum[BLOCK_SIZE + t+y*2*BLOCK_SIZE] = 0;
       partialSum[BLOCK_SIZE + t + tx*2*BLOCK_SIZE] = 0;
