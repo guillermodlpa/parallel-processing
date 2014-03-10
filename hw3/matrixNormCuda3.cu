@@ -200,8 +200,7 @@ partialSum(float *input, float *output, const int N) {
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned int tx = threadIdx.x;
 
-    if ( y >= N || x >= N )
-      return;
+    
 
     output[ y + tx*N ] += input [ x*N + y ];
 
