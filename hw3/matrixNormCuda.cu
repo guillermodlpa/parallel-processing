@@ -294,7 +294,7 @@ void matrixNorm() {
 
   for (row = 0; row < N; row++) {
       for (col = 0; col < N; col++) {
-          printf("%1.1f%s", A[N*row +col], (col < N-1) ? ", " : ";\n\t");
+          printf("%1.1f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
       }
   }
 
