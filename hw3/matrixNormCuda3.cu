@@ -243,8 +243,49 @@ partialSum(float *input, float *output, const int N, const int Nsums) {
 }
 */
 
+/**
+This function performs the adding of columns but only with the values from the first column
+It will be extended to perform adds in all columns
+*/
+/*
 __global__ void partialSum(float * input, float * output, const int N, const int Nmeans) {
 
+    //@@ Load a segment of the input vector into shared memory
+    __shared__ float partialSum[2 * BLOCK_SIZE];
+
+    unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int ty = threadIdx.y;
+    unsigned int tx = threadIdx.x;
+
+    unsigned int start = 2 * blockIdx.y * BLOCK_SIZE;
+
+    if ( y >= N || x >= N )
+      return;
+
+    if (start + ty < N)
+       partialSum[ty] = input[ (start + ty)*MAXN ];
+    else
+       partialSum[ty] = 0;
+
+    if (start + BLOCK_SIZE + ty < N)
+       partialSum[BLOCK_SIZE + ty] = input[ (start + BLOCK_SIZE + ty)*MAXN ];
+    else
+       partialSum[BLOCK_SIZE + ty] = 0;
+    //@@ Traverse the reduction tree
+    for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
+       __syncthreads();
+       if (ty < stride)
+          partialSum[ty] += partialSum[ty+stride];
+    }
+    //@@ Write the computed sum of the block to the output vector at the 
+    //@@ correct index
+    if (ty == 0)
+       output[blockIdx.y*N + x] = partialSum[0];
+}
+*/
+
+__global__ void partialSum(float * input, float * output, const int N, const int Nmeans) {
 
     //@@ Load a segment of the input vector into shared memory
     __shared__ float partialSum[2 * BLOCK_SIZE];
@@ -310,8 +351,12 @@ void matrixNorm() {
   }
 
   for (int i=0; i < N; i++)
-      for (int j=0; j < N; j++)
-          A[i][j] = i+1;
+      for (int j=0; j < N; j++) {
+        if ( i == 0 )
+          A[i][j] = i;
+        else
+          A[i][j] = 1;
+      }
 
   printf("MATRIX A BEFORE\n\t");
   for (row = 0; row < N; row++) {
