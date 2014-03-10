@@ -193,7 +193,7 @@ Inspired in the code found in https://gist.github.com/wh5a/4424992
 The code there has been studied, as the comments indicate
 */
 __global__ void 
-partialSum(float *input, float *output, const int N, const int gridSize) {
+partialSum(float *input, float *output, const int N) {
 
   // Load a segment of the input vector into shared memory
   // This is because the entire array might be too big and is stored into the global memory
@@ -242,7 +242,7 @@ partialSum(float *input, float *output, const int N, const int gridSize) {
     // So we have to put it in the output array
     if (t == 0)
        //output[blockIdx.x + y*Noutput] += partialSum[0+ty*BLOCK_SIZE];
-      output[blockIdx.x + y*Noutput] = partialSum[ty*2*BLOCK_SIZE];
+      output[blockIdx.x + y*N] = partialSum[ty*2*BLOCK_SIZE];
 }
 
 
@@ -297,7 +297,7 @@ void matrixNorm() {
   dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
   dim3 dimGrid( gridSize, gridSize);
 
-  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N, gridSize);
+  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N);
 
   printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
 
