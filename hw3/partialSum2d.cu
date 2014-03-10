@@ -97,6 +97,7 @@ main()
   float (*d_A)[N]; //pointers to arrays of dimension N
   float (*d_O)[N];
 
+  float *d_a, *d_o;
   /*
 	float *d_a, *h_a, *h_o, *d_o;
 *//*
