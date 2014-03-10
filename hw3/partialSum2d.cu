@@ -76,9 +76,9 @@ main()
 	
 
 	printf("MATRIX BEFORE\n\t");
-    int i;
-	for (i = 0; i < N; i++)
-    for (int j=0; j < N; j++)
+  int row, col;
+	for (row = 0; row < N; row++)
+    for (int col=0; col < N; col++)
       printf("%1.1f%s", h_a[row +N*col], (col < N-1) ? ", " : ";\n\t");
 
 	cudaMalloc( (void**)&d_a, sizeInput );
@@ -98,8 +98,8 @@ main()
 	cudaFree(d_o);
 
 	printf("MATRIX AFTER\n\t");
-	for (i = 0; i < Noutput; i++)
-    for (int j=0; j < N; j++)
+	for (row = 0; row < Noutput; row++)
+    for (int col=0; col < N; col++)
       printf("%1.1f%s", h_o[row +N*col], (col < N-1) ? ", " : ";\n\t");
     free(h_a);
     free(h_o);
