@@ -214,7 +214,7 @@ void matrixNorm() {
   printf("Computing using CUDA.\n");
 
   // CALCULATING MEAN
-  int size = N*N*sizeof(float);
+  int size = MAXN*MAXN*sizeof(float);
   int sizeSums = N*BLOCK_SIZE*sizeof(float);
   int row, col;
 
@@ -228,7 +228,6 @@ void matrixNorm() {
       for (int j=0; j < N; j++)
           h_sums[i*N + j] = 0;
       
-  
 
   printf("MATRIX h_sums BEFORE\n\t");
   for (row = 0; row < BLOCK_SIZE; row++) {
