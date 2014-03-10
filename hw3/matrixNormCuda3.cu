@@ -203,7 +203,7 @@ partialSum(float *input, float *output, const int N) {
     if ( y >= N || x >= N )
       return;
 
-    output[ tx + ty*BLOCK_SIZE ] += input [ x + y*N ];
+    output[ tx + ty*BLOCK_SIZE ] += input [ x ];
 
 }
 
