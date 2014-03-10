@@ -254,7 +254,7 @@ void matrixNorm() {
   h_means = (float*)malloc(sizeMeans);
   for (int i=0; i < Nmeans; i++)
       for (int j=0; j < N; j++)
-         h_means[i*Nmeans+j]=0;
+         h_means[i+j*Nmeans]=0;
 
        printf("MATRIX BEFORE\n\t");
   
