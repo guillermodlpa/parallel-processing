@@ -299,12 +299,3 @@ void matrixNorm() {
 
 }*/
 
-
-// http://stackoverflow.com/questions/20086047/cuda-matrix-example-block-size
-void printError(cudaError_t err) {
-    if(err != 0) {
-        printf("CUDA ERROR: %s\n", cudaGetErrorString(err));
-        getchar();
-    }
-}
-
