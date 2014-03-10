@@ -276,7 +276,7 @@ void matrixNorm() {
 
   partialSum<<< dimGrid, dimBlock>>> (d_A, d_means, N, Nmeans);
 
-  cudaMemcpy( h_means, d_means, size, cudaMemcpyDeviceToHost );
+  cudaMemcpy( h_means, d_means, sizeMeans, cudaMemcpyDeviceToHost );
 
   cudaFree(d_A);
   cudaFree(d_B);
