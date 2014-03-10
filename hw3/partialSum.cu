@@ -9,6 +9,10 @@ using namespace std;
 __global__ void 
 partialSum(float *partialSum, const int N) {
 
+	int x = blockIdx.x * blockDim.x + threadIdx.x;
+	if ( x >= N )
+		return;
+
 	unsigned int t = threadIdx.x;
 
 	for (unsigned int stride = N/2; stride > 0; stride >>= 1) {
