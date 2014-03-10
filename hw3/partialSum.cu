@@ -24,7 +24,7 @@ partialSum(float *partialSum, const int N) {
 int
 main()
 {   
-	int N = 16;
+	int N = 17;
 	int num_bytes = N*sizeof(float);
 
 	float *d_a, *h_a;
@@ -51,6 +51,7 @@ main()
 	h_a[13]=1;
 	h_a[14]=1;
 	h_a[15]=1;
+	h_a[16]=1;
 
 	printf("MATRIX BEFORE\n\t");
     int i;
