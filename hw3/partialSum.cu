@@ -50,7 +50,7 @@ main()
 	cudaMemcpy( d_a, h_a, num_bytes, cudaMemcpyHostToDevice);
 
 
-	partialSum<<< ceil(N / 6), 6>>> (d_a, N);
+	partialSum<<< ceil(N / 2), 2>>> (d_a, N);
 
 	cudaMemcpy( h_a, d_a, num_bytes, cudaMemcpyDeviceToHost );
 
