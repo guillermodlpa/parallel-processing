@@ -7,6 +7,15 @@ using namespace std;
 
 #define BLOCK_SIZE 8
 
+// http://stackoverflow.com/questions/20086047/cuda-matrix-example-block-size
+void printError(cudaError_t err) {
+    if(err != 0) {
+        printf("CUDA ERROR: %s\n", cudaGetErrorString(err));
+        getchar();
+    }
+}
+
+
 
 /**
 This function performs the partial sum of the given arrays
@@ -120,10 +129,3 @@ main()
 }
 
 
-// http://stackoverflow.com/questions/20086047/cuda-matrix-example-block-size
-void printError(cudaError_t err) {
-    if(err != 0) {
-        printf("CUDA ERROR: %s\n", cudaGetErrorString(err));
-        getchar();
-    }
-}
