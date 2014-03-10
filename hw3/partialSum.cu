@@ -39,6 +39,7 @@ partialSum(float *input, float *output, const int N) {
 }
 
 __global__ void total(float * input, float * output, int len) {
+
     //@@ Load a segment of the input vector into shared memory
     __shared__ float partialSum[2 * BLOCK_SIZE];
     unsigned int t = threadIdx.x, start = 2 * blockIdx.x * BLOCK_SIZE;
@@ -67,12 +68,13 @@ int
 main()
 {   
 	int N = 25;
-	int num_bytes = N*sizeof(float);
+	int sizeInput = N*sizeof(float);
+	int sizeOutput = ceil( ((float)N) / (BLOCK_SIZE<<1) *sizeof(float);
 
 	float *d_a, *h_a, *h_o, *d_o;
 
 	h_a = (float*)malloc(num_bytes);
-	h_o = (float*)malloc(num_bytes);
+	h_o = (float*)malloc(sizeOutput);
 
 	for (int i=0; i < N; i++){   
 	    h_a[i]=0; h_o[i]=0;
@@ -110,18 +112,18 @@ main()
       cout << "h_a[" << i << "]=" << h_a[i] << endl;
     } 
 
-	cudaMalloc( (void**)&d_a, num_bytes );
-	cudaMalloc( (void**)&d_o, num_bytes );
-	cudaMemcpy( d_a, h_a, num_bytes, cudaMemcpyHostToDevice);
-	cudaMemcpy( d_o, h_o, num_bytes, cudaMemcpyHostToDevice);
+	cudaMalloc( (void**)&d_a, sizeInput );
+	cudaMalloc( (void**)&d_o, sizeOutput );
+	cudaMemcpy( d_a, h_a, sizeInput, cudaMemcpyHostToDevice);
+	cudaMemcpy( d_o, h_o, sizeOutput, cudaMemcpyHostToDevice);
 
 	dim3 dimBlock( BLOCK_SIZE, 1 );
 	dim3 dimGrid( ceil(  ((float)N)/BLOCK_SIZE), 1 );
 
 	partialSum<<< dimGrid, BLOCK_SIZE>>> (d_a, d_o, N);
 
-	cudaMemcpy( h_a, d_a, num_bytes, cudaMemcpyDeviceToHost );
-	cudaMemcpy( h_o, d_o, num_bytes, cudaMemcpyDeviceToHost );
+	cudaMemcpy( h_a, d_a, sizeInput, cudaMemcpyDeviceToHost );
+	cudaMemcpy( h_o, d_o, sizeOutput, cudaMemcpyDeviceToHost );
 
 	cudaFree(d_a);
 	cudaFree(d_o);
