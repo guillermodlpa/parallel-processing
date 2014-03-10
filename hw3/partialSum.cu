@@ -65,7 +65,7 @@ main()
 
 	cudaMalloc( (void**)&d_a, num_bytes );
 	cudaMemcpy( d_a, h_a, num_bytes, cudaMemcpyHostToDevice);
-
+	cout << "Size of grid " << ceil(  ((float)N)/blocksize) << endl;
 	int blocksize = 8;
 	dim3 dimBlock( blocksize, 1 );
 	dim3 dimGrid( ceil(  ((float)N)/blocksize), 1 );
