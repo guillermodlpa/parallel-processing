@@ -68,7 +68,8 @@ main()
 
 	int blocksize = 8;
 	dim3 dimBlock( blocksize, 1 );
-	dim3 dimGrid( ceil(N/blocksize), 1 );
+	dim3 dimGrid( ceil(  ((float)N)/blocksize), 1 );
+
 	partialSum<<< dimGrid, blocksize>>> (d_a, N);
 
 	cudaMemcpy( h_a, d_a, num_bytes, cudaMemcpyDeviceToHost );
