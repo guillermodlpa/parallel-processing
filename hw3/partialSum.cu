@@ -19,7 +19,7 @@ partialSum(float *partialSum, const int N) {
 			do {
 				partialSum[t] += partialSum[t+stride*i];
 				i++;
-			} while ( t+stride*i < N )
+			} while ( t+stride*i < N );
 
 		}
 			
