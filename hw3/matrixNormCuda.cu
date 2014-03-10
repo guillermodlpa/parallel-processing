@@ -165,9 +165,6 @@ int main(int argc, char **argv) {
 	 (float)CLOCKS_PER_SEC * 1000);
       /* Contrary to the man pages, this appears not to include the parent */
   printf("--------------------------------------------\n");
-
-  free(A);
-  free(B);
   
   exit(0);
 }
@@ -233,7 +230,7 @@ void matrixNorm() {
   int Nmeans = ceil( ((float)N) / (BLOCK_SIZE<<1));
   int sizeMeans = N*Nmeans*sizeof(float);
 
-  float *d_means, *d_A, *d_B;
+  float *d_means, *d_A, *d_B, *h_means;
 
   cudaMalloc( (void**)&d_A, size );
   cudaMalloc( (void**)&d_B, size );
@@ -246,6 +243,8 @@ void matrixNorm() {
 
   partialSum<<< dimGrid, BLOCK_SIZE>>> (d_A, d_means, N, Nmeans);
 
+  cudaMemcpy( h_means, d_means, sizeMeans, cudaMemcpyDeviceToHost );
+
   cudaFree(d_A);
   cudaFree(d_B);
   cudaFree(d_means);
@@ -254,7 +253,7 @@ void matrixNorm() {
   int row, col;
   for (row = 0; row < N; row++) {
       for (col = 0; col < N; col++) {
-          printf("%1.10f%s", B[row][col], (col < N-1) ? ", " : ";\n\t");
+          printf("%1.10f%s", h_means[row][col], (col < N-1) ? ", " : ";\n\t");
       }
   }
 
