@@ -243,15 +243,15 @@ partialSum(float *input, float *output, const int N, const int Nsums) {
 }
 */
 
-__global__ void partialSum(float * input, float * output, const int len, const int Nmeans) {
+__global__ void partialSum(float * input, float * output, const int N, const int Nmeans) {
     //@@ Load a segment of the input vector into shared memory
     __shared__ float partialSum[2 * BLOCK_SIZE];
     unsigned int t = threadIdx.x, start = 2 * blockIdx.x * BLOCK_SIZE;
-    if (start + t < len)
+    if (start + t < N)
        partialSum[t] = input[start + t];
     else
        partialSum[t] = 0;
-    if (start + BLOCK_SIZE + t < len)
+    if (start + BLOCK_SIZE + t < N)
        partialSum[BLOCK_SIZE + t] = input[start + BLOCK_SIZE + t];
     else
        partialSum[BLOCK_SIZE + t] = 0;
@@ -264,7 +264,7 @@ __global__ void partialSum(float * input, float * output, const int len, const i
     //@@ Write the computed sum of the block to the output vector at the 
     //@@ correct index
     if (t == 0)
-       output[blockIdx.x] = partialSum[0];
+       output[blockIdx.x*N + y] = partialSum[0];
 }
 
 
