@@ -197,38 +197,42 @@ partialSum(float *input, float *output, const int N, const int gridSize) {
 
     // Load a segment of the input vector into shared memory
   // This is because the entire array might be too big and is stored into the global memory
-    __shared__ float partialSum[2 * BLOCK_SIZE];
+    __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
 
     // Position in the input array
-    unsigned int t = threadIdx.x;
+
+    unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int ty = threadIdx.y;
+    unsigned int tx = threadIdx.x;
 
     // Start is the beining of the current calculations
     // If blockIdx is not 0, then the result will go to the blockIdx position of the output array
-    unsigned int start = 2 * blockIdx.x * BLOCK_SIZE;
+    unsigned int start = 2 * blockIdx.y * BLOCK_SIZE;
 
     // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
-    if (start + t < N)
-       partialSum[t] = input[start + t];
+    if (start + ty < N)
+       partialSum[ty + tx*BLOCK_SIZE] = input[start + ty + x*NMAX];
     else
-       partialSum[t] = 0;
+       partialSum[ty + tx*BLOCK_SIZE] = 0;
    
     // The same for the last element of the block, the other value that we're going to sum up
-    if (start + BLOCK_SIZE + t < N)
-       partialSum[BLOCK_SIZE + t] = input[start + BLOCK_SIZE + t];
+    if (start + BLOCK_SIZE + ty < N)
+       partialSum[BLOCK_SIZE + ty + tx*BLOCK_SIZE] = input[start + BLOCK_SIZE + ty + x*NMAX];
     else
-       partialSum[BLOCK_SIZE + t] = 0;
+       partialSum[BLOCK_SIZE + ty + tx*BLOCK_SIZE] = 0;
    
     // Perform the partial sum
     for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
        __syncthreads();
-       if (t < stride)
-          partialSum[t] += partialSum[t+stride];
+       if (ty < stride)
+          partialSum[ty + tx*BLOCK_SIZE] += partialSum[ty + tx*BLOCK_SIZE + stride];
     }
 
     // After the loop, the partial sum is found in partialSum[0]
     // So we have to put it in the output array
-    if (t == 0)
-       output[blockIdx.x] = partialSum[0];
+    if (ty == 0)
+       output[blockIdx.y] = partialSum[0];
 }
 
 
