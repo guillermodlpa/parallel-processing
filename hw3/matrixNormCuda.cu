@@ -14,6 +14,7 @@
 #include <sys/times.h>
 #include <sys/time.h>
 #include <time.h>
+ #include <iostream>
 
 /* Program Parameters */
 #define MAXN 8000  /* Max value of N */
@@ -175,14 +176,14 @@ int main(int argc, char **argv) {
  * defined in the beginning of this code.  B[][] is initialized to zeros.;
  */
 
-#define BLOCK_SIZE 32;
+#define BLOCK_SIZE 32
 
 __global__ void 
 partialSum(float *input, float *output, const int N, const int Nmeans) {
 
   // Load a segment of the input vector into shared memory
   // This is because the entire array might be too big and is stored into the global memory
-    __shared__ float partialSum[2 * BLOCK_SIZE];
+    __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
 
     unsigned int y = threadIdx.y;
 
