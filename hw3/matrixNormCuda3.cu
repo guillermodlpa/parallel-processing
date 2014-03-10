@@ -263,13 +263,13 @@ __global__ void partialSum2(float * input, float * output, const int Nx, const i
 
     // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
     if (start + ty < Ny)
-       partialSum[ ty + column ] = input[ (start + ty)*Nx + x ];
+       partialSum[ ty + column ] = input[ (start + ty)*Ny + x ];
     else
        partialSum[ ty + column ] = 0;
 
     // The same for the last element of the block, the other value that we're going to sum up
     if (start + BLOCK_SIZE + ty < Ny)
-       partialSum[BLOCK_SIZE + ty + column] = input[ (start + BLOCK_SIZE + ty)*Nx + x ];
+       partialSum[BLOCK_SIZE + ty + column] = input[ (start + BLOCK_SIZE + ty)*Ny + x ];
     else
        partialSum[BLOCK_SIZE + ty + column] = 0;  
 
@@ -282,7 +282,7 @@ __global__ void partialSum2(float * input, float * output, const int Nx, const i
     // After the loop, the partial sum is found in partialSum[0]
     // So we have to put it in the output array
     if (ty == 0)
-       output[blockIdx.y*Nx + x] = partialSum[column];
+       output[blockIdx.y*Ny + x] = partialSum[column];
 }
 
 
