@@ -36,6 +36,9 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned int ty = threadIdx.y;
 
+    if ( y >= N )
+      return;
+
     // Start is the beining of the current calculations
     // If blockIdx is not 0, then the result will go to the blockIdx position of the output array
     unsigned int start = 2 * blockIdx.x * BLOCK_SIZE;
@@ -68,7 +71,7 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
     // So we have to put it in the output array
     if (t == 0)
        //output[blockIdx.x + y*Noutput] += partialSum[0+ty*BLOCK_SIZE];
-      output[blockIdx.x + y*Noutput] += partialSum[ 1 ];
+      output[blockIdx.x + y*Noutput] += partialSum[y];
 }
 
 
