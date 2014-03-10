@@ -254,22 +254,22 @@ __global__ void partialSum(float * input, float * output, const int N, const int
     unsigned int ty = threadIdx.y;
     unsigned int tx = threadIdx.x;
 
-    unsigned int start = 2 * blockIdx.x * BLOCK_SIZE;
+    unsigned int start = 2 * blockIdx.y * BLOCK_SIZE;
 
-    if (start + tx < N)
-       partialSum[tx] = input[start + tx];
+    if (start + ty < N)
+       partialSum[ty] = input[ (start + tx)*MAXN ];
     else
-       partialSum[tx] = 0;
-     
+       partialSum[ty] = 0;
+
     if (start + BLOCK_SIZE + tx < N)
-       partialSum[BLOCK_SIZE + tx] = input[start + BLOCK_SIZE + tx];
+       partialSum[BLOCK_SIZE + ty] = input[ (start + BLOCK_SIZE + tx)*MAXN ];
     else
-       partialSum[BLOCK_SIZE + tx] = 0;
+       partialSum[BLOCK_SIZE + ty] = 0;
     //@@ Traverse the reduction tree
     for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
        __syncthreads();
-       if (tx < stride)
-          partialSum[tx] += partialSum[tx+stride];
+       if (ty < stride)
+          partialSum[ty] += partialSum[ty+stride];
     }
     //@@ Write the computed sum of the block to the output vector at the 
     //@@ correct index
