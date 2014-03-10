@@ -260,12 +260,12 @@ __global__ void partialSum(float * input, float * output, const int N, const int
       return;
 
     if (start + ty < N)
-       partialSum[ty] = input[ (start + tx)*MAXN ];
+       partialSum[ty] = input[ (start + ty)*MAXN ];
     else
        partialSum[ty] = 0;
 
     if (start + BLOCK_SIZE + tx < N)
-       partialSum[BLOCK_SIZE + ty] = input[ (start + BLOCK_SIZE + tx)*MAXN ];
+       partialSum[BLOCK_SIZE + ty] = input[ (start + BLOCK_SIZE + ty)*MAXN ];
     else
        partialSum[BLOCK_SIZE + ty] = 0;
     //@@ Traverse the reduction tree
