@@ -11,17 +11,13 @@ partialSum(float *partialSum) {
 
 	unsigned int t = threadIdx.x;
 
-	/*
-	for (unsigned int stride = blockDim.x >> 1; stride > 0; stride >>= 1) {
-	__syncthreads();
-	if (t < stride)
-		partialSum[t] += partialSum[t+stride];
-	}*/
-	for (unsigned int stride = 1; stride < blockDim.x; stride *= 2) {
-__syncthreads();
-if (t % (2*stride) == 0)
-partialSum[t] += partialSum[t+stride];
-}
+	
+	for (unsigned int stride = blockDim.x; stride > 0; stride >>= 1) {
+
+		__syncthreads();
+		if (t < stride)
+			partialSum[t] += partialSum[t+stride];
+	}
 }
 
 
