@@ -79,7 +79,7 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
 int
 main()
 {   
-	int N = 16;
+	int N = 24;
 	int sizeInput = N*N*sizeof(float);
 	int Noutput = ceil( ((float)N) / (BLOCK_SIZE<<1));
 	int sizeOutput = N*Noutput*sizeof(float);
