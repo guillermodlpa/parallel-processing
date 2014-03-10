@@ -303,7 +303,7 @@ void matrixNorm() {
   printError( cudaMalloc( (void**)&d_A, size ) );
   printError( cudaMalloc( (void**)&d_B, size ) );
   printError( cudaMalloc( (void**)&d_sums, sizeSums ) );
-printf("2\n\t");
+  printf("2\n\t");
   printError( cudaMemcpy( d_A, A, size, cudaMemcpyHostToDevice) );
   printError( cudaMemcpy( d_sums, h_sums, sizeSums, cudaMemcpyHostToDevice ));
 
@@ -311,7 +311,7 @@ printf("2\n\t");
 
   dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
   dim3 dimGrid( gridSize, gridSize);
-printf("3\n\t");
+  printf("3\n\t");
   // First iteration
   partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N, Nsums);
 
@@ -321,24 +321,35 @@ printf("3\n\t");
     printError( cudaMemcpy( d_sums2, h_sums2, sizeSums2, cudaMemcpyHostToDevice) );
     partialSum<<< dimGrid, dimBlock>>> (d_sums, d_sums2, N, Nsums2);
   }
+  
   printf("4\n\t");
   printError( cudaMemcpy( A, d_A, sizeSums, cudaMemcpyDeviceToHost ) );
-  printError( cudaMemcpy( h_sums2, d_sums2, sizeSums2, cudaMemcpyDeviceToHost ) );
-printf("5\n\t");
+  printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
+  printf("5\n\t");
   printError( cudaFree(d_A) );
   printError( cudaFree(d_B) );
   printError( cudaFree(d_sums) );
   printf("6\n\t");
+
   if ( Nsums > 1 ) {
+    printError( cudaMemcpy( h_sums2, d_sums2, sizeSums2, cudaMemcpyDeviceToHost ) );
     printError( cudaFree(d_sums2) );
   }
 
   printf("MATRIX h_sums AFTER\n\t");
   for (row = 0; row < Nsums; row++) {
       for (col = 0; col < N; col++) {
-          printf("%1.2f%s", h_sums[row*N + col], (col < N-1) ? ", " : ";\n\t");
+          printf("%1.2f%s", h_sums2[row*N + col], (col < N-1) ? ", " : ";\n\t");
       }
   }
+
+  printf("MATRIX h_sums2 AFTER\n\t");
+  for (row = 0; row < Nsums2; row++) {
+      for (col = 0; col < N; col++) {
+          printf("%1.2f%s", h_sums2[row*N + col], (col < N-1) ? ", " : ";\n\t");
+      }
+  }
+
 
   printf("MATRIX A AFTER\n\t");
   for (row = 0; row < N; row++) {
