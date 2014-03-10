@@ -24,7 +24,7 @@ partialSum(float *partialSum, const int N) {
 int
 main()
 {   
-	int N = 12;
+	int N = 16;
 	int num_bytes = N*sizeof(float);
 
 	float *d_a, *h_a;
@@ -35,8 +35,22 @@ main()
 	    h_a[i]=0;
 	}
 
-	h_a[0]=1; h_a[1]=3;h_a[2]=2;h_a[3]=1; h_a[4]=3;h_a[5]=2;h_a[6]=0;
-	h_a[7]=1; h_a[8]=3;h_a[9]=2;h_a[10]=1; h_a[11]=3;
+	h_a[0]=1; 
+	h_a[1]=1;
+	h_a[2]=1;
+	h_a[3]=1;
+	h_a[4]=1;
+	h_a[5]=1;
+	h_a[6]=1;
+	h_a[7]=1;
+	h_a[8]=1;
+	h_a[9]=1;
+	h_a[10]=1;
+	h_a[11]=1;
+	h_a[12]=1;
+	h_a[13]=1;
+	h_a[14]=1;
+	h_a[15]=1;
 
 	printf("MATRIX BEFORE\n\t");
     int i;
@@ -47,7 +61,7 @@ main()
 	cudaMalloc( (void**)&d_a, num_bytes );
 	cudaMemcpy( d_a, h_a, num_bytes, cudaMemcpyHostToDevice);
 
-	int blocksize = 6;
+	int blocksize = 8;
 	dim3 dimBlock( blocksize, 1 );
 	dim3 dimGrid( ceil(N/blocksize), 1 );
 	partialSum<<< dimGrid, blocksize>>> (d_a, N);
