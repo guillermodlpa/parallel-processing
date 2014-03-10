@@ -178,6 +178,13 @@ int main(int argc, char **argv) {
 
 #define BLOCK_SIZE 4
 
+// http://stackoverflow.com/questions/20086047/cuda-matrix-example-block-size
+void printError(cudaError_t err) {
+    if(err != 0) {
+        printf("CUDA ERROR: %s\n", cudaGetErrorString(err));
+        getchar();
+    }
+}
 
 /**
 This function performs the partial sum of the given arrays
@@ -233,23 +240,23 @@ void matrixNorm() {
       }
   }
 
-  cudaMalloc( (void**)&d_A, size );
-  cudaMalloc( (void**)&d_B, size );
-  cudaMalloc( (void**)&d_sums, sizeSums );
+  printError( cudaMalloc( (void**)&d_A, size ) );
+  printError( cudaMalloc( (void**)&d_B, size ) );
+  printError( cudaMalloc( (void**)&d_sums, sizeSums ) );
 
-  cudaMemcpy( d_A, A, size, cudaMemcpyHostToDevice);
-  cudaMemcpy( d_sums, h_sums, sizeSums, cudaMemcpyHostToDevice);
+  printError( cudaMemcpy( d_A, A, size, cudaMemcpyHostToDevice) );
+  printError( cudaMemcpy( d_sums, h_sums, sizeSums, cudaMemcpyHostToDevice ));
 
   dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
   dim3 dimGrid( ceil(((float)N)/BLOCK_SIZE), ceil(((float)N)/BLOCK_SIZE) );
 
   partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N);
 
-  cudaMemcpy( h_means, d_sums, sizeSums, cudaMemcpyDeviceToHost );
+  printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
 
-  cudaFree(d_A);
-  cudaFree(d_B);
-  cudaFree(d_sums);
+  printError( cudaFree(d_A) );
+  printError( cudaFree(d_B) );
+  printError( cudaFree(d_sums) );
 
   printf("MATRIX AFTER\n\t");
   
