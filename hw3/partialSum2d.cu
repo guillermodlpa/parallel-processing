@@ -32,7 +32,7 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
 
     // Position in the input array
     unsigned int t = threadIdx.x;
-    
+
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned int ty = threadIdx.y;
 
@@ -79,7 +79,7 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
 int
 main()
 {   
-	int N = 24;
+	int N = 8;
 	int sizeInput = N*N*sizeof(float);
 	int Noutput = ceil( ((float)N) / (BLOCK_SIZE<<1));
 	int sizeOutput = N*Noutput*sizeof(float);
