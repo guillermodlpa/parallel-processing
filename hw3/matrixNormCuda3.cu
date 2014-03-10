@@ -195,7 +195,7 @@ The code there has been studied, as the comments indicate
 __global__ void 
 partialSum(float *input, float *output, const int N, const int gridSize) {
 
-    __global__ float partialSum[BLOCK_SIZE*BLOCK_SIZE];
+    extern __shared__ float partialSum[BLOCK_SIZE*BLOCK_SIZE];
 
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned int ty = threadIdx.y;
