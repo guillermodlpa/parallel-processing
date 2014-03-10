@@ -65,12 +65,12 @@ main()
 
 	cudaMalloc( (void**)&d_a, num_bytes );
 	cudaMemcpy( d_a, h_a, num_bytes, cudaMemcpyHostToDevice);
-	
+
 	int blocksize = 8;
 	dim3 dimBlock( blocksize, 1 );
 	dim3 dimGrid( ceil(  ((float)N)/blocksize), 1 );
 
-	cout << "Size of grid " << ceil(  ((float)N)/blocksize) << endl;
+	cout << "Size of grid " << ceil( N/blocksize) << endl;
 
 	partialSum<<< dimGrid, blocksize>>> (d_a, N);
 
