@@ -53,7 +53,7 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
     // After the loop, the partial sum is found in partialSum[0]
     // So we have to put it in the output array
     if (t == 0)
-       output[blockIdx.x + ty*] = partialSum[0+ty*2*BLOCK_SIZE];
+       output[blockIdx.x + ty*Noutput] = partialSum[0+ty*2*BLOCK_SIZE];
 }
 
 
@@ -78,7 +78,7 @@ main()
 	printf("MATRIX BEFORE\n\t");
   int row, col;
 	for (row = 0; row < N; row++)
-    for (int col=0; col < N; col++)
+    for (col=0; col < N; col++)
       printf("%1.1f%s", h_a[row +N*col], (col < N-1) ? ", " : ";\n\t");
 
 	cudaMalloc( (void**)&d_a, sizeInput );
@@ -99,7 +99,7 @@ main()
 
 	printf("MATRIX AFTER\n\t");
 	for (row = 0; row < Noutput; row++)
-    for (int col=0; col < N; col++)
+    for (col=0; col < N; col++)
       printf("%1.1f%s", h_o[row +N*col], (col < N-1) ? ", " : ";\n\t");
     free(h_a);
     free(h_o);
