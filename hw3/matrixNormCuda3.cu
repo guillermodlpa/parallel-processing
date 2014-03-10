@@ -193,7 +193,7 @@ Inspired in the code found in https://gist.github.com/wh5a/4424992
 The code there has been studied, as the comments indicate
 */
 __global__ void 
-partialSum(float *input, float *output, const int N) {
+partialSum(float *input, float *output, const int N, const int Nsums) {
 
   // Load a segment of the input vector into shared memory
   // This is because the entire array might be too big and is stored into the global memory
@@ -242,7 +242,7 @@ partialSum(float *input, float *output, const int N) {
     // So we have to put it in the output array
     if (t == 0)
        //output[blockIdx.x + y*Noutput] += partialSum[0+ty*BLOCK_SIZE];
-      output[blockIdx.x + y*N] = partialSum[ty*2*BLOCK_SIZE];
+      output[blockIdx.x + y*Nsums] = partialSum[ty*2*BLOCK_SIZE];
 }
 
 
@@ -254,6 +254,8 @@ void matrixNorm() {
   // CALCULATING MEAN
   int size = MAXN*MAXN*sizeof(float);
   int sizeSums = N*BLOCK_SIZE*sizeof(float);
+  int Nsums = ceil( ((float)N) / (BLOCK_SIZE<<1));
+  int sizeSums = N*Nsums*sizeof(float);
   int row, col;
 
   float *d_sums, *d_A, *d_B;
@@ -262,13 +264,13 @@ void matrixNorm() {
   //float (*h_sums)[BLOCK_SIZE] = new float[N][BLOCK_SIZE];
   float *h_sums;
   h_sums = (float*)malloc(sizeSums);
-  for (int i=0; i < BLOCK_SIZE; i++)
+  for (int i=0; i < Nsums; i++)
       for (int j=0; j < N; j++)
           h_sums[i*N + j] = 0;
       
 
   printf("MATRIX h_sums BEFORE\n\t");
-  for (row = 0; row < BLOCK_SIZE; row++) {
+  for (row = 0; row < Nsums; row++) {
       for (col = 0; col < N; col++) {
           printf("%1.1f%s", h_sums[row*N + col], (col < N-1) ? ", " : ";\n\t");
       }
@@ -297,7 +299,7 @@ void matrixNorm() {
   dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
   dim3 dimGrid( gridSize, gridSize);
 
-  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N);
+  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N, Noutput);
 
   printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
 
@@ -306,7 +308,7 @@ void matrixNorm() {
   printError( cudaFree(d_sums) );
 
   printf("MATRIX h_sums AFTER\n\t");
-  for (row = 0; row < BLOCK_SIZE; row++) {
+  for (row = 0; row < Nsums; row++) {
       for (col = 0; col < N; col++) {
           printf("%1.2f%s", h_sums[row*N + col], (col < N-1) ? ", " : ";\n\t");
       }
