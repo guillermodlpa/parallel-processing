@@ -11,7 +11,7 @@ partialSum(float *partialSum, const int N) {
 
 	unsigned int t = threadIdx.x;
 
-	for (unsigned int stride = blockDim.x >> 1; stride > 0; stride >>= 1) {
+	for (unsigned int stride = N/2; stride > 0; stride >>= 1) {
 		if (t < stride) {
 			partialSum[t] += partialSum[t+stride];
 		}
