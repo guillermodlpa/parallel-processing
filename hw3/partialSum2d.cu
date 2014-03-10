@@ -59,7 +59,7 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
     // So we have to put it in the output array
     if (t == 0)
        //output[blockIdx.x + y*Noutput] += partialSum[0+ty*BLOCK_SIZE];
-      output[blockIdx.x ] += partialSum[0];
+      output[blockIdx.x] += partialSum[0];
 }
 
 
@@ -87,13 +87,13 @@ main()
   printf("MATRIX O BEFORE\n\t");
   for (row = 0; row < Noutput; row++)
     for (col=0; col < N; col++)
-      printf("%1.1f%s", h_o[row*N+col], (col < N-1) ? ", " : ";\n\t");
+      printf("%1.1f%s", h_o[row+col*N], (col < N-1) ? ", " : ";\n\t");
 
 
 	printf("MATRIX A BEFORE\n\t");
 	for (row = 0; row < N; row++)
     for (col=0; col < N; col++)
-      printf("%1.1f%s", h_a[row*N+col], (col < N-1) ? ", " : ";\n\t");
+      printf("%1.1f%s", h_a[row+col*N], (col < N-1) ? ", " : ";\n\t");
 
 	cudaMalloc( (void**)&d_a, sizeInput );
 	cudaMalloc( (void**)&d_o, sizeOutput );
@@ -114,7 +114,7 @@ main()
 	printf("MATRIX AFTER\n\t");
 	for (row = 0; row < Noutput; row++)
     for (col=0; col < N; col++)
-      printf("%1.1f%s", h_o[row*N+col], (col < N-1) ? ", " : ";\n\t");
+      printf("%1.1f%s", h_o[row+col*N], (col < N-1) ? ", " : ";\n\t");
     free(h_a);
     free(h_o);
 }
