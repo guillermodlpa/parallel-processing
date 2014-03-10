@@ -191,135 +191,53 @@ This function performs the partial sum of the given arrays
 It is an improvement over the partial sum example from class
 Inspired in the code found in https://gist.github.com/wh5a/4424992
 The code there has been studied, as the comments indicate
+
+The code had to be adapted to operate with arrays of different dimensions, 
+as well as to operate adding columns instead of rows
 */
-
-/*
-__global__ void 
-partialSum(float *input, float *output, const int N, const int Nsums) {
-
-  // Load a segment of the input vector into shared memory
-  // This is because the entire array might be too big and is stored into the global memory
-    __shared__ float partialSum[2* BLOCK_SIZE*BLOCK_SIZE];
-
-    // Position in the input array
-    unsigned int t = threadIdx.x;
-    unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
-    unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
-    unsigned int ty = threadIdx.y;
-    unsigned int tx = threadIdx.x;
-
-
-    if ( y >= N || x >= N )
-      return;
-
-    // Start is the beining of the current calculations
-    // If blockIdx is not 0, then the result will go to the blockIdx position of the output array
-    unsigned int start = 2 * blockIdx.x * BLOCK_SIZE;
-
-    // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
-    if (start + t < N)
-      partialSum[t + ty*2*BLOCK_SIZE] = input[blockIdx.y*2*MAXN + ty*MAXN + x];
-    else
-      partialSum[t + ty*2*BLOCK_SIZE] = 0;
-   
-    // The same for the last element of the block, the other value that we're going to sum up
-    if (start + BLOCK_SIZE + t < N)
-      partialSum[BLOCK_SIZE + t + ty*2*BLOCK_SIZE] = input[blockIdx.y*2*MAXN + BLOCK_SIZE*MAXN + ty*MAXN + x];
-    else
-      partialSum[BLOCK_SIZE + t + ty*2*BLOCK_SIZE] = 0; //
-   
-    // Perform the partial sum
-    for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
-       __syncthreads();
-       if (t < stride)
-          partialSum[t + ty*2*BLOCK_SIZE] += partialSum[t+stride + ty*2*BLOCK_SIZE];
-    }
-
-    // After the loop, the partial sum is found in partialSum[0]
-    // So we have to put it in the output array
-    if (t == 0)
-       //output[blockIdx.x + y*Noutput] += partialSum[0+ty*BLOCK_SIZE];
-      output[blockIdx.x*N + y] = partialSum[ty*2*BLOCK_SIZE];
-}
-*/
-
-/**
-This function performs the adding of columns but only with the values from the first column
-It will be extended to perform adds in all columns
-*/
-/*
 __global__ void partialSum(float * input, float * output, const int N, const int Nmeans) {
 
-    //@@ Load a segment of the input vector into shared memory
-    __shared__ float partialSum[2 * BLOCK_SIZE];
-
-    unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
-    unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
-    unsigned int ty = threadIdx.y;
-    unsigned int tx = threadIdx.x;
-
-    unsigned int start = 2 * blockIdx.y * BLOCK_SIZE;
-
-    if ( y >= N || x >= N )
-      return;
-
-    if (start + ty < N)
-       partialSum[ty] = input[ (start + ty)*MAXN ];
-    else
-       partialSum[ty] = 0;
-
-    if (start + BLOCK_SIZE + ty < N)
-       partialSum[BLOCK_SIZE + ty] = input[ (start + BLOCK_SIZE + ty)*MAXN ];
-    else
-       partialSum[BLOCK_SIZE + ty] = 0;
-    //@@ Traverse the reduction tree
-    for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
-       __syncthreads();
-       if (ty < stride)
-          partialSum[ty] += partialSum[ty+stride];
-    }
-    //@@ Write the computed sum of the block to the output vector at the 
-    //@@ correct index
-    if (ty == 0)
-       output[blockIdx.y*N + x] = partialSum[0];
-}
-*/
-
-__global__ void partialSum(float * input, float * output, const int N, const int Nmeans) {
-
-    //@@ Load a segment of the input vector into shared memory
+    // Load a segment of the input vector into shared memory
     __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
 
+    // Position variables
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned int ty = threadIdx.y;
     unsigned int tx = threadIdx.x;
 
+    // Where does the calculation start for this iteration, based on the block X position
     unsigned int start = 2 * blockIdx.y * BLOCK_SIZE;
+
+    // column modifier that we apply to partialSum[]
     unsigned int column = 2 * BLOCK_SIZE * tx;
 
+    // Verify that we are inside the array, so CUDA won't throw errors
     if ( y >= N || x >= N )
       return;
 
+    // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
     if (start + ty < N)
        partialSum[ ty + column ] = input[ (start + ty)*MAXN + x ];
     else
        partialSum[ ty + column ] = 0;
 
+    // The same for the last element of the block, the other value that we're going to sum up
     if (start + BLOCK_SIZE + ty < N)
        partialSum[BLOCK_SIZE + ty + column] = input[ (start + BLOCK_SIZE + ty)*MAXN + x ];
     else
-       partialSum[BLOCK_SIZE + ty + column] = 0;
-    //@@ Traverse the reduction tree
+       partialSum[BLOCK_SIZE + ty + column] = 0;  
+
+    // Perform the partial sum
     for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
        __syncthreads();
        if (ty < stride)
           partialSum[ty + column] += partialSum[ty+stride + column];
     }
-    //@@ Write the computed sum of the block to the output vector at the 
-    //@@ correct index
+    // After the loop, the partial sum is found in partialSum[0]
+    // So we have to put it in the output array
     if (ty == 0)
-       output[blockIdx.y*N + x] = partialSum[0 + column];
+       output[blockIdx.y*N + x] = partialSum[column];
 }
 
 
