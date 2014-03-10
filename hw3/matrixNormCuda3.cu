@@ -277,7 +277,7 @@ __global__ void partialSum(float * input, float * output, const int N, const int
     //@@ Write the computed sum of the block to the output vector at the 
     //@@ correct index
     if (ty == 0)
-       output[blockIdx.x*N + y] = partialSum[tx];
+       output[blockIdx.y*N + x] = partialSum[0];
 }
 
 
