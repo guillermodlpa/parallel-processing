@@ -8,20 +8,34 @@ using namespace std;
 #define BLOCK_SIZE 8
 
 __global__ void 
-partialSum(float *partialSum, const int N) {
+partialSum(float *inputArray, float *outputArray, const int N) {
 
-	int x = blockIdx.x * blockDim.x + threadIdx.x;
-	if ( x >= N )
-		return;
+	//@@ Load a segment of the input vector into shared memory
+    __shared__ float partialSum[2 * BLOCK_SIZE];
+    unsigned int t = threadIdx.x, start = 2 * blockIdx.x * BLOCK_SIZE;
 
-	unsigned int t = threadIdx.x;
+    if (start + t < len)
+       partialSum[t] = input[start + t];
+    else
+       partialSum[t] = 0;
+   
+    if (start + BLOCK_SIZE + t < len)
+       partialSum[BLOCK_SIZE + t] = input[start + BLOCK_SIZE + t];
+    else
+       partialSum[BLOCK_SIZE + t] = 0;
+   
+    //@@ Traverse the reduction tree
+    for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
+       __syncthreads();
+       if (t < stride)
+          partialSum[t] += partialSum[t+stride];
+    }
 
-	for (unsigned int stride = N/2; stride > 0; stride >>= 1) {
-		if (t < stride) {
-			partialSum[t] += partialSum[t+stride];
-		}
-		__syncthreads();
-	}
+    //@@ Write the computed sum of the block to the output vector at the 
+    //@@ correct index
+    if (t == 0)
+       output[blockIdx.x] = partialSum[0];
+
 }
 
 __global__ void total(float * input, float * output, int len) {
@@ -52,7 +66,7 @@ __global__ void total(float * input, float * output, int len) {
 int
 main()
 {   
-	int N = 17;
+	int N = 25;
 	int num_bytes = N*sizeof(float);
 
 	float *d_a, *h_a, *h_o, *d_o;
@@ -81,6 +95,14 @@ main()
 	h_a[14]=1;
 	h_a[15]=1;
 	h_a[16]=1;
+	h_a[17]=1;
+	h_a[18]=1;
+	h_a[19]=1;
+	h_a[20]=1;
+	h_a[21]=1;
+	h_a[22]=1;
+	h_a[23]=1;
+	h_a[24]=1;
 
 	printf("MATRIX BEFORE\n\t");
     int i;
@@ -96,7 +118,7 @@ main()
 	dim3 dimBlock( BLOCK_SIZE, 1 );
 	dim3 dimGrid( ceil(  ((float)N)/BLOCK_SIZE), 1 );
 
-	total<<< dimGrid, BLOCK_SIZE>>> (d_a, d_o, N);
+	partialSum<<< dimGrid, BLOCK_SIZE>>> (d_a, d_o, N);
 
 	cudaMemcpy( h_a, d_a, num_bytes, cudaMemcpyDeviceToHost );
 	cudaMemcpy( h_o, d_o, num_bytes, cudaMemcpyDeviceToHost );
