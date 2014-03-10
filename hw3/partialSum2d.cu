@@ -31,12 +31,10 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
     __shared__ float partialSum[2* BLOCK_SIZE*BLOCK_SIZE];
 
     // Position in the input array
-    //unsigned int t = threadIdx.x;
-    unsigned int t = threadIdx.y;
-    unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int t = threadIdx.x;
+    
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned int ty = threadIdx.y;
-    unsigned int tx = threadIdx.x;
 
 
     if ( y >= N )
