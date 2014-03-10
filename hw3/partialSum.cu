@@ -15,7 +15,7 @@ partialSum(float *partialSum, const int N) {
 
 		__syncthreads();
 		if (t < stride) {
-			partialSum[t] += partialSum[t+stride*i];
+			partialSum[t] += partialSum[t+stride];
 		}
 			
 	}
