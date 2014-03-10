@@ -244,32 +244,36 @@ partialSum(float *input, float *output, const int N, const int Nsums) {
 */
 
 __global__ void partialSum(float * input, float * output, const int N, const int Nmeans) {
+
+
     //@@ Load a segment of the input vector into shared memory
     __shared__ float partialSum[2 * BLOCK_SIZE];
-    unsigned int t = threadIdx.x, start = 2 * blockIdx.x * BLOCK_SIZE;
 
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned int ty = threadIdx.y;
     unsigned int tx = threadIdx.x;
 
-    if (start + t < N)
-       partialSum[t] = input[start + t];
+    unsigned int start = 2 * blockIdx.x * BLOCK_SIZE;
+
+    if (start + tx < N)
+       partialSum[tx] = input[start + tx];
     else
-       partialSum[t] = 0;
-    if (start + BLOCK_SIZE + t < N)
-       partialSum[BLOCK_SIZE + t] = input[start + BLOCK_SIZE + t];
+       partialSum[tx] = 0;
+     
+    if (start + BLOCK_SIZE + tx < N)
+       partialSum[BLOCK_SIZE + tx] = input[start + BLOCK_SIZE + tx];
     else
-       partialSum[BLOCK_SIZE + t] = 0;
+       partialSum[BLOCK_SIZE + tx] = 0;
     //@@ Traverse the reduction tree
     for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
        __syncthreads();
-       if (t < stride)
-          partialSum[t] += partialSum[t+stride];
+       if (tx < stride)
+          partialSum[tx] += partialSum[tx+stride];
     }
     //@@ Write the computed sum of the block to the output vector at the 
     //@@ correct index
-    if (t == 0)
+    if (tx == 0)
        output[blockIdx.x*N + y] = partialSum[0];
 }
 
