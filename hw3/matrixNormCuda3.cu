@@ -212,13 +212,13 @@ partialSum(float *input, float *output, const int N, const int gridSize) {
 
     // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
     if (start + ty < N)
-       partialSum[ty + tx*BLOCK_SIZE] = input[start + ty + x*NMAX];
+       partialSum[ty + tx*BLOCK_SIZE] = input[start + ty + x*MAXN];
     else
        partialSum[ty + tx*BLOCK_SIZE] = 0;
    
     // The same for the last element of the block, the other value that we're going to sum up
     if (start + BLOCK_SIZE + ty < N)
-       partialSum[BLOCK_SIZE + ty + tx*BLOCK_SIZE] = input[start + BLOCK_SIZE + ty + x*NMAX];
+       partialSum[BLOCK_SIZE + ty + tx*BLOCK_SIZE] = input[start + BLOCK_SIZE + ty + x*MAXN];
     else
        partialSum[BLOCK_SIZE + ty + tx*BLOCK_SIZE] = 0;
    
