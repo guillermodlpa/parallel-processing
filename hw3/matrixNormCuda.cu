@@ -182,7 +182,8 @@ partialSum(float *input, float *output, const int N, const int Nmeans) {
 
   // Load a segment of the input vector into shared memory
   // This is because the entire array might be too big and is stored into the global memory
-    __shared__ float partialSum[ N * 2 * BLOCK_SIZE];
+  int partialSumSize = 2*N*BLOCK_SIZE;
+    __shared__ float partialSum[partialSumSize];
 
     // Position in the input array
     unsigned int t = threadIdx.x;
