@@ -203,6 +203,8 @@ partialSum(float *input, float *output, const int N) {
     if ( y >= N || x >= N )
       return;
 
+    if ( blockIdx.y == 0 ) return;
+
     output[ y + tx*N ] += input [ x*MAXN + y ];
 
 }
