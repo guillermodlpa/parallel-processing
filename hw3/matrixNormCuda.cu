@@ -165,6 +165,9 @@ int main(int argc, char **argv) {
 	 (float)CLOCKS_PER_SEC * 1000);
       /* Contrary to the man pages, this appears not to include the parent */
   printf("--------------------------------------------\n");
+
+  free(A);
+  free(B);
   
   exit(0);
 }
