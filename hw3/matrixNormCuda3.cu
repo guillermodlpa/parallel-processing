@@ -224,7 +224,7 @@ partialSum(float *input, float *output, const int N, const int Nsums) {
     if (start + BLOCK_SIZE + t < N)
       partialSum[BLOCK_SIZE + t + ty*2*BLOCK_SIZE] = input[blockIdx.y*2*MAXN + BLOCK_SIZE*NMAX + ty*NMAX + x];
     else
-      partialSum[BLOCK_SIZE + t + ty*2*BLOCK_SIZE] = 0;
+      partialSum[BLOCK_SIZE + t + ty*2*BLOCK_SIZE] = 0; //
    
     // Perform the partial sum
     for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
