@@ -288,7 +288,7 @@ __global__ void partialSum(float * input, float * output, const int N, const int
 __global__ void partialSum(float * input, float * output, const int N, const int Nmeans) {
 
     //@@ Load a segment of the input vector into shared memory
-    __shared__ float partialSum[2 * BLOCK_SIZE];
+    __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
 
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
