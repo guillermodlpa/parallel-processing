@@ -64,6 +64,7 @@ main()
 	int sizeInput = N*N*sizeof(float);
 	int Noutput = ceil( ((float)N) / (BLOCK_SIZE<<1));
 	int sizeOutput = N*Noutput*sizeof(float);
+  int row, col;
 
 	float *d_a, *h_a, *h_o, *d_o;
 
@@ -84,7 +85,6 @@ main()
 
 
 	printf("MATRIX A BEFORE\n\t");
-  int row, col;
 	for (row = 0; row < N; row++)
     for (col=0; col < N; col++)
       printf("%1.1f%s", h_a[row +N*col], (col < N-1) ? ", " : ";\n\t");
