@@ -8,18 +8,18 @@ using namespace std;
 #define BLOCK_SIZE 8
 
 __global__ void 
-partialSum(float *inputArray, float *outputArray, const int N) {
+partialSum(float *input, float *output, const int N) {
 
 	//@@ Load a segment of the input vector into shared memory
     __shared__ float partialSum[2 * BLOCK_SIZE];
     unsigned int t = threadIdx.x, start = 2 * blockIdx.x * BLOCK_SIZE;
 
-    if (start + t < len)
+    if (start + t < N)
        partialSum[t] = input[start + t];
     else
        partialSum[t] = 0;
    
-    if (start + BLOCK_SIZE + t < len)
+    if (start + BLOCK_SIZE + t < N)
        partialSum[BLOCK_SIZE + t] = input[start + BLOCK_SIZE + t];
     else
        partialSum[BLOCK_SIZE + t] = 0;
