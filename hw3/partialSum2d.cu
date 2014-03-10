@@ -77,8 +77,13 @@ main()
       for (int j=0; j < N; j++)
          h_o[i*Noutput+j]=0;
 	
+  printf("MATRIX O BEFORE\n\t");
+  for (row = 0; row < Noutput; row++)
+    for (col=0; col < N; col++)
+      printf("%1.1f%s", h_o[row +N*col], (col < N-1) ? ", " : ";\n\t");
 
-	printf("MATRIX BEFORE\n\t");
+
+	printf("MATRIX A BEFORE\n\t");
   int row, col;
 	for (row = 0; row < N; row++)
     for (col=0; col < N; col++)
