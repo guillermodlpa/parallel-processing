@@ -12,12 +12,10 @@ partialSum(float *partialSum, const int N) {
 	unsigned int t = threadIdx.x;
 
 	for (unsigned int stride = blockDim.x; stride > 0; stride >>= 1) {
-
-		__syncthreads();
 		if (t < stride) {
 			partialSum[t] += partialSum[t+stride];
 		}
-			
+		__syncthreads();
 	}
 }
 
