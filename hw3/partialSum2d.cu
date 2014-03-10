@@ -19,7 +19,7 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
 
 	// Load a segment of the input vector into shared memory
 	// This is because the entire array might be too big and is stored into the global memory
-    __shared__ float partialSum[2* BLOCK_SIZE*BLOCK_SIZE];
+    __shared__ float partialSum[2* BLOCK_SIZE];
 
     // Position in the input array
     unsigned int t = threadIdx.x;
@@ -33,27 +33,33 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
 
     // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
     if (start + t < N)
-       partialSum[t+ty*BLOCK_SIZE] = input[start + t +y*N];
+       //partialSum[t+ty*BLOCK_SIZE] = input[start + t +y*N];
+      partialSum[t+ty*BLOCK_SIZE] = input[start + t];
     else
-       partialSum[t+ty*BLOCK_SIZE] = 0;
+       //partialSum[t+ty*BLOCK_SIZE] = 0;
+      partialSum[t] = 0;
    
     // The same for the last element of the block, the other value that we're going to sum up
     if (start + BLOCK_SIZE + t < N)
-       partialSum[BLOCK_SIZE + t+ty*BLOCK_SIZE] = input[start + BLOCK_SIZE + t +y*N];
+       //partialSum[BLOCK_SIZE + t+ty*BLOCK_SIZE] = input[start + BLOCK_SIZE + t +y*N];
+      partialSum[BLOCK_SIZE + t] = input[start + BLOCK_SIZE + t];
     else
-       partialSum[BLOCK_SIZE + t+y*2*BLOCK_SIZE] = 0;
+       //partialSum[BLOCK_SIZE + t+y*2*BLOCK_SIZE] = 0;
+      partialSum[BLOCK_SIZE + t] = 0;
    
     // Perform the partial sum
     for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
        __syncthreads();
        if (t < stride)
-          partialSum[t+ty*BLOCK_SIZE] += partialSum[t+stride+ty*BLOCK_SIZE];
+          //partialSum[t+ty*BLOCK_SIZE] += partialSum[t+stride+ty*BLOCK_SIZE];
+          partialSum[t] += partialSum[t+stride];
     }
 
     // After the loop, the partial sum is found in partialSum[0]
     // So we have to put it in the output array
     if (t == 0)
-       output[blockIdx.x] += partialSum[0+ty*BLOCK_SIZE];
+       //output[blockIdx.x + y*Noutput] += partialSum[0+ty*BLOCK_SIZE];
+      output[blockIdx.x ] += partialSum[0+ty*BLOCK_SIZE];
 }
 
 
