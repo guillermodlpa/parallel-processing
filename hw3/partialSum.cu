@@ -94,7 +94,7 @@ main()
 
 	partialSum<<< dimGrid, BLOCK_SIZE>>> (d_b, d_o, N);
 
-	cudaMemcpy( h_o, d_o, sizeOutput, cudaMemcpyDeviceToHost );
+	cudaMemcpy( h_o, d_o, sizeOutput2, cudaMemcpyDeviceToHost );
 
 	cudaFree(d_a);
 	cudaFree(d_b);
