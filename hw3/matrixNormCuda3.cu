@@ -237,7 +237,8 @@ __global__ void partialSum(float * input, float * output, const int N, const int
     // After the loop, the partial sum is found in partialSum[0]
     // So we have to put it in the output array
     if (ty == 0)
-       output[blockIdx.y*N + x] = partialSum[column];
+       //output[blockIdx.y*N + x] = partialSum[column];
+      input[blockIdx.y*MAXN + x] = partialSum[column];
 }
 
 
@@ -298,6 +299,7 @@ void matrixNorm() {
 
   partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N, Nsums);
 
+  printError( cudaMemcpy( A, d_A, sizeSums, cudaMemcpyDeviceToHost ) );
   printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
 
   printError( cudaFree(d_A) );
@@ -308,6 +310,13 @@ void matrixNorm() {
   for (row = 0; row < Nsums; row++) {
       for (col = 0; col < N; col++) {
           printf("%1.2f%s", h_sums[row*N + col], (col < N-1) ? ", " : ";\n\t");
+      }
+  }
+
+  printf("MATRIX A AFTER\n\t");
+  for (row = 0; row < N; row++) {
+      for (col = 0; col < N; col++) {
+          printf("%1.1f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
       }
   }
 
