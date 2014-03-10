@@ -35,6 +35,12 @@ main()
 
 	h_a[0]=1; h_a[1]=3;h_a[2]=2;
 
+	printf("MATRIX BEFORE\n\t");
+    int i;
+	for (i = 0; i < N; i++) {
+      cout << "h_a[" << i << "]=" << h_a[i] << endl;
+    } 
+
 	cudaMalloc( (void**)&d_a, num_bytes );
 	cudaMemcpy( d_a, h_a, num_bytes, cudaMemcpyHostToDevice);
 
@@ -45,10 +51,10 @@ main()
 
 	cudaFree(d_a);
 
-	printf("MATRIX A\n\t");
+	printf("MATRIX AFTER\n\t");
     int i;
 	for (i = 0; i < N; i++) {
-      cout << "h_array[" << i << "]=" << h_array[i] << endl;
+      cout << "h_a[" << i << "]=" << h_a[i] << endl;
     } 
     free(h_a);
 }
