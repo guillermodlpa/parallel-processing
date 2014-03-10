@@ -69,7 +69,7 @@ main()
 {   
 	int N = 25;
 	int sizeInput = N*sizeof(float);
-	int sizeOutput = ceil( ((float)N) / (BLOCK_SIZE<<1) *sizeof(float);
+	int sizeOutput = ceil( ((float)N) / (BLOCK_SIZE<<1)) *sizeof(float);
 
 	float *d_a, *h_a, *h_o, *d_o;
 
