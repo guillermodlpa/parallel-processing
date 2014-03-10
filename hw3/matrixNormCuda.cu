@@ -252,7 +252,7 @@ void matrixNorm() {
   float *d_means, *d_A, *d_B, *h_means;
 
   h_means = (float*)malloc(sizeMeans);
-  for (int i=0; i < Noutput; i++)
+  for (int i=0; i < Nmeans; i++)
       for (int j=0; j < N; j++)
          h_means[i*Nmeans+j]=0;
 
