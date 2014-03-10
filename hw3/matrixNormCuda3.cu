@@ -361,7 +361,7 @@ void matrixNorm() {
 
   printError( cudaMemcpy( A, d_A, sizeSums, cudaMemcpyDeviceToHost ) );
   printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
-  printError( cudaMemcpy( h_sums2, d_sums2, sizeSums, cudaMemcpyDeviceToHost ) );
+  printError( cudaMemcpy( h_sums2, d_sums2, sizeSums2, cudaMemcpyDeviceToHost ) );
 
   printError( cudaFree(d_A) );
   printError( cudaFree(d_B) );
