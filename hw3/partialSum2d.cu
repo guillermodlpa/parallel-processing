@@ -59,7 +59,7 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
     // So we have to put it in the output array
     if (t == 0)
        //output[blockIdx.x + y*Noutput] += partialSum[0+ty*BLOCK_SIZE];
-      output[blockIdx.x + y*Noutput] += partialSum[ 2*BLOCK_SIZE ];
+      output[blockIdx.x + y*Noutput] += partialSum[ 1 ];
 }
 
 
@@ -95,21 +95,21 @@ main()
     for (col=0; col < N; col++)
       printf("%1.1f%s", h_a[row+col*N], (col < N-1) ? ", " : ";\n\t");
 
-	cudaMalloc( (void**)&d_a, sizeInput );
-	cudaMalloc( (void**)&d_o, sizeOutput );
-	cudaMemcpy( d_a, h_a, sizeInput, cudaMemcpyHostToDevice);
-	cudaMemcpy( d_o, h_o, sizeOutput, cudaMemcpyHostToDevice);
+	printError( cudaMalloc( (void**)&d_a, sizeInput ) );
+	printError( cudaMalloc( (void**)&d_o, sizeOutput ) );
+	printError( cudaMemcpy( d_a, h_a, sizeInput, cudaMemcpyHostToDevice) );
+	printError( cudaMemcpy( d_o, h_o, sizeOutput, cudaMemcpyHostToDevice) );
 
 	dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
 	dim3 dimGrid( ceil(  ((float)N)/BLOCK_SIZE), ceil(  ((float)N)/BLOCK_SIZE) );
 
 	partialSum<<< dimGrid, dimBlock>>> (d_a, d_o, N, Noutput);
 
-	cudaMemcpy( h_a, d_a, sizeInput, cudaMemcpyDeviceToHost );
-	cudaMemcpy( h_o, d_o, sizeOutput, cudaMemcpyDeviceToHost );
+	printError( cudaMemcpy( h_a, d_a, sizeInput, cudaMemcpyDeviceToHost ) );
+	printError( cudaMemcpy( h_o, d_o, sizeOutput, cudaMemcpyDeviceToHost ) );
 
-	cudaFree(d_a);
-	cudaFree(d_o);
+	printError( cudaFree(d_a) );
+	printError( cudaFree(d_o) );
 
 	printf("MATRIX AFTER\n\t");
 	for (row = 0; row < Noutput; row++)
@@ -117,4 +117,13 @@ main()
       printf("%1.1f%s", h_o[row+col*Noutput], (col < N-1) ? ", " : ";\n\t");
     free(h_a);
     free(h_o);
+}
+
+
+// http://stackoverflow.com/questions/20086047/cuda-matrix-example-block-size
+void printError(cudaError_t err) {
+    if(err != 0) {
+        printf("CUDA ERROR: %s\n", cudaGetErrorString(err));
+        getchar();
+    }
 }
