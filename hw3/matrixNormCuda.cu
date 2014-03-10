@@ -284,8 +284,8 @@ void matrixNorm() {
 
   printf("MATRIX AFTER\n\t");
   
-  for (row = 0; row < Nmeans; row++)
-    for (col=0; col < N; col++)
+  for (row = 0; row < N; row++)
+    for (col=0; col < Nmeans; col++)
       printf("%1.1f%s", h_means[row+col*Nmeans], (col < N-1) ? ", " : ";\n\t");
 
 }
