@@ -237,8 +237,7 @@ __global__ void partialSum(float * input, float * output, const int N, const int
     // After the loop, the partial sum is found in partialSum[0]
     // So we have to put it in the output array
     if (ty == 0)
-       //output[blockIdx.y*N + x] = partialSum[column];
-      input[blockIdx.y*MAXN + x] = partialSum[column];
+       output[blockIdx.y*N + x] = partialSum[column];
 }
 
 
@@ -250,9 +249,13 @@ void matrixNorm() {
   int size = MAXN*MAXN*sizeof(float);
   int Nsums = ceil( ((float)N) / (BLOCK_SIZE<<1));
   int sizeSums = N*Nsums*sizeof(float);
+
+  int Nsums2 = ceil( ((float)Nsums) / (BLOCK_SIZE<<1));
+  int sizeSums2 = N*Nsums2*sizeof(float);
+
   int row, col;
 
-  float *d_sums, *d_A, *d_B;
+  float *d_sums, *d_sums2, *d_A, *d_B;
 
   //Get user input into size;
   //float (*h_sums)[BLOCK_SIZE] = new float[N][BLOCK_SIZE];
@@ -284,7 +287,9 @@ void matrixNorm() {
           printf("%1.1f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
       }
   }
+  
 
+  // Allocagte space for variables
   printError( cudaMalloc( (void**)&d_A, size ) );
   printError( cudaMalloc( (void**)&d_B, size ) );
   printError( cudaMalloc( (void**)&d_sums, sizeSums ) );
@@ -292,15 +297,25 @@ void matrixNorm() {
   printError( cudaMemcpy( d_A, A, size, cudaMemcpyHostToDevice) );
   printError( cudaMemcpy( d_sums, h_sums, sizeSums, cudaMemcpyHostToDevice ));
 
+
+
   int gridSize = ceil(((float)N)/BLOCK_SIZE);
 
   dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
   dim3 dimGrid( gridSize, gridSize);
 
+  // First iteration
   partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N, Nsums);
 
+  // Do we need to run more than one iteration?
+  if ( Nsums > 1 ) {
+
+    printError( cudaMalloc( (void**)&d_sums2, sizeSums2 ) );
+    partialSum<<< dimGrid, dimBlock>>> (d_sums, d_sums2, N, Nsums2);
+  }
+  
   printError( cudaMemcpy( A, d_A, sizeSums, cudaMemcpyDeviceToHost ) );
-  printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
+  printError( cudaMemcpy( h_sums, d_sums2, sizeSums, cudaMemcpyDeviceToHost ) );
 
   printError( cudaFree(d_A) );
   printError( cudaFree(d_B) );
