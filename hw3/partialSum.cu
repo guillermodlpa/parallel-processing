@@ -132,7 +132,7 @@ main()
 	cudaFree(d_o);
 
 	printf("MATRIX AFTER\n\t");
-	for (i = 0; i < N; i++) {
+	for (i = 0; i < Noutput; i++) {
       cout << "h_o[" << i << "]=" << h_o[i] << endl;
     } 
     free(h_a);
