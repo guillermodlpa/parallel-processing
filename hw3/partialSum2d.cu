@@ -94,10 +94,10 @@ main()
 	cudaMemcpy( d_a, h_a, sizeInput, cudaMemcpyHostToDevice);
 	cudaMemcpy( d_o, h_o, sizeOutput, cudaMemcpyHostToDevice);
 
-	dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
-	dim3 dimGrid( ceil(  ((float)N)/BLOCK_SIZE), ceil(  ((float)N)/BLOCK_SIZE) );
+	dim3 dimBlock( BLOCK_SIZE, 1 );
+	dim3 dimGrid( ceil(((float)N)/BLOCK_SIZE), 1 );
 
-	partialSum<<< dimGrid, 1>>> (d_a, d_o, N, Noutput);
+	partialSum<<< dimGrid, dimBlock>>> (d_a, d_o, N, Noutput);
 
 	cudaMemcpy( h_a, d_a, sizeInput, cudaMemcpyDeviceToHost );
 	cudaMemcpy( h_o, d_o, sizeOutput, cudaMemcpyDeviceToHost );
