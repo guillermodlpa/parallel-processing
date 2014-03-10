@@ -197,7 +197,7 @@ The code there has been studied, as the comments indicate
 The code had to be adapted to operate with arrays of different dimensions, 
 as well as to operate adding columns instead of rows
 */
-__global__ void partialSum(float * input, float * output, const int N, const int Nmeans) {
+__global__ void partialSum(float * input, float * output, const int Nx, const int Ny const int Nmeans) {
 
     // Load a segment of the input vector into shared memory
     __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
@@ -215,17 +215,17 @@ __global__ void partialSum(float * input, float * output, const int N, const int
     unsigned int column = 2 * BLOCK_SIZE * tx;
 
     // Verify that we are inside the array, so CUDA won't throw errors
-    if ( y >= N || x >= N )
+    if ( y >= Ny || x >= Nx )
       return;
 
     // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
-    if (start + ty < N)
+    if (start + ty < Ny)
        partialSum[ ty + column ] = input[ (start + ty)*MAXN + x ];
     else
        partialSum[ ty + column ] = 0;
 
     // The same for the last element of the block, the other value that we're going to sum up
-    if (start + BLOCK_SIZE + ty < N)
+    if (start + BLOCK_SIZE + ty < Ny)
        partialSum[BLOCK_SIZE + ty + column] = input[ (start + BLOCK_SIZE + ty)*MAXN + x ];
     else
        partialSum[BLOCK_SIZE + ty + column] = 0;  
@@ -239,7 +239,7 @@ __global__ void partialSum(float * input, float * output, const int N, const int
     // After the loop, the partial sum is found in partialSum[0]
     // So we have to put it in the output array
     if (ty == 0)
-       output[blockIdx.y*N + x] = partialSum[column];
+       output[blockIdx.y*Nx + x] = partialSum[column];
 }
 
 
@@ -313,15 +313,15 @@ void matrixNorm() {
   dim3 dimGrid( gridSize, gridSize);
   printf("3\n\t");
   // First iteration
-  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N, Nsums);
+  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N, N, Nsums);
 
   // Do we need to run more than one iteration?
   if ( Nsums > 1 ) {
     printError( cudaMalloc( (void**)&d_sums2, sizeSums2 ) );
     printError( cudaMemcpy( d_sums2, h_sums2, sizeSums2, cudaMemcpyHostToDevice) );
-    partialSum<<< dimGrid, dimBlock>>> (d_sums, d_sums2, N, Nsums2);
+    partialSum<<< dimGrid, dimBlock>>> (d_sums, d_sums2, N, Nsums1, Nsums2);
   }
-  
+
   printf("4\n\t");
   printError( cudaMemcpy( A, d_A, sizeSums, cudaMemcpyDeviceToHost ) );
   printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
