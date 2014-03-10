@@ -253,10 +253,6 @@ void matrixNorm() {
 
   h_means = (float*)malloc(sizeMeans);
 
-  for (int i=0; i < N; i++)
-      for (int j=0; j < N; j++)
-         A[i][j]=i+1;
-
   for (int i=0; i < Nmeans; i++)
       for (int j=0; j < N; j++)
          h_means[i*Nmeans+j]=0;
@@ -266,6 +262,12 @@ void matrixNorm() {
   for (row = 0; row < Nmeans; row++) {
       for (col = 0; col < N; col++) {
           printf("%1.1f%s", h_means[row +N*col], (col < N-1) ? ", " : ";\n\t");
+      }
+  }
+
+  for (row = 0; row < N; row++) {
+      for (col = 0; col < N; col++) {
+          printf("%1.1f%s", A[row +N*col], (col < N-1) ? ", " : ";\n\t");
       }
   }
 
