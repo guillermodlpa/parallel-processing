@@ -222,7 +222,7 @@ void matrixNorm() {
 
   //Get user input into size;
   //float (*h_sums)[BLOCK_SIZE] = new float[N][BLOCK_SIZE];
-
+  float *h_sums;
   h_sums = (float*)malloc(sizeSums);
   for (int i=0; i < BLOCK_SIZE; i++){   
       for (int j=0; j < N; j++){
