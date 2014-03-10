@@ -34,6 +34,7 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
     unsigned int t = threadIdx.x;
 
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned int ty = threadIdx.y;
 
     if ( y >= N )
@@ -71,7 +72,7 @@ partialSum(float *input, float *output, const int N, const int Noutput) {
     // So we have to put it in the output array
     if (t == 0)
        //output[blockIdx.x + y*Noutput] += partialSum[0+ty*BLOCK_SIZE];
-      output[blockIdx.x + y*Noutput] = y;
+      output[blockIdx.x + y*Noutput] += partialSum[y*2* BLOCK_SIZE];
 }
 
 
