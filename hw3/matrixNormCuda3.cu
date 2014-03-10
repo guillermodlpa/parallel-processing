@@ -253,7 +253,6 @@ void matrixNorm() {
 
   // CALCULATING MEAN
   int size = MAXN*MAXN*sizeof(float);
-  int sizeSums = N*BLOCK_SIZE*sizeof(float);
   int Nsums = ceil( ((float)N) / (BLOCK_SIZE<<1));
   int sizeSums = N*Nsums*sizeof(float);
   int row, col;
