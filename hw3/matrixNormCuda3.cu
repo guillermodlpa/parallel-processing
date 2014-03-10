@@ -193,7 +193,9 @@ Inspired in the code found in https://gist.github.com/wh5a/4424992
 The code there has been studied, as the comments indicate
 */
 __global__ void 
-partialSum(float *input, float *output, const int N) {
+partialSum(float *input, float *output, const int N, const int gridSize) {
+
+    __shared__ float partialSum[BLOCK_SIZE*BLOCK_SIZE];
 
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned int ty = threadIdx.y;
@@ -203,10 +205,15 @@ partialSum(float *input, float *output, const int N) {
     if ( y >= N || x >= N )
       return;
 
-    if ( blockIdx.x == 0 ) return;
+    partialSum[ y + tx*BLOCK_SIZE ] += input [ x*MAXN + y ];
 
-    output[ y + tx*N ] += input [ x*MAXN + y ];
+    __syncthreads();
 
+    if ( blockIdx.y == gridSize-1 && blockIdx.x == gridSize-1  ) {
+
+      output[ y + tx*N ] += partialSum[ y + tx*BLOCK_SIZE ]
+
+    }
 }
 
 
@@ -245,10 +252,12 @@ void matrixNorm() {
   printError( cudaMemcpy( d_A, A, size, cudaMemcpyHostToDevice) );
   printError( cudaMemcpy( d_sums, h_sums, sizeSums, cudaMemcpyHostToDevice ));
 
-  dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
-  dim3 dimGrid( ceil(((float)N)/BLOCK_SIZE), ceil(((float)N)/BLOCK_SIZE) );
+  int gridSize = ceil(((float)N)/BLOCK_SIZE);
 
-  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N);
+  dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
+  dim3 dimGrid( gridSize, gridSize);
+
+  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N, gridSize);
 
   printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
 
