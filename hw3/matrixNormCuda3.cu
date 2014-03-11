@@ -318,7 +318,6 @@ void matrixNorm() {
   //
   partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N);
 
-  printError( cudaMemcpy( A, d_A, sizeSums, cudaMemcpyDeviceToHost ) );
   printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
   printError( cudaFree(d_sums) );
 
@@ -356,6 +355,8 @@ void matrixNorm() {
   //
   calculateQuadratic<<< dimGrid, dimBlock>>> (d_A, d_means, N);
 
+  
+  printError( cudaMemcpy( A, d_A, sizeSums, cudaMemcpyDeviceToHost ) );
 
   printError( cudaFree(d_A) );
   printError( cudaFree(d_B) );
