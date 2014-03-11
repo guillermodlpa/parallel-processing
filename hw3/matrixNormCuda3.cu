@@ -314,7 +314,10 @@ __global__ void normalize(float * input, float * output, float * means, float * 
     if ( y >= N || x >= N )
       return;
 
-    output[ x + y*MAXN ] = ( input[ x + y*MAXN ] - means [x] ) / deviations [x];
+    if ( deviations [x] == 0 )
+       output[ x + y*MAXN ] = 0;
+    else
+      output[ x + y*MAXN ] = ( input[ x + y*MAXN ] - means [x] ) / deviations [x];
 }
 
 
