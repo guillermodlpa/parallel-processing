@@ -323,7 +323,6 @@ void matrixNorm() {
   partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N);
 
   printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
-  printError( cudaFree(d_sums) );
 
   // 
   // Add reducted means sequentially
@@ -359,8 +358,37 @@ void matrixNorm() {
   //
   calculateQuadratic<<< dimGrid, dimBlock>>> (d_A, d_means, N);
 
+  //
+  // Add all the operands (A[i][j] - mean)^2 in each column
+  // It is the same operation of adding all values in columns that we did in the step of calculating the mean
+  //
+  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N);
 
   printError( cudaMemcpy( A, d_A, size, cudaMemcpyDeviceToHost ) );
+
+  printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
+
+  // 
+  // Add reducted means sequentially
+  //
+  float *h_means;
+  h_means = (float*)malloc( N*sizeof(float) );
+  for ( int i = 0; i < N; i++ )
+    h_means[i] = 0;
+
+  for ( int i = 0; i < Nsums; i++ )
+    for ( int j = 0; j < N; j++ )
+      h_means[j] += h_sums[i*N+j];
+
+  // Divide between number of elements
+  for ( int i = 0; i < N; i++ )
+    h_means[i] /= N;
+
+  printf("MATRIX h_means AFTER AFTER\n\t");
+  for ( int i = 0; i < N; i++ )
+    printf("%1.2f%s", h_means[i], (i < N-1) ? ", " : ";\n\t");
+
+
 
   printError( cudaFree(d_A) );
   printError( cudaFree(d_B) );
