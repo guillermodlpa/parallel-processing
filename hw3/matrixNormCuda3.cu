@@ -376,7 +376,7 @@ void matrixNorm() {
   printf("MATRIX A AFTER\n\t");
   for (row = 0; row < N; row++) {
       for (col = 0; col < N; col++) {
-          printf("%1.1f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
+          printf("%1.3f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
       }
   }
 
