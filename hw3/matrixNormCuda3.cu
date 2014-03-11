@@ -305,7 +305,7 @@ __global__ void calculateQuadratic(float * input, float * means, const int N) {
 }*/
 
 
-__global__ void normalize(float * input, float * means, float * deviations, const int N) {
+__global__ void normalize(float * input, float * output, float * means, float * deviations, const int N) {
 
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
