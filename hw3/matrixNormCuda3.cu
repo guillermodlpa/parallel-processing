@@ -241,6 +241,52 @@ __global__ void partialSum(float * input, float * output, const int N) {
 }
 
 
+__global__ void partialSum2(float * input, float * output, float * means, const int N) {
+
+    // Load a segment of the input vector into shared memory
+    __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
+
+    // Position variables
+    unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int ty = threadIdx.y;
+    unsigned int tx = threadIdx.x;
+
+    // Where does the calculation start for this iteration, based on the block X position
+    unsigned int start = 2 * blockIdx.y * BLOCK_SIZE;
+
+    // column modifier that we apply to partialSum[]
+    unsigned int column = 2 * BLOCK_SIZE * tx;
+
+    // Verify that we are inside the array, so CUDA won't throw errors
+    if ( y >= N || x >= N )
+      return;
+
+    // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
+    if (start + ty < N)
+       partialSum[ ty + column ] = powf(input[ (start + ty)*MAXN + x ] - means [ x ], 2)
+    else
+       partialSum[ ty + column ] = 0;
+
+    // The same for the last element of the block, the other value that we're going to sum up
+    if (start + BLOCK_SIZE + ty < N)
+       partialSum[BLOCK_SIZE + ty + column] = powf(input[ (start + BLOCK_SIZE + ty)*MAXN + x ] - means [ x ], 2)
+    else
+       partialSum[BLOCK_SIZE + ty + column] = 0;  
+
+    // Perform the partial sum
+    for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
+       __syncthreads();
+       if (ty < stride)
+          partialSum[ty + column] += partialSum[ty+stride + column];
+    }
+    // After the loop, the partial sum is found in partialSum[0]
+    // So we have to put it in the output array
+    if (ty == 0)
+       output[blockIdx.y*N + x] = partialSum[column];
+}
+
+
 
 __global__ void calculateQuadratic(float * input, float * means, const int N) {
 
@@ -325,7 +371,7 @@ void matrixNorm() {
   printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
 
   // 
-  // Add reducted means sequentially
+  // Add reducted means sequentially. After that, divide by N, total number of elements in a column
   //
   float *h_means;
   h_means = (float*)malloc( N*sizeof(float) );
@@ -356,6 +402,7 @@ void matrixNorm() {
   // Calculate the value of (A[i][j] - mean)^2
   // We put the value in the input array because we won't need the original a[i][j] values anymore
   //
+  /*
   calculateQuadratic<<< dimGrid, dimBlock>>> (d_A, d_means, N);
 
   printf("MATRIX A AFTER QUADRATIC CALCULATION\n\t");
@@ -363,20 +410,20 @@ void matrixNorm() {
       for (col = 0; col < N; col++) {
           printf("%1.3f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
       }
-  }
+  }*/
 
   //
   // Add all the operands (A[i][j] - mean)^2 in each column
   // It is the same operation of adding all values in columns that we did in the step of calculating the mean
   //
-  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N);
+  partialSum2<<< dimGrid, dimBlock>>> (d_A, d_sums, d_means, N);
 
   printError( cudaMemcpy( A, d_A, size, cudaMemcpyDeviceToHost ) );
 
   printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
 
   // 
-  // Add reducted means sequentially
+  // Add reducted means sequentially. After that, divide by N and calculate square root
   //
   for ( int i = 0; i < N; i++ )
     h_means[i] = 0;
@@ -394,6 +441,10 @@ void matrixNorm() {
     printf("%1.2f%s", h_means[i], (i < N-1) ? ", " : ";\n\t");
 
   
+  // 
+  // Apply the formula to normalize
+  // B[row][col] = (A[row][col] – mean) / standard_deviation
+  //
 
 
   printError( cudaFree(d_A) );
