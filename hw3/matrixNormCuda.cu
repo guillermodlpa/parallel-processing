@@ -377,6 +377,10 @@ void matrixNorm() {
   //
   partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N);
 
+  cudaError err = cudaGetLastError();
+  if ( cudaSuccess != err )
+    printError( err, "Error in partialSum()" );
+
   printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) , "Error copying from d_sums to h_sums after partialSum()");
 
   // 
@@ -415,6 +419,10 @@ void matrixNorm() {
   //
   partialSumMeanDifferences<<< dimGrid, dimBlock>>> (d_A, d_sums, d_means, N);
 
+  err = cudaGetLastError();
+  if ( cudaSuccess != err )
+    printError( err, "Error in partialSumMeanDifferences()" );
+
   //printError( cudaMemcpy( A, d_A, size, cudaMemcpyDeviceToHost ) , "Error copying from d_A to A");
 
   printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) , "Error copying from d_sums to h_sums after partialSumMeanDifferences()");
@@ -451,6 +459,10 @@ void matrixNorm() {
   printError( cudaMalloc( (void**)&d_B, size ) , "Error allocating memory for d_B before normalize()");
 
   normalize<<< dimGrid, dimBlock>>> (d_A, d_B, d_means, d_sigmas, N);
+  
+  err = cudaGetLastError();
+  if ( cudaSuccess != err )
+    printError( err, "Error in normalize()" );
 
   printError( cudaMemcpy( B, d_B, size, cudaMemcpyDeviceToHost ) , "Error copying memory from d_B to B after normalize()");
 
