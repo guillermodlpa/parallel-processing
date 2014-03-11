@@ -355,14 +355,14 @@ void matrixNorm() {
           printf("%1.1f%s", h_sums[row*N + col], (col < N-1) ? ", " : ";\n\t");
       }
   }
-
+/*
   for (int i=0; i < N; i++)
       for (int j=0; j < N; j++) {
         if ( i == 0 )
           A[i][j] = j;
         else
           A[i][j] = 1;
-      }
+      }*/
 
   printf("MATRIX A BEFORE\n\t");
   for (row = 0; row < N; row++) {
