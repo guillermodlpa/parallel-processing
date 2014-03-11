@@ -1,5 +1,18 @@
+/* ------------------ HW3 --------------------- */
+
+/* Guillermo de la Puente - A20314328                */
+/* CS 546 - Parallel and Distributed Processing      */
+/* Homework 3                                        */
+/* CUDA array column normalization algorithm         */
+/*                                                   */
+/* 2014 Spring semester                              */
+/* Professor Zhiling Lan                             */
+/* TA Eduardo Berrocal                               */
+/* Illinois Institute of Technology                  */
+
+
 /* Matrix normalization.
- * Compile with "gcc matrixNorm.c" 
+ * Compile with "nvcc matrixNormCuda.cu" 
  */
 
 /* ****** ADD YOUR CODE AT THE END OF THIS FILE. ******
@@ -199,7 +212,7 @@ as well as to operate adding columns instead of rows
 __global__ void partialSum(float * input, float * output, const int N) {
 
     // Load a segment of the input vector into shared memory
-    __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE / 2];
+    __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
 
     // Position variables
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -211,7 +224,7 @@ __global__ void partialSum(float * input, float * output, const int N) {
     unsigned int start = 2 * blockIdx.y * BLOCK_SIZE;
 
     // column modifier that we apply to partialSum[]
-    unsigned int column = 2 * BLOCK_SIZE * tx / 2;
+    unsigned int column = 2 * BLOCK_SIZE * tx;
 
     // Verify that we are inside the array, so CUDA won't throw errors
     if ( y >= N || x >= N )
@@ -249,7 +262,7 @@ __global__ void partialSum(float * input, float * output, const int N) {
 __global__ void partialSumMeanDifferences(float * input, float * output, float * means, const int N) {
 
     // Load a segment of the input vector into shared memory
-    __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE/2];
+    __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
 
     // Position variables
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -261,7 +274,7 @@ __global__ void partialSumMeanDifferences(float * input, float * output, float *
     unsigned int start = 2 * blockIdx.y * BLOCK_SIZE;
 
     // column modifier that we apply to partialSum[]
-    unsigned int column = 2 * BLOCK_SIZE * tx/2;
+    unsigned int column = 2 * BLOCK_SIZE * tx;
 
     // Verify that we are inside the array, so CUDA won't throw errors
     if ( y >= N || x >= N )
@@ -336,27 +349,27 @@ void matrixNorm() {
           h_sums[i*N + j] = 0;
       
 
-  /*printf("MATRIX h_sums BEFORE\n\t");
+  printf("MATRIX h_sums BEFORE\n\t");
   for (row = 0; row < Nsums; row++) {
       for (col = 0; col < N; col++) {
           printf("%1.1f%s", h_sums[row*N + col], (col < N-1) ? ", " : ";\n\t");
       }
-  }*/
-/*
+  }
+
   for (int i=0; i < N; i++)
       for (int j=0; j < N; j++) {
         if ( i == 0 )
           A[i][j] = j;
         else
           A[i][j] = 1;
-      }*/
-/*
+      }
+
   printf("MATRIX A BEFORE\n\t");
   for (row = 0; row < N; row++) {
       for (col = 0; col < N; col++) {
           printf("%1.1f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
       }
-  }*/
+  }
   
 
   // Allocate space for variables
@@ -368,8 +381,8 @@ void matrixNorm() {
   printError( cudaMemcpy( d_sums, h_sums, sizeSums, cudaMemcpyHostToDevice ) , "Error copying from h_sums to d_sums before partialSum()");
   
   int gridSize = ceil(((float)N)/BLOCK_SIZE);
-  dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE/2);
-  dim3 dimGrid( gridSize, gridSize*2);
+  dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
+  dim3 dimGrid( gridSize, gridSize);
 
   // 
   // Use reduction with partial sum algorithm to create partial sums of column values with complexity O(log(N))
@@ -398,11 +411,11 @@ void matrixNorm() {
   for ( int i = 0; i < N; i++ )
     h_means[i] /= N;
 
-/*
+
   printf("MATRIX h_means AFTER\n\t");
   for ( int i = 0; i < N; i++ )
     printf("%1.2f%s", h_means[i], (i < N-1) ? ", " : ";\n\t");
-*/
+
 
   // 
   // Transfer means to CUDA
@@ -441,10 +454,10 @@ void matrixNorm() {
   for ( int i = 0; i < N; i++ )
     h_means[i] = powf(h_means[i]/N, 0.5f);
 
-  /*printf("MATRIX h_means AFTER QUADRATIC ADDING\n\t");
+  printf("MATRIX h_means AFTER QUADRATIC ADDING\n\t");
   for ( int i = 0; i < N; i++ )
     printf("%1.2f%s", h_means[i], (i < N-1) ? ", " : ";\n\t");
-  */
+  
 
   float *d_sigmas;
   printError( cudaMalloc( (void**)&d_sigmas, N*sizeof(float) ) , "Error allocating memory for d_sigmas before normalize()");
