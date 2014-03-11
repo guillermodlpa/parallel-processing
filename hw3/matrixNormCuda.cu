@@ -411,12 +411,12 @@ void matrixNorm() {
   for ( int i = 0; i < N; i++ )
     h_means[i] /= N;
 
-
+/*
   printf("MATRIX h_means AFTER\n\t");
   for ( int i = 0; i < N; i++ )
     printf("%1.2f%s", h_means[i], (i < N-1) ? ", " : ";\n\t");
 
-
+*/
   // 
   // Transfer means to CUDA
   //
