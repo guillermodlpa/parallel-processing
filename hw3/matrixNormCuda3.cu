@@ -358,6 +358,13 @@ void matrixNorm() {
   //
   calculateQuadratic<<< dimGrid, dimBlock>>> (d_A, d_means, N);
 
+  printf("MATRIX A AFTER QUADRATIC CALCULATION\n\t");
+  for (row = 0; row < N; row++) {
+      for (col = 0; col < N; col++) {
+          printf("%1.3f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
+      }
+  }
+
   //
   // Add all the operands (A[i][j] - mean)^2 in each column
   // It is the same operation of adding all values in columns that we did in the step of calculating the mean
@@ -380,32 +387,19 @@ void matrixNorm() {
 
   // Divide between number of elements
   for ( int i = 0; i < N; i++ )
-    h_means[i] /= N;
+    h_means[i] = powf(h_means[i]/N, 0.5f);
 
-  printf("MATRIX h_means AFTER AFTER\n\t");
+  printf("MATRIX h_means AFTER QUADRATIC ADDING\n\t");
   for ( int i = 0; i < N; i++ )
     printf("%1.2f%s", h_means[i], (i < N-1) ? ", " : ";\n\t");
 
+  
 
 
   printError( cudaFree(d_A) );
   printError( cudaFree(d_B) );
   printError( cudaFree(d_means) );
   
-
-  printf("MATRIX h_sums AFTER\n\t");
-  for (row = 0; row < Nsums; row++)
-      for (col = 0; col < N; col++)
-          printf("%1.2f%s", h_sums[row*N + col], (col < N-1) ? ", " : ";\n\t");
-
-  
-  printf("MATRIX A AFTER\n\t");
-  for (row = 0; row < N; row++) {
-      for (col = 0; col < N; col++) {
-          printf("%1.3f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
-      }
-  }
-
 }
 
 
