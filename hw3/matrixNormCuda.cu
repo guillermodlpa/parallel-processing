@@ -176,7 +176,7 @@ int main(int argc, char **argv) {
  * defined in the beginning of this code.  B[][] is initialized to zeros.;
  */
 
-#define BLOCK_SIZE 256
+#define BLOCK_SIZE 64
 
 // http://stackoverflow.com/questions/20086047/cuda-matrix-example-block-size
 void printError(cudaError_t err, char* string) {
