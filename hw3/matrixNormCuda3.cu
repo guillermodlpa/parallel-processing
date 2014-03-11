@@ -250,8 +250,7 @@ __global__ void calculateQuadratic(float * input, float * means, const int N) {
     // Verify that we are inside the array, so CUDA won't throw errors
     if ( y >= N || x >= N )
       return;
-
-    if ( threadIdx.y == 1 )
+    
     input[ x + y*MAXN ] = input[ x + y*MAXN ] - means [ x ];
 }
 
@@ -361,7 +360,7 @@ void matrixNorm() {
   calculateQuadratic<<< dimGrid, dimBlock>>> (d_A, d_means, N);
 
 
-  printError( cudaMemcpy( A, d_A, sizeSums, cudaMemcpyDeviceToHost ) );
+  printError( cudaMemcpy( A, d_A, size, cudaMemcpyDeviceToHost ) );
 
   printError( cudaFree(d_A) );
   printError( cudaFree(d_B) );
