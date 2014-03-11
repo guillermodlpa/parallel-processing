@@ -377,7 +377,7 @@ void matrixNorm() {
   //
   partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N);
 
-  cudaError err = cudaGetLastError();
+  cudaError_t  err = cudaGetLastError();
   if ( cudaSuccess != err )
     printError( err, "Error in partialSum()" );
 
