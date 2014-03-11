@@ -348,13 +348,13 @@ void matrixNorm() {
       for (int j=0; j < N; j++)
           h_sums[i*N + j] = 0;
       
-
+/*
   printf("MATRIX h_sums BEFORE\n\t");
   for (row = 0; row < Nsums; row++) {
       for (col = 0; col < N; col++) {
           printf("%1.1f%s", h_sums[row*N + col], (col < N-1) ? ", " : ";\n\t");
       }
-  }
+  }*/
 /*
   for (int i=0; i < N; i++)
       for (int j=0; j < N; j++) {
@@ -363,13 +363,13 @@ void matrixNorm() {
         else
           A[i][j] = 1;
       }*/
-
+/*
   printf("MATRIX A BEFORE\n\t");
   for (row = 0; row < N; row++) {
       for (col = 0; col < N; col++) {
           printf("%1.1f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
       }
-  }
+  }*/
   
 
   // Allocate space for variables
