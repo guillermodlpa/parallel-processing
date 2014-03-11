@@ -176,7 +176,7 @@ int main(int argc, char **argv) {
  * defined in the beginning of this code.  B[][] is initialized to zeros.;
  */
 
-#define BLOCK_SIZE 32
+#define BLOCK_SIZE 16
 
 // http://stackoverflow.com/questions/20086047/cuda-matrix-example-block-size
 void printError(cudaError_t err, char* string) {
@@ -199,7 +199,7 @@ as well as to operate adding columns instead of rows
 __global__ void partialSum(float * input, float * output, const int N) {
 
     // Load a segment of the input vector into shared memory
-    float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
+    __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
 
     // Position variables
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
