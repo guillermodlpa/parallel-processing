@@ -195,7 +195,7 @@ The code there has been studied, as the comments indicate
 The code had to be adapted to operate with arrays of different dimensions, 
 as well as to operate adding columns instead of rows
 */
-__global__ void partialSum(float * input, float * output, const int N, const int Nmeans) {
+__global__ void partialSum(float * input, float * output, const int N) {
 
     // Load a segment of the input vector into shared memory
     __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
@@ -238,6 +238,16 @@ __global__ void partialSum(float * input, float * output, const int N, const int
     // So we have to put it in the output array
     if (ty == 0)
        output[blockIdx.y*N + x] = partialSum[column];
+}
+
+
+
+__global__ void calculateQuadratic(float * input, float * means, const int N) {
+
+    unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    input[ x + y*MAXN ] = input[ x + y*MAXN ] - means [ x ];
 }
 
 
@@ -303,24 +313,53 @@ void matrixNorm() {
   dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
   dim3 dimGrid( gridSize, gridSize);
 
-  // First iteration
-  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N, Nsums);
+  // 
+  // Use reduction with partial sum algorithm to create partial sums of column values with complexity O(log(N))
+  //
+  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N);
 
   printError( cudaMemcpy( A, d_A, sizeSums, cudaMemcpyDeviceToHost ) );
   printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
   printError( cudaFree(d_sums) );
 
-  float *means;
-  means = (float*)malloc( N*sizeof(float) );
+  // 
+  // Add reducted means sequentially
+  //
+  float *h_means;
+  h_means = (float*)malloc( N*sizeof(float) );
   for ( int i = 0; i < N; i++ )
-    means[i] = 0;
-  
+    h_means[i] = 0;
+
   for ( int i = 0; i < Nsums; i++ )
     for ( int j = 0; j < N; j++ )
-      means[j] += h_sums[i*N+j];
+      h_means[j] += h_sums[i*N+j];
+
+  // Divide between number of elements
+  for ( int i = 0; i < N; i++ )
+    h_means[i] /= N;
+
+  printf("MATRIX h_means AFTER\n\t");
+  for ( int i = 0; i < N; i++ )
+    printf("%1.2f%s", h_means[i], (i < N-1) ? ", " : ";\n\t");
+
+
+  // 
+  // Transfer means to CUDA
+  //
+  float *d_means;
+  printError( cudaMalloc( (void**)&d_means, N*sizeof(float) ) );
+  printError( cudaMemcpy( d_means, h_means, N*sizeof(float), cudaMemcpyHostToDevice) );
+
+  // 
+  // Calculate the value of (A[i][j] - mean)^2
+  // We put the value in the input array because we won't need the original a[i][j] values anymore
+  //
+  calculateQuadratic<<< dimGrid, dimBlock>>> (d_A, d_means, N);
+
 
   printError( cudaFree(d_A) );
   printError( cudaFree(d_B) );
+  printError( cudaFree(d_means) );
   
 
   printf("MATRIX h_sums AFTER\n\t");
@@ -328,18 +367,13 @@ void matrixNorm() {
       for (col = 0; col < N; col++)
           printf("%1.2f%s", h_sums[row*N + col], (col < N-1) ? ", " : ";\n\t");
 
-  printf("MATRIX means AFTER\n\t");
-  for ( int i = 0; i < N; i++ )
-    printf("%1.2f%s", means[i], (i < N-1) ? ", " : ";\n\t");
-
-
-/*
+  
   printf("MATRIX A AFTER\n\t");
   for (row = 0; row < N; row++) {
       for (col = 0; col < N; col++) {
           printf("%1.1f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
       }
-  }*/
+  }
 
 }
 
