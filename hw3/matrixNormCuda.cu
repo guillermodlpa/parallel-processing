@@ -360,7 +360,6 @@ void matrixNorm() {
 
   // Allocate space for variables
   printError( cudaMalloc( (void**)&d_A, size ) );
-  printError( cudaMalloc( (void**)&d_B, size ) );
   printError( cudaMalloc( (void**)&d_sums, sizeSums ) );
 
   // Copy the matrix A and the matrix that will contain the output of the partial sums algorithm
@@ -418,6 +417,7 @@ void matrixNorm() {
   printError( cudaMemcpy( A, d_A, size, cudaMemcpyDeviceToHost ) );
 
   printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
+  printError( cudaFree(d_sums) );
 
   // 
   // Add reducted means sequentially. After that, divide by N and calculate square root
@@ -447,13 +447,14 @@ void matrixNorm() {
   // B[row][col] = (A[row][col] – mean) / standard_deviation
   //
 
+  printError( cudaMalloc( (void**)&d_B, size ) );
+
   normalize<<< dimGrid, dimBlock>>> (d_A, d_B, d_means, d_deviations, N);
 
   printError( cudaMemcpy( B, d_B, size, cudaMemcpyDeviceToHost ) );
 
   printError( cudaFree(d_A) );
   printError( cudaFree(d_B) );
-  printError( cudaFree(d_sums) );
   printError( cudaFree(d_means) );
   printError( cudaFree(d_deviations) );
   
