@@ -366,7 +366,7 @@ void matrixNorm() {
   // Copy the matrix A and the matrix that will contain the output of the partial sums algorithm
   printError( cudaMemcpy( d_A, A, size, cudaMemcpyHostToDevice) , "Error copying from A to d_A before partialSum()");
   printError( cudaMemcpy( d_sums, h_sums, sizeSums, cudaMemcpyHostToDevice ) , "Error copying from h_sums to d_sums before partialSum()");
-
+printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) , "111");
   
   int gridSize = ceil(((float)N)/BLOCK_SIZE);
   dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
