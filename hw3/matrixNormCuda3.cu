@@ -240,8 +240,12 @@ __global__ void partialSum(float * input, float * output, const int N) {
        output[blockIdx.y*N + x] = partialSum[column];
 }
 
-
-__global__ void partialSum2(float * input, float * output, float * means, const int N) {
+/**
+  This function behaves in the same way that partialSum but the input is modified every time using the mean parameter
+  The function performed when reading the input is (A[i][j] - mean)^2
+  By doing this, we integrate the step of that calculation with the sum of all columns
+*/
+__global__ void partialSumMeanDifferences(float * input, float * output, float * means, const int N) {
 
     // Load a segment of the input vector into shared memory
     __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
@@ -287,7 +291,7 @@ __global__ void partialSum2(float * input, float * output, float * means, const 
 }
 
 
-
+/*
 __global__ void calculateQuadratic(float * input, float * means, const int N) {
 
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -298,6 +302,19 @@ __global__ void calculateQuadratic(float * input, float * means, const int N) {
       return;
 
     input[ x + y*MAXN ] = powf(input[ x + y*MAXN ] - means [ x ], 2);
+}*/
+
+
+__global__ void normalize(float * input, float * means, float * deviations, const int N) {
+
+    unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    // Verify that we are inside the array, so CUDA won't throw errors
+    if ( y >= N || x >= N )
+      return;
+
+    output[ x + y*MAXN ] = ( input[ x + y*MAXN ] - means [x] ) / deviations [x];
 }
 
 
@@ -400,23 +417,10 @@ void matrixNorm() {
 
   // 
   // Calculate the value of (A[i][j] - mean)^2
-  // We put the value in the input array because we won't need the original a[i][j] values anymore
-  //
-  /*
-  calculateQuadratic<<< dimGrid, dimBlock>>> (d_A, d_means, N);
-
-  printf("MATRIX A AFTER QUADRATIC CALCULATION\n\t");
-  for (row = 0; row < N; row++) {
-      for (col = 0; col < N; col++) {
-          printf("%1.3f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
-      }
-  }*/
-
-  //
   // Add all the operands (A[i][j] - mean)^2 in each column
   // It is the same operation of adding all values in columns that we did in the step of calculating the mean
   //
-  partialSum2<<< dimGrid, dimBlock>>> (d_A, d_sums, d_means, N);
+  partialSumMeanDifferences<<< dimGrid, dimBlock>>> (d_A, d_sums, d_means, N);
 
   printError( cudaMemcpy( A, d_A, size, cudaMemcpyDeviceToHost ) );
 
@@ -440,16 +444,29 @@ void matrixNorm() {
   for ( int i = 0; i < N; i++ )
     printf("%1.2f%s", h_means[i], (i < N-1) ? ", " : ";\n\t");
 
+
+  float *h_deviations;
+  h_deviations = (float*)malloc( N*sizeof(float) );
+  for ( int i = 0; i < N; i++ )
+    h_deviations[i] = 0;
+
+  float *d_deviations;
+  printError( cudaMalloc( (void**)&d_deviations, N*sizeof(float) ) );
+  printError( cudaMemcpy( d_deviations, h_deviations, N*sizeof(float), cudaMemcpyHostToDevice) );
   
   // 
   // Apply the formula to normalize
   // B[row][col] = (A[row][col] – mean) / standard_deviation
   //
 
+  normalize<<< dimGrid, dimBlock>>> (d_A, d_B, d_means, d_deviations, N);
+
+  printError( cudaMemcpy( B, d_B, size, cudaMemcpyDeviceToHost ) );
 
   printError( cudaFree(d_A) );
   printError( cudaFree(d_B) );
   printError( cudaFree(d_means) );
+  printError( cudaFree(d_deviations) );
   
 }
 
