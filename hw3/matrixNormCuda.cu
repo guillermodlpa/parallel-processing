@@ -88,7 +88,7 @@ void initialize_inputs() {
 void print_inputs() {
   int row, col;
 
-  if (N < 10) {
+  if (N < 35) {
     printf("\nA =\n\t");
     for (row = 0; row < N; row++) {
       for (col = 0; col < N; col++) {
@@ -101,7 +101,7 @@ void print_inputs() {
 void print_B() {
     int row, col;
 
-    if (N < 10) {
+    if (N < 35) {
         printf("\nB =\n\t");
         for (row = 0; row < N; row++) {
             for (col = 0; col < N; col++) {
@@ -176,7 +176,7 @@ int main(int argc, char **argv) {
  * defined in the beginning of this code.  B[][] is initialized to zeros.;
  */
 
-#define BLOCK_SIZE 4
+#define BLOCK_SIZE 32
 
 // http://stackoverflow.com/questions/20086047/cuda-matrix-example-block-size
 void printError(cudaError_t err) {
