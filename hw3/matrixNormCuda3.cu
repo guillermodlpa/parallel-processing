@@ -251,6 +251,7 @@ __global__ void calculateQuadratic(float * input, float * means, const int N) {
     if ( y >= N || x >= N )
       return;
 
+    if ( threadIdx.y == 1 )
     input[ x + y*MAXN ] = input[ x + y*MAXN ] - means [ x ];
 }
 
