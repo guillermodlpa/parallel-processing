@@ -312,6 +312,9 @@ void matrixNorm() {
 
   float *means;
   means = (float*)malloc( N*sizeof(float) );
+  for ( int i = 0; i < N; i++ )
+    means[i] = 0;
+  
   for ( int i = 0; i < Nsums; i++ )
     for ( int j = 0; j < N; j++ )
       means[j] += h_sums[i*N+j];
