@@ -264,13 +264,13 @@ __global__ void partialSum2(float * input, float * output, float * means, const 
 
     // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
     if (start + ty < N)
-       partialSum[ ty + column ] = powf(input[ (start + ty)*MAXN + x ] - means [ x ], 2)
+       partialSum[ ty + column ] = powf(input[ (start + ty)*MAXN + x ] - means [ x ], 2);
     else
        partialSum[ ty + column ] = 0;
 
     // The same for the last element of the block, the other value that we're going to sum up
     if (start + BLOCK_SIZE + ty < N)
-       partialSum[BLOCK_SIZE + ty + column] = powf(input[ (start + BLOCK_SIZE + ty)*MAXN + x ] - means [ x ], 2)
+       partialSum[BLOCK_SIZE + ty + column] = powf(input[ (start + BLOCK_SIZE + ty)*MAXN + x ] - means [ x ], 2);
     else
        partialSum[BLOCK_SIZE + ty + column] = 0;  
 
