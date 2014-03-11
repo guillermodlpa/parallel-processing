@@ -250,8 +250,8 @@ __global__ void calculateQuadratic(float * input, float * means, const int N) {
     // Verify that we are inside the array, so CUDA won't throw errors
     if ( y >= N || x >= N )
       return;
-    
-    input[ x + y*MAXN ] = input[ x + y*MAXN ] - means [ x ];
+
+    input[ x + y*MAXN ] = powf(input[ x + y*MAXN ] - means [ x ], 0.5f);
 }
 
 
