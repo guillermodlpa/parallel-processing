@@ -452,7 +452,7 @@ void matrixNorm() {
 
   normalize<<< dimGrid, dimBlock>>> (d_A, d_B, d_means, d_sigmas, N);
 
-  printError( cudaMemcpy( B, d_B, size, cudaMemcpyDeviceToHost ) );
+  printError( cudaMemcpy( B, d_B, size, cudaMemcpyDeviceToHost ) , "Error copying memory from d_B to B after normalize()");
 
   printError( cudaFree(d_A) , "Error freeing memory of d_A after normalize()");
   printError( cudaFree(d_B) , "Error freeing memory ofd_B d_A after normalize()");
