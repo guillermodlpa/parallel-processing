@@ -179,9 +179,10 @@ int main(int argc, char **argv) {
 #define BLOCK_SIZE 32
 
 // http://stackoverflow.com/questions/20086047/cuda-matrix-example-block-size
-void printError(cudaError_t err) {
+void printError(cudaError_t err, char* string) {
     if(err != 0) {
         printf("CUDA ERROR: %s\n", cudaGetErrorString(err));
+        printf("Description:  %s\n",string)
         getchar();
     }
 }
@@ -359,12 +360,12 @@ void matrixNorm() {
   
 
   // Allocate space for variables
-  printError( cudaMalloc( (void**)&d_A, size ) );
-  printError( cudaMalloc( (void**)&d_sums, sizeSums ) );
+  printError( cudaMalloc( (void**)&d_A, size ) , "Error allocating memory for d_A before partialSum()");
+  printError( cudaMalloc( (void**)&d_sums, sizeSums ) , "Error allocating memory for d_sums before partialSum()");
 
   // Copy the matrix A and the matrix that will contain the output of the partial sums algorithm
-  printError( cudaMemcpy( d_A, A, size, cudaMemcpyHostToDevice) );
-  printError( cudaMemcpy( d_sums, h_sums, sizeSums, cudaMemcpyHostToDevice ));
+  printError( cudaMemcpy( d_A, A, size, cudaMemcpyHostToDevice) , "Error copying from A to d_A before partialSum()");
+  printError( cudaMemcpy( d_sums, h_sums, sizeSums, cudaMemcpyHostToDevice ) , "Error copying from h_sums to d_sums before partialSum()");
 
   
   int gridSize = ceil(((float)N)/BLOCK_SIZE);
@@ -376,7 +377,7 @@ void matrixNorm() {
   //
   partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N);
 
-  printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
+  printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) , "Error copying from d_sums to h_sums after partialSum()");
 
   // 
   // Add reducted means sequentially. After that, divide by N, total number of elements in a column
@@ -404,8 +405,8 @@ void matrixNorm() {
   // Transfer means to CUDA
   //
   float *d_means;
-  printError( cudaMalloc( (void**)&d_means, N*sizeof(float) ) );
-  printError( cudaMemcpy( d_means, h_means, N*sizeof(float), cudaMemcpyHostToDevice) );
+  printError( cudaMalloc( (void**)&d_means, N*sizeof(float) ) , "Error allocating memory for d_means before  partialSumMeanDifferences()");
+  printError( cudaMemcpy( d_means, h_means, N*sizeof(float), cudaMemcpyHostToDevice) , "Error copying from h_means to d_means before  partialSumMeanDifferences()");
 
   // 
   // Calculate the value of (A[i][j] - mean)^2
@@ -414,10 +415,10 @@ void matrixNorm() {
   //
   partialSumMeanDifferences<<< dimGrid, dimBlock>>> (d_A, d_sums, d_means, N);
 
-  printError( cudaMemcpy( A, d_A, size, cudaMemcpyDeviceToHost ) );
+  //printError( cudaMemcpy( A, d_A, size, cudaMemcpyDeviceToHost ) , "Error copying from d_A to A");
 
-  printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
-  printError( cudaFree(d_sums) );
+  printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) , "Error copying from d_sums to h_sums after partialSumMeanDifferences()");
+  printError( cudaFree(d_sums) , "Error freeing memory of d_sums after partialSumMeanDifferences()");
 
   // 
   // Add reducted means sequentially. After that, divide by N and calculate square root
@@ -438,25 +439,25 @@ void matrixNorm() {
     printf("%1.2f%s", h_means[i], (i < N-1) ? ", " : ";\n\t");
   */
 
-  float *d_deviations;
-  printError( cudaMalloc( (void**)&d_deviations, N*sizeof(float) ) );
-  printError( cudaMemcpy( d_deviations, h_means, N*sizeof(float), cudaMemcpyHostToDevice) );
+  float *d_sigmas;
+  printError( cudaMalloc( (void**)&d_sigmas, N*sizeof(float) ) , "Error allocating memory for d_sigmas before normalize()");
+  printError( cudaMemcpy( d_sigmas, h_means, N*sizeof(float), cudaMemcpyHostToDevice) , "Error copying from h_means to d_sigmas before normalize()");
   
   // 
   // Apply the formula to normalize
   // B[row][col] = (A[row][col] – mean) / standard_deviation
   //
 
-  printError( cudaMalloc( (void**)&d_B, size ) );
+  printError( cudaMalloc( (void**)&d_B, size ) , "Error allocating memory for d_B before normalize()");
 
-  normalize<<< dimGrid, dimBlock>>> (d_A, d_B, d_means, d_deviations, N);
+  normalize<<< dimGrid, dimBlock>>> (d_A, d_B, d_means, d_sigmas, N);
 
   printError( cudaMemcpy( B, d_B, size, cudaMemcpyDeviceToHost ) );
 
-  printError( cudaFree(d_A) );
-  printError( cudaFree(d_B) );
-  printError( cudaFree(d_means) );
-  printError( cudaFree(d_deviations) );
+  printError( cudaFree(d_A) , "Error freeing memory of d_A after normalize()");
+  printError( cudaFree(d_B) , "Error freeing memory ofd_B d_A after normalize()");
+  printError( cudaFree(d_means) , "Error freeing memory of d_A after normalize()");
+  printError( cudaFree(d_sigmas) , "Error d_means memory of d_sigmas after normalize()");
   
   free ( h_sums );
   free ( h_means );
