@@ -371,8 +371,6 @@ void matrixNorm() {
   // 
   // Add reducted means sequentially
   //
-  float *h_means;
-  h_means = (float*)malloc( N*sizeof(float) );
   for ( int i = 0; i < N; i++ )
     h_means[i] = 0;
 
