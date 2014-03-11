@@ -14,7 +14,7 @@
 #include <sys/times.h>
 #include <sys/time.h>
 #include <time.h>
- #include <iostream>
+#include <iostream>
 
 /* Program Parameters */
 #define MAXN 8000  /* Max value of N */
@@ -178,180 +178,6 @@ int main(int argc, char **argv) {
 
 #define BLOCK_SIZE 4
 
-
-/**
-This function performs the partial sum of the given arrays
-It is an improvement over the partial sum example from class
-Inspired in the code found in https://gist.github.com/wh5a/4424992
-The code there has been studied, as the comments indicate
-*/
-
-/*
-__global__ void 
-partialSum(float *input, float *output, const int N, const int Noutput) {
-
-  // Load a segment of the input vector into shared memory
-  // This is because the entire array might be too big and is stored into the global memory
-    __shared__ float partialSum[2* BLOCK_SIZE*BLOCK_SIZE];
-
-    // Position in the input array
-    unsigned int t = threadIdx.x;
-
-    unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
-    unsigned int ty = threadIdx.y;
-
-
-    if ( y >= N )
-      return;
-
-    // Start is the beining of the current calculations
-    // If blockIdx is not 0, then the result will go to the blockIdx position of the output array
-    unsigned int start = 2 * blockIdx.x * BLOCK_SIZE;
-
-    // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
-    if (start + t < N)
-       //partialSum[t+ty*BLOCK_SIZE] = input[start + t +y*N];
-      partialSum[t + ty*2*BLOCK_SIZE] = input[start + t + y*N];
-    else
-       //partialSum[t+ty*BLOCK_SIZE] = 0;
-      partialSum[t + ty*2*BLOCK_SIZE] = 0;
-   
-    // The same for the last element of the block, the other value that we're going to sum up
-    if (start + BLOCK_SIZE + t < N)
-       //partialSum[BLOCK_SIZE + t+ty*BLOCK_SIZE] = input[start + BLOCK_SIZE + t +y*N];
-      partialSum[BLOCK_SIZE + t + ty*2*BLOCK_SIZE] = input[start + BLOCK_SIZE + t + y*N];
-    else
-       //partialSum[BLOCK_SIZE + t+y*2*BLOCK_SIZE] = 0;
-      partialSum[BLOCK_SIZE + t + ty*2*BLOCK_SIZE] = 0;
-   
-    // Perform the partial sum
-    for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
-       __syncthreads();
-       if (t < stride)
-          //partialSum[t+ty*BLOCK_SIZE] += partialSum[t+stride+ty*BLOCK_SIZE];
-          partialSum[t + ty*2*BLOCK_SIZE] += partialSum[t+stride + ty*2*BLOCK_SIZE];
-    }
-
-    // After the loop, the partial sum is found in partialSum[0]
-    // So we have to put it in the output array
-    if (t == 0)
-       //output[blockIdx.x + y*Noutput] += partialSum[0+ty*BLOCK_SIZE];
-      output[blockIdx.x + y*Noutput] = partialSum[ty*2*BLOCK_SIZE];
-}
-*/
-
-__global__ void partialSum(float * input, float * output, const int len, const int Nmeans) {
-    //@@ Load a segment of the input vector into shared memory
-    __shared__ float partialSum[2 * BLOCK_SIZE];
-    unsigned int t = threadIdx.x, start = 2 * blockIdx.x * BLOCK_SIZE;
-    if (start + t < len)
-       partialSum[t] = input[start + t];
-    else
-       partialSum[t] = 0;
-    if (start + BLOCK_SIZE + t < len)
-       partialSum[BLOCK_SIZE + t] = input[start + BLOCK_SIZE + t];
-    else
-       partialSum[BLOCK_SIZE + t] = 0;
-    //@@ Traverse the reduction tree
-    for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
-       __syncthreads();
-       if (t < stride)
-          partialSum[t] += partialSum[t+stride];
-    }
-    //@@ Write the computed sum of the block to the output vector at the 
-    //@@ correct index
-    if (t == 0)
-       output[blockIdx.x] = partialSum[0];
-}
-
-
-
-void matrixNorm() {
-
-  printf("Computing using CUDA.\n");
-
-  // CALCULATING MEAN
-  int size = N*N*sizeof(float);
-  int Nmeans = ceil( ((float)N) / (BLOCK_SIZE<<1));
-  int sizeMeans = N*Nmeans*sizeof(float);
-  int row, col;
-
-  float *d_means, *d_A, *d_B, *h_means;
-
-  h_means = (float*)malloc(sizeMeans);
-
-  for (int i=0; i < Nmeans; i++)
-      for (int j=0; j < N; j++)
-         h_means[i*Nmeans+j]=0;
-
-       printf("MATRIX BEFORE\n\t");
-  
-  for (row = 0; row < Nmeans; row++) {
-      for (col = 0; col < N; col++) {
-          printf("%1.1f%s", h_means[row +N*col], (col < N-1) ? ", " : ";\n\t");
-      }
-  }
-
-  for (row = 0; row < N; row++) {
-      for (col = 0; col < N; col++) {
-          printf("%1.1f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
-      }
-  }
-
-  cudaMalloc( (void**)&d_A, size );
-  cudaMalloc( (void**)&d_B, size );
-  cudaMalloc( (void**)&d_means, sizeMeans );
-
-  cudaMemcpy( d_A, A, size, cudaMemcpyHostToDevice);
-  cudaMemcpy( d_means, h_means, sizeMeans, cudaMemcpyHostToDevice);
-
-  dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
-  dim3 dimGrid( ceil(((float)N)/BLOCK_SIZE), ceil(((float)N)/BLOCK_SIZE) );
-
-  partialSum<<< dimGrid, dimBlock>>> (d_A, d_means, N, Nmeans);
-
-  cudaMemcpy( h_means, d_means, sizeMeans, cudaMemcpyDeviceToHost );
-
-  cudaFree(d_A);
-  cudaFree(d_B);
-  cudaFree(d_means);
-
-  printf("MATRIX AFTER\n\t");
-  
-  for (row = 0; row < Nmeans; row++)
-    for (col=0; col < N; col++)
-      printf("%1.1f%s", h_means[row+col*Nmeans], (col < N-1) ? ", " : ";\n\t");
-
-}
-/*
-void matrixNorm() {
-  int row, col; 
-  float mu, sigma; // Mean and Standard Deviation
-
-  printf("Computing using CUDA.\n");
-
-    for (col=0; col < N; col++) {
-        mu = 0.0;
-        for (row=0; row < N; row++)
-            mu += A[row][col];
-        mu /= (float) N;
-        sigma = 0.0;
-        for (row=0; row < N; row++)
-            sigma += powf(A[row][col] - mu, 2.0);
-        sigma /= (float) N;
-        sigma = sqrt(sigma);
-        //printf("Mean eq %g.Sigma eq %g.\n", mu, sigma);
-        for (row=0; row < N; row++) {
-            if (sigma == 0.0)
-                B[row][col] = 0.0;
-            else
-                B[row][col] = (A[row][col] - mu) / sigma;
-        }
-    }
-
-}*/
-
-
 // http://stackoverflow.com/questions/20086047/cuda-matrix-example-block-size
 void printError(cudaError_t err) {
     if(err != 0) {
@@ -359,4 +185,279 @@ void printError(cudaError_t err) {
         getchar();
     }
 }
+
+/**
+This function performs the partial sum of the given arrays
+It is an improvement over the partial sum example from class
+Inspired in the code found in https://gist.github.com/wh5a/4424992
+The code there has been studied, as the comments indicate
+
+The code had to be adapted to operate with arrays of different dimensions, 
+as well as to operate adding columns instead of rows
+*/
+__global__ void partialSum(float * input, float * output, const int N) {
+
+    // Load a segment of the input vector into shared memory
+    __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
+
+    // Position variables
+    unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int ty = threadIdx.y;
+    unsigned int tx = threadIdx.x;
+
+    // Where does the calculation start for this iteration, based on the block X position
+    unsigned int start = 2 * blockIdx.y * BLOCK_SIZE;
+
+    // column modifier that we apply to partialSum[]
+    unsigned int column = 2 * BLOCK_SIZE * tx;
+
+    // Verify that we are inside the array, so CUDA won't throw errors
+    if ( y >= N || x >= N )
+      return;
+
+    // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
+    if (start + ty < N)
+       partialSum[ ty + column ] = input[ (start + ty)*MAXN + x ];
+    else
+       partialSum[ ty + column ] = 0;
+
+    // The same for the last element of the block, the other value that we're going to sum up
+    if (start + BLOCK_SIZE + ty < N)
+       partialSum[BLOCK_SIZE + ty + column] = input[ (start + BLOCK_SIZE + ty)*MAXN + x ];
+    else
+       partialSum[BLOCK_SIZE + ty + column] = 0;  
+
+    // Perform the partial sum
+    for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
+       __syncthreads();
+       if (ty < stride)
+          partialSum[ty + column] += partialSum[ty+stride + column];
+    }
+    // After the loop, the partial sum is found in partialSum[0]
+    // So we have to put it in the output array
+    if (ty == 0)
+       output[blockIdx.y*N + x] = partialSum[column];
+}
+
+/**
+  This function behaves in the same way that partialSum but the input is modified every time using the mean parameter
+  The function performed when reading the input is (A[i][j] - mean)^2
+  By doing this, we integrate the step of that calculation with the sum of all columns
+*/
+__global__ void partialSumMeanDifferences(float * input, float * output, float * means, const int N) {
+
+    // Load a segment of the input vector into shared memory
+    __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
+
+    // Position variables
+    unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int ty = threadIdx.y;
+    unsigned int tx = threadIdx.x;
+
+    // Where does the calculation start for this iteration, based on the block X position
+    unsigned int start = 2 * blockIdx.y * BLOCK_SIZE;
+
+    // column modifier that we apply to partialSum[]
+    unsigned int column = 2 * BLOCK_SIZE * tx;
+
+    // Verify that we are inside the array, so CUDA won't throw errors
+    if ( y >= N || x >= N )
+      return;
+
+    // If we are inside the input array, we transfer the value that we're going to sum up to the partial sum array
+    if (start + ty < N)
+       partialSum[ ty + column ] = powf(input[ (start + ty)*MAXN + x ] - means [ x ], 2);
+    else
+       partialSum[ ty + column ] = 0;
+
+    // The same for the last element of the block, the other value that we're going to sum up
+    if (start + BLOCK_SIZE + ty < N)
+       partialSum[BLOCK_SIZE + ty + column] = powf(input[ (start + BLOCK_SIZE + ty)*MAXN + x ] - means [ x ], 2);
+    else
+       partialSum[BLOCK_SIZE + ty + column] = 0;  
+
+    // Perform the partial sum
+    for (unsigned int stride = BLOCK_SIZE; stride >= 1; stride >>= 1) {
+       __syncthreads();
+       if (ty < stride)
+          partialSum[ty + column] += partialSum[ty+stride + column];
+    }
+    // After the loop, the partial sum is found in partialSum[0]
+    // So we have to put it in the output array
+    if (ty == 0)
+       output[blockIdx.y*N + x] = partialSum[column];
+}
+
+/**
+ This function performs the operation of normalizing 
+ That is applying B[row][col] = (A[row][col] – mean) / standard_deviation
+*/
+__global__ void normalize(float * input, float * output, float * means, float * deviations, const int N) {
+
+    unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    // Verify that we are inside the array, so CUDA won't throw errors
+    if ( y >= N || x >= N )
+      return;
+
+    if ( deviations [x] == 0 )
+       output[ x + y*MAXN ] = 0;
+    else
+      output[ x + y*MAXN ] = ( input[ x + y*MAXN ] - means [x] ) / deviations [x];
+}
+
+
+
+void matrixNorm() {
+
+  printf("Computing using CUDA.\n");
+  
+  // Size of input and output arrays (they are initialized with MAXN)
+  int size = MAXN*MAXN*sizeof(float);
+
+  // Size of the output of the partial sums algorithm
+  int Nsums = ceil( ((float)N) / (BLOCK_SIZE<<1));
+  int sizeSums = N*Nsums*sizeof(float);
+
+  int row, col;
+
+  float *d_sums, *d_A, *d_B;
+
+  //Get user input into size;
+  //float (*h_sums)[BLOCK_SIZE] = new float[N][BLOCK_SIZE];
+  float *h_sums;
+  h_sums = (float*)malloc(sizeSums);
+  for (int i=0; i < Nsums; i++)
+      for (int j=0; j < N; j++)
+          h_sums[i*N + j] = 0;
+      
+
+  /*printf("MATRIX h_sums BEFORE\n\t");
+  for (row = 0; row < Nsums; row++) {
+      for (col = 0; col < N; col++) {
+          printf("%1.1f%s", h_sums[row*N + col], (col < N-1) ? ", " : ";\n\t");
+      }
+  }*/
+/*
+  for (int i=0; i < N; i++)
+      for (int j=0; j < N; j++) {
+        if ( i == 0 )
+          A[i][j] = j;
+        else
+          A[i][j] = 1;
+      }*/
+/*
+  printf("MATRIX A BEFORE\n\t");
+  for (row = 0; row < N; row++) {
+      for (col = 0; col < N; col++) {
+          printf("%1.1f%s", A[row][col], (col < N-1) ? ", " : ";\n\t");
+      }
+  }*/
+  
+
+  // Allocate space for variables
+  printError( cudaMalloc( (void**)&d_A, size ) );
+  printError( cudaMalloc( (void**)&d_B, size ) );
+  printError( cudaMalloc( (void**)&d_sums, sizeSums ) );
+
+  // Copy the matrix A and the matrix that will contain the output of the partial sums algorithm
+  printError( cudaMemcpy( d_A, A, size, cudaMemcpyHostToDevice) );
+  printError( cudaMemcpy( d_sums, h_sums, sizeSums, cudaMemcpyHostToDevice ));
+
+  
+  int gridSize = ceil(((float)N)/BLOCK_SIZE);
+  dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
+  dim3 dimGrid( gridSize, gridSize);
+
+  // 
+  // Use reduction with partial sum algorithm to create partial sums of column values with complexity O(log(N))
+  //
+  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N);
+
+  printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
+
+  // 
+  // Add reducted means sequentially. After that, divide by N, total number of elements in a column
+  //
+  float *h_means;
+  h_means = (float*)malloc( N*sizeof(float) );
+  for ( int i = 0; i < N; i++ )
+    h_means[i] = 0;
+
+  for ( int i = 0; i < Nsums; i++ )
+    for ( int j = 0; j < N; j++ )
+      h_means[j] += h_sums[i*N+j];
+
+  // Divide between number of elements
+  for ( int i = 0; i < N; i++ )
+    h_means[i] /= N;
+
+  printf("MATRIX h_means AFTER\n\t");
+  for ( int i = 0; i < N; i++ )
+    printf("%1.2f%s", h_means[i], (i < N-1) ? ", " : ";\n\t");
+
+
+  // 
+  // Transfer means to CUDA
+  //
+  float *d_means;
+  printError( cudaMalloc( (void**)&d_means, N*sizeof(float) ) );
+  printError( cudaMemcpy( d_means, h_means, N*sizeof(float), cudaMemcpyHostToDevice) );
+
+  // 
+  // Calculate the value of (A[i][j] - mean)^2
+  // Add all the operands (A[i][j] - mean)^2 in each column
+  // It is the same operation of adding all values in columns that we did in the step of calculating the mean
+  //
+  partialSumMeanDifferences<<< dimGrid, dimBlock>>> (d_A, d_sums, d_means, N);
+
+  printError( cudaMemcpy( A, d_A, size, cudaMemcpyDeviceToHost ) );
+
+  printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) );
+
+  // 
+  // Add reducted means sequentially. After that, divide by N and calculate square root
+  //
+  for ( int i = 0; i < N; i++ )
+    h_means[i] = 0;
+
+  for ( int i = 0; i < Nsums; i++ )
+    for ( int j = 0; j < N; j++ )
+      h_means[j] += h_sums[i*N+j];
+
+  // Divide between number of elements
+  for ( int i = 0; i < N; i++ )
+    h_means[i] = powf(h_means[i]/N, 0.5f);
+
+  printf("MATRIX h_means AFTER QUADRATIC ADDING\n\t");
+  for ( int i = 0; i < N; i++ )
+    printf("%1.2f%s", h_means[i], (i < N-1) ? ", " : ";\n\t");
+
+
+  float *d_deviations;
+  printError( cudaMalloc( (void**)&d_deviations, N*sizeof(float) ) );
+  printError( cudaMemcpy( d_deviations, h_means, N*sizeof(float), cudaMemcpyHostToDevice) );
+  
+  // 
+  // Apply the formula to normalize
+  // B[row][col] = (A[row][col] – mean) / standard_deviation
+  //
+
+  normalize<<< dimGrid, dimBlock>>> (d_A, d_B, d_means, d_deviations, N);
+
+  printError( cudaMemcpy( B, d_B, size, cudaMemcpyDeviceToHost ) );
+
+  printError( cudaFree(d_A) );
+  printError( cudaFree(d_B) );
+  printError( cudaFree(d_sums) );
+  printError( cudaFree(d_means) );
+  printError( cudaFree(d_deviations) );
+  
+  free ( h_sums );
+  free ( h_means );
+}
+
 
