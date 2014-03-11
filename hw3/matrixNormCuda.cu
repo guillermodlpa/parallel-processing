@@ -199,7 +199,7 @@ as well as to operate adding columns instead of rows
 __global__ void partialSum(float * input, float * output, const int N) {
 
     // Load a segment of the input vector into shared memory
-    __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
+    __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE / 2];
 
     // Position variables
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -211,7 +211,7 @@ __global__ void partialSum(float * input, float * output, const int N) {
     unsigned int start = 2 * blockIdx.y * BLOCK_SIZE;
 
     // column modifier that we apply to partialSum[]
-    unsigned int column = 2 * BLOCK_SIZE * tx;
+    unsigned int column = 2 * BLOCK_SIZE * tx / 2;
 
     // Verify that we are inside the array, so CUDA won't throw errors
     if ( y >= N || x >= N )
@@ -249,7 +249,7 @@ __global__ void partialSum(float * input, float * output, const int N) {
 __global__ void partialSumMeanDifferences(float * input, float * output, float * means, const int N) {
 
     // Load a segment of the input vector into shared memory
-    __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE];
+    __shared__ float partialSum[2 * BLOCK_SIZE * BLOCK_SIZE/2];
 
     // Position variables
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -261,7 +261,7 @@ __global__ void partialSumMeanDifferences(float * input, float * output, float *
     unsigned int start = 2 * blockIdx.y * BLOCK_SIZE;
 
     // column modifier that we apply to partialSum[]
-    unsigned int column = 2 * BLOCK_SIZE * tx;
+    unsigned int column = 2 * BLOCK_SIZE * tx/2;
 
     // Verify that we are inside the array, so CUDA won't throw errors
     if ( y >= N || x >= N )
@@ -368,8 +368,8 @@ void matrixNorm() {
   printError( cudaMemcpy( d_sums, h_sums, sizeSums, cudaMemcpyHostToDevice ) , "Error copying from h_sums to d_sums before partialSum()");
   
   int gridSize = ceil(((float)N)/BLOCK_SIZE);
-  dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE );
-  dim3 dimGrid( gridSize, gridSize);
+  dim3 dimBlock( BLOCK_SIZE, BLOCK_SIZE/2);
+  dim3 dimGrid( gridSize, gridSize*2);
 
   // 
   // Use reduction with partial sum algorithm to create partial sums of column values with complexity O(log(N))
