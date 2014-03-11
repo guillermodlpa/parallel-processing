@@ -176,7 +176,7 @@ int main(int argc, char **argv) {
  * defined in the beginning of this code.  B[][] is initialized to zeros.;
  */
 
-#define BLOCK_SIZE 32
+#define BLOCK_SIZE 256
 
 // http://stackoverflow.com/questions/20086047/cuda-matrix-example-block-size
 void printError(cudaError_t err, char* string) {
@@ -459,7 +459,7 @@ void matrixNorm() {
   printError( cudaMalloc( (void**)&d_B, size ) , "Error allocating memory for d_B before normalize()");
 
   normalize<<< dimGrid, dimBlock>>> (d_A, d_B, d_means, d_sigmas, N);
-  
+
   err = cudaGetLastError();
   if ( cudaSuccess != err )
     printError( err, "Error in normalize()" );
