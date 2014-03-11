@@ -182,7 +182,7 @@ int main(int argc, char **argv) {
 void printError(cudaError_t err, char* string) {
     if(err != 0) {
         printf("CUDA ERROR: %s\n", cudaGetErrorString(err));
-        printf("Description:  %s\n",string)
+        printf("Description:  %s\n",string);
         getchar();
     }
 }
