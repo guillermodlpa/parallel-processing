@@ -448,14 +448,9 @@ void matrixNorm() {
     printf("%1.2f%s", h_means[i], (i < N-1) ? ", " : ";\n\t");
 
 
-  float *h_deviations;
-  h_deviations = (float*)malloc( N*sizeof(float) );
-  for ( int i = 0; i < N; i++ )
-    h_deviations[i] = 0;
-
   float *d_deviations;
   printError( cudaMalloc( (void**)&d_deviations, N*sizeof(float) ) );
-  printError( cudaMemcpy( d_deviations, h_deviations, N*sizeof(float), cudaMemcpyHostToDevice) );
+  printError( cudaMemcpy( d_deviations, h_means, N*sizeof(float), cudaMemcpyHostToDevice) );
   
   // 
   // Apply the formula to normalize
