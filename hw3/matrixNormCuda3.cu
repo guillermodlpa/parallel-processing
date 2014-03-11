@@ -247,6 +247,10 @@ __global__ void calculateQuadratic(float * input, float * means, const int N) {
     unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 
+    // Verify that we are inside the array, so CUDA won't throw errors
+    if ( y >= N || x >= N )
+      return;
+
     input[ x + y*MAXN ] = input[ x + y*MAXN ] - means [ x ];
 }
 
@@ -355,7 +359,7 @@ void matrixNorm() {
   //
   calculateQuadratic<<< dimGrid, dimBlock>>> (d_A, d_means, N);
 
-  
+
   printError( cudaMemcpy( A, d_A, sizeSums, cudaMemcpyDeviceToHost ) );
 
   printError( cudaFree(d_A) );
