@@ -395,10 +395,11 @@ void matrixNorm() {
   for ( int i = 0; i < N; i++ )
     h_means[i] /= N;
 
+/*
   printf("MATRIX h_means AFTER\n\t");
   for ( int i = 0; i < N; i++ )
     printf("%1.2f%s", h_means[i], (i < N-1) ? ", " : ";\n\t");
-
+*/
 
   // 
   // Transfer means to CUDA
@@ -432,10 +433,10 @@ void matrixNorm() {
   for ( int i = 0; i < N; i++ )
     h_means[i] = powf(h_means[i]/N, 0.5f);
 
-  printf("MATRIX h_means AFTER QUADRATIC ADDING\n\t");
+  /*printf("MATRIX h_means AFTER QUADRATIC ADDING\n\t");
   for ( int i = 0; i < N; i++ )
     printf("%1.2f%s", h_means[i], (i < N-1) ? ", " : ";\n\t");
-
+  */
 
   float *d_deviations;
   printError( cudaMalloc( (void**)&d_deviations, N*sizeof(float) ) );
