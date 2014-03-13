@@ -189,6 +189,43 @@ int main(int argc, char **argv) {
  * defined in the beginning of this code.  B[][] is initialized to zeros.;
  */
 
+/* ------------------ HW3 --------------------- */
+
+/* Guillermo de la Puente - A20314328                */
+/* CS 546 - Parallel and Distributed Processing      */
+/* Homework 3                                        */
+/* CUDA array column normalization algorithm         */
+/*                                                   */
+/* 2014 Spring semester                              */
+/* Professor Zhiling Lan                             */
+/* TA Eduardo Berrocal                               */
+/* Illinois Institute of Technology                  */
+
+
+ /*  The CUDA algorithm is as follows: 
+
+
+1) Copy array A to CUDA memory and prepare an array to hold partial sums of columns.
+2) Execute the partial sum algorithm from the class slides on the data from A
+3) Transfer the partial sums array to the host, and sequentially reduce the data and obtain
+   a single value sum of all elements in every column. Divide every element by the
+   amount of elements to obtain column mean.
+4) Transfer the means array to CUDA.
+5) Apply the partial sums algorithm again but applying the transformation (A[i][j] –
+   mean)^2 to the input data
+6) Transfer the partial sums to the host
+7) Sequentially add the partial results to obtain the total for each column. Divide by
+   amount of elements an calculate square root. These are the standard deviations.
+8) Transfer the standard deviation (sigma) array to CUDA.
+9) Apply the transformation B[row][col] = (A[row][col] – mean) / standard_deviation on
+   every element of A.
+10)Transfer the array B to the host
+
+Go to the function matrixNorm() for more details
+
+ */
+
+
 #define BLOCK_SIZE 32
 
 // http://stackoverflow.com/questions/20086047/cuda-matrix-example-block-size
@@ -349,6 +386,11 @@ void matrixNorm() {
           h_sums[i*N + j] = 0;
       
 /*
+    This commmented part are for testing purposes
+    Setting manually the values of A and printing arrays
+*/
+
+/*
   printf("MATRIX h_sums BEFORE\n\t");
   for (row = 0; row < Nsums; row++) {
       for (col = 0; col < N; col++) {
@@ -387,7 +429,7 @@ void matrixNorm() {
   // 
   // Use reduction with partial sum algorithm to create partial sums of column values with complexity O(log(N))
   //
-  partialSum<<< dimGrid, dimBlock>>> (d_A, d_sums, N);
+  partialSum<<<dimGrid, dimBlock>>> (d_A, d_sums, N);
 
   cudaError_t  err = cudaGetLastError();
   if ( cudaSuccess != err )
@@ -412,6 +454,9 @@ void matrixNorm() {
     h_means[i] /= N;
 
 /*
+    This commmented part are for testing purposes
+*/
+/*
   printf("MATRIX h_means AFTER\n\t");
   for ( int i = 0; i < N; i++ )
     printf("%1.2f%s", h_means[i], (i < N-1) ? ", " : ";\n\t");
@@ -435,8 +480,6 @@ void matrixNorm() {
   if ( cudaSuccess != err )
     printError( err, "Error in partialSumMeanDifferences()" );
 
-  //printError( cudaMemcpy( A, d_A, size, cudaMemcpyDeviceToHost ) , "Error copying from d_A to A");
-
   printError( cudaMemcpy( h_sums, d_sums, sizeSums, cudaMemcpyDeviceToHost ) , "Error copying from d_sums to h_sums after partialSumMeanDifferences()");
   printError( cudaFree(d_sums) , "Error freeing memory of d_sums after partialSumMeanDifferences()");
 
@@ -453,6 +496,10 @@ void matrixNorm() {
   // Divide between number of elements
   for ( int i = 0; i < N; i++ )
     h_means[i] = powf(h_means[i]/N, 0.5f);
+
+  /*
+    This commmented part are for testing purposes
+*/
 /*
   printf("MATRIX h_means AFTER QUADRATIC ADDING\n\t");
   for ( int i = 0; i < N; i++ )
