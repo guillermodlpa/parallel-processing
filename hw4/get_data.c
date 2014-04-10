@@ -1,3 +1,17 @@
+/* ------------------ HW3 --------------------- */
+
+/* Guillermo de la Puente - A20314328                */
+/* CS 546 - Parallel and Distributed Processing      */
+/* Homework 4                                        */
+/* Part 1/2                                          */
+/* Modification of get_data.c                        */
+/*                                                   */
+/* 2014 Spring semester                              */
+/* Professor Zhiling Lan                             */
+/* TA Eduardo Berrocal                               */
+/* Illinois Institute of Technology                  */
+
+
 /* get_data.c -- Parallel Trapezoidal Rule, uses basic Get_data function for 
 
  *     input.
@@ -75,7 +89,7 @@ main(int argc, char** argv) {
 
     int         source;    /* Process sending integral  */
 
-    int         dest = 0;  /* All messages go to 0      */
+    int         dest = 0;  /* All messages go to 0 initially, but we will change this variable      */
 
     int         tag = 0;
 
@@ -103,6 +117,9 @@ main(int argc, char** argv) {
 
     MPI_Comm_size(MPI_COMM_WORLD, &p);
 
+    /* MODIFICATION */
+    /* We update the processor that handles the receiving messages to the one with highest rank */
+    dest = p-1;
 
     Get_data(&a, &b, &n, my_rank, p);
 
@@ -125,9 +142,12 @@ main(int argc, char** argv) {
     integral = Trap(local_a, local_b, local_n, h);
 
 
-/* Add up the integrals calculated by each process */ 
+    /* Add up the integrals calculated by each process */ 
 
-if (my_rank == 0) {
+    /* MODIFICATION */
+    /* It is now the process with highest rank the one that prints */
+    /* The hightest rank is calculated from 'p', the number of processes */
+    if (my_rank ==  p - 1) {
 
         total = integral;
 
@@ -152,8 +172,13 @@ if (my_rank == 0) {
 
     /* Print the result */
 
-    if (my_rank == 0) {
+    /* MODIFICATION */
+    /* It is now the process with highest rank the one that prints */
+    /* The hightest rank is calculated from 'p', the number of processes */
+    if (my_rank == p - 1) {
 
+        printf("Process number %d of %d says:",
+            my_rank+1, p);
         printf("With n = %d trapezoids, our estimate\n", 
 
             n);
