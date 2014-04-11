@@ -158,16 +158,18 @@ void gaussianElimination() {
     	/* number that indicates the step as a float */
     	float step = ((float)subset ) / p;
 
+    	float test = 1;
 
     	/* Now, the process 0 must send to the other processes the information that they are going to work with */
     	if ( my_rank == SOURCE ) {
     		int i;
+    		test = 2;
 	    	for ( i = 1; i < p; i++ ) {
-	    		MPI_Send( &A[0], N*N, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+	    		MPI_Send( test, 1, MPI_FLOAT, i,0, MPI_COMM_WORLD );
 	    	}
 	    }
 	    else
-    		MPI_Recv( &A[0], N*N, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+    		MPI_Recv( test, 1, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
 
     	printf("Process number %d of %d says phase 1 completed\n",
             my_rank+1, p);
