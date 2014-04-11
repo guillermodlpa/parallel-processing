@@ -163,7 +163,7 @@ void gaussianElimination() {
     	if ( my_rank == SOURCE ) {
     		int i;
 	    	for ( i = 1; i < p; i++ ) {
-	    		MPI_Send( A, N*N, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+	    		MPI_Isend( A, N*N, MPI_FLOAT, i,0, MPI_COMM_WORLD );
 	    	}
 	    }
 	    else
