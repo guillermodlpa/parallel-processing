@@ -185,7 +185,7 @@ void gaussianElimination() {
     	/* Verify that we are inside the subset to avoid segmentation fault errors */
     	if ( local_row_a < N ) {
 
-    		if ( local_row_b => N )
+    		if ( local_row_b >= N )
     			local_row_b = N - 1;
 
 	    	int row, col;
