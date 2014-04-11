@@ -144,7 +144,7 @@ main(int argc, char** argv) {
 
     /* Add up the integrals calculated by each process */ 
 
-    if (my_rant == 0) {
+    if (my_rank == 0) {
         printf("Process number %d of %d says:",
             my_rank+1, p);
     }
