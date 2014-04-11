@@ -144,6 +144,11 @@ main(int argc, char** argv) {
 
     /* Add up the integrals calculated by each process */ 
 
+    if (my_rant == 0) {
+        printf("Process number %d of %d says:",
+            my_rank+1, p);
+    }
+
     /* MODIFICATION */
     /* It is now the process with highest rank the one that prints */
     /* The hightest rank is calculated from 'p', the number of processes */
