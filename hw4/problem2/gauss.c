@@ -155,9 +155,10 @@ void gauss() {
 	if ( my_rank == 0 ) {
 		printf("Computing in parallel using MPI.\n");
 
-		int norm, row, col;  /* Normalization row, and zeroing
+		//int norm, row, col;  
+			/* Normalization row, and zeroing
 				* element row and col */
-		float multiplier;
+		//float multiplier;
 
 		/* Gaussian elimination */
 		/*for (norm = 0; norm < N - 1; norm++) {
@@ -178,6 +179,9 @@ void gauss() {
 		/* (Diagonal elements are not normalized to 1.  This is treated in back
 		* substitution.)
 		*/
+
+		int norm, row, col;
+		float multiplier;
 
 		/* Back substitution */
 		for (row = N - 1; row >= 0; row--) {
