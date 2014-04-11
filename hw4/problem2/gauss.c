@@ -147,6 +147,7 @@ void gaussianElimination() {
 	int my_rank;   /* My process rank           */
     int p;         /* The number of processes   */
 
+	MPI_Init(&argcG, &argvG);
 
 	/* Get my process rank */
 	MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
@@ -156,7 +157,7 @@ void gaussianElimination() {
     printf("Process number %d of %d says hi\n",
             my_rank+1, p);
 
-	
+	MPI_Finalize();
 }
 
 
@@ -199,8 +200,8 @@ void gauss() {
 
 int main(int argc, char **argv) {
 
-
-	MPI_Init(&argc, &argv);
+	argcG = argc;
+	argvG = argv;
 
 	/* Timing variables */
 	struct timeval etstart, etstop;  /* Elapsed times using gettimeofday() */
@@ -262,8 +263,6 @@ int main(int argc, char **argv) {
 			(cputstart.tms_cutime + cputstart.tms_cstime) ) /
 			(float)CLOCKS_PER_SEC * 1000);
 	printf("--------------------------------------------\n");
-
-	MPI_Finalize();
   
 	exit(0);
 }
