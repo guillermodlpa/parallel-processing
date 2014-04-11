@@ -352,7 +352,7 @@ int main(int argc, char **argv) {
 
 	}
 
-	//free_memory();
+	free_memory();
 
 	MPI_Finalize();
 }
