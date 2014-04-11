@@ -168,11 +168,11 @@ void gaussianElimination() {
     		int i;
     		test = 2;
 	    	for ( i = 1; i < p; i++ ) {
-	    		MPI_Send( &test, 1, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+	    		MPI_Send( &test, 1, MPI_INT, i,0, MPI_COMM_WORLD );
 	    	}
 	    }
 	    else
-    		MPI_Recv( &test, 1, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+    		MPI_Recv( &test, 1, MPI_INT, SOURCE, 0, MPI_COMM_WORLD, &status);
 
     	printf("Process number %d of %d says phase 1 completed\n",
             my_rank+1, p);
