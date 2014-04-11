@@ -161,9 +161,12 @@ void gaussianElimination() {
     	/* number that indicates the step as a float */
     	float step = ((float)subset ) / p;
 
+    	int test = 1;
+
     	/* Now, the process 0 must send to the other processes the information that they are going to work with */
     	if ( my_rank == SOURCE ) {
     		int i;
+    		test = 2;
 	    	for ( i = 1; i < p; i++ ) {
 	    		MPI_Send( &test, 1, MPI_FLOAT, i,0, MPI_COMM_WORLD );
 	    	}
