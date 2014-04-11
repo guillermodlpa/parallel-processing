@@ -146,9 +146,6 @@ void print_X() {
 /* This is probably not optimal because it requires a lot of communication */
 void gaussianElimination() {
 
-    printf("Process number %d of %d says hi\n",
-            my_rank+1, p);
-
     float *local_A, *local_B, *local_X;
 
     MPI_Status status;
@@ -232,7 +229,12 @@ void gauss() {
 
 	}
 
-	gaussianElimination();
+
+
+    printf("Process number %d of %d says hi\n",
+            my_rank+1, p);
+
+	//gaussianElimination();
 
 	if ( my_rank == 0 ) {
 		/* (Diagonal elements are not normalized to 1.  This is treated in back
