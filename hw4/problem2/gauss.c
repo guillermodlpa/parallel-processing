@@ -228,12 +228,10 @@ int main(int argc, char **argv) {
 		gettimeofday(&etstart, &tzdummy);
 		etstart2 = times(&cputstart);
 
-	}
 
-	/* Gaussian Elimination */
-	gauss();
+		/* Gaussian Elimination */
+		gauss();
 
-	if ( my_rank == 0 ) {
 
 		/* Stop Clock */
 		gettimeofday(&etstop, &tzdummy);
@@ -272,6 +270,13 @@ int main(int argc, char **argv) {
 				(float)CLOCKS_PER_SEC * 1000);
 		printf("--------------------------------------------\n");
 
+	}
+
+	/* For any other process, just execute gauss */
+	else {
+
+		/* Gaussian Elimination */
+		gauss();
 	}
 
 	MPI_Finalize();
