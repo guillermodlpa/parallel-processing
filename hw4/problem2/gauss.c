@@ -189,6 +189,9 @@ void gaussianElimination() {
     	}
 
 
+    	printf("Process number %d of %d says phase 2 ready\n",
+            my_rank+1, p);
+
     	if ( my_rank != SOURCE )
     		MPI_Send( &A, N*N, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
     	else {
