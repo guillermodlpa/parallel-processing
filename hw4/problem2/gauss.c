@@ -161,7 +161,7 @@ void gaussianElimination() {
     	/* number that indicates the step as a float */
     	float step = ((float)subset ) / p;
 
-    	int test = 1;
+    	int test;
 
     	/* Now, the process 0 must send to the other processes the information that they are going to work with */
     	if ( my_rank == SOURCE ) {
