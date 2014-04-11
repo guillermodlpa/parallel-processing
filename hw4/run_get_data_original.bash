@@ -1,9 +1,10 @@
 #!/bin/bash
 
 # Modifying working directory
-cd parallel-processing/hw4
-echo "Working directory is:"
-pwd
-echo ""
+# I did this to adapt the script to my custom working directory structure
 
+	cd parallel-processing/hw4
+	echo "Working directory is:"
+	pwd
+	
 mpirun -npernode 8 ./get_data_original
