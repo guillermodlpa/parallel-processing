@@ -27,6 +27,8 @@
 int N; /* Matrix size */
 #define DIVFACTOR 327680000.0f
 
+#define SOURCE 0
+
 
 /* Matrixes given by a pointer */
 float *A, *B, *X;
@@ -146,6 +148,57 @@ void gaussianElimination() {
 
     printf("Process number %d of %d says hi\n",
             my_rank+1, p);
+
+    float *local_A, *local_B, *local_X;
+
+    MPI_Status status;
+
+    int norm;
+    for (norm = 0; norm < N - 1; norm++) {
+
+    	/* subset of rows of this iteration */
+    	int subset = N - 1 - norm;
+
+    	/* number that indicates the step as a float */
+    	float step = ((float)subset ) / p;
+
+
+    	/* Now, the process 0 must send to the other processes the information that they are going to work with */
+    	if ( my_rank == 0 ) {
+    		int i;
+	    	for ( i = 1; i < p; i++ ) {
+	    		MPI_Send( &A, N*N, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+	    	}
+	    }
+	    else
+    		MPI_Recv( A, N*N, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+
+
+    	/* First and last rows that this process will work into for this iteration */
+    	int local_row_a = ceil( step * my_rank );
+    	int local_row_b = floor( step * (my_rank+1) );
+
+    	int row, col;
+		float multiplier;
+    	for (row = local_row_a; row <= local_row_b; row++) {
+    		multiplier = A[row + norm*N] / A[norm + norm*N];
+    		for (col = norm; col < N; col++) {
+				A[row + col*N] -= A[norm + col*N] * multiplier;
+			}
+			B[row] -= B[norm] * multiplier;
+    	}
+
+
+    	if ( my_rank != 0 )
+    		MPI_Send( &A, N*N, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
+    	else {
+    		int i;
+    		for ( i = 1; i < p; i++ ) {
+	    		MPI_Recv( A, N*N, MPI_FLOAT, i, 0, MPI_COMM_WORLD, &status);
+	    	}
+	    }
+
+    }
 }
 
 
@@ -181,7 +234,6 @@ void gauss() {
 		*/
 
 		int norm, row, col;
-		float multiplier;
 
 		/* Back substitution */
 		for (row = N - 1; row >= 0; row--) {
