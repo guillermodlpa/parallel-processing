@@ -171,7 +171,7 @@ void gaussianElimination() {
 	    	}
 	    }
 	    else
-    		MPI_Recv( A, N*N, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+    		MPI_Recv( &A, N*N, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
 
     	printf("Process number %d of %d says phase 1 completed\n",
             my_rank+1, p);
