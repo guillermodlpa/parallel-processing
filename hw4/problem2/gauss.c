@@ -173,6 +173,9 @@ void gaussianElimination() {
 	    else
     		MPI_Recv( A, N*N, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
 
+    	printf("Process number %d of %d says phase 1 completed\n",
+            my_rank+1, p);
+
 
     	/* First and last rows that this process will work into for this iteration */
     	int local_row_a = ceil( step * my_rank );
@@ -197,6 +200,9 @@ void gaussianElimination() {
 	    		MPI_Recv( A, N*N, MPI_FLOAT, i, 0, MPI_COMM_WORLD, &status);
 	    	}
 	    }
+
+	    printf("Process number %d of %d says phase 2 completed\n",
+            my_rank+1, p);
 
     }
 }
