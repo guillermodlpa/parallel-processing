@@ -144,11 +144,6 @@ main(int argc, char** argv) {
 
     /* Add up the integrals calculated by each process */ 
 
-    if (my_rank == 0) {
-        printf("Process number %d of %d says:",
-            my_rank+1, p);
-    }
-
     /* MODIFICATION */
     /* It is now the process with highest rank the one that prints */
     /* The hightest rank is calculated from 'p', the number of processes */
@@ -182,13 +177,13 @@ main(int argc, char** argv) {
     /* The hightest rank is calculated from 'p', the number of processes */
     if (my_rank == p - 1) {
 
-        printf("Process number %d of %d says:",
+        printf("\nProcess number %d of %d says:\n",
             my_rank+1, p);
         printf("With n = %d trapezoids, our estimate\n", 
 
             n);
 
-        printf("of the integral from %f to %f = %f\n", 
+        printf("of the integral from %f to %f = %f\n\n", 
 
             a, b, total); 
 
