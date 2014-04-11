@@ -164,12 +164,12 @@ void gaussianElimination() {
     	/* Now, the process 0 must send to the other processes the information that they are going to work with */
     	if ( my_rank == SOURCE ) {
     		int i;
-	    	/*for ( i = 1; i < p; i++ ) {
+	    	for ( i = 1; i < p; i++ ) {
 	    		MPI_Send( &test, 1, MPI_FLOAT, i,0, MPI_COMM_WORLD );
-	    	}*/
+	    	}
 	    }
-	    /*else
-    		MPI_Recv( &test, 1, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);*/
+	    else
+    		MPI_Recv( &test, 1, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
 
     	printf("Process number %d of %d says phase 1 completed\n",
             my_rank+1, p);
@@ -200,7 +200,8 @@ void gaussianElimination() {
 
     	printf("Process number %d of %d says phase 2 ready\n",
             my_rank+1, p);
-/*
+
+    	/* Now we collect the results */
     	if ( my_rank != SOURCE )
     		MPI_Send( &A, N*N, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
     	else {
@@ -208,7 +209,7 @@ void gaussianElimination() {
     		for ( i = 1; i < p; i++ ) {
 	    		MPI_Recv( A, N*N, MPI_FLOAT, i, 0, MPI_COMM_WORLD, &status);
 	    	}
-	    }*/
+	    }
 
 	    printf("Process number %d of %d says phase 2 completed\n",
             my_rank+1, p);
