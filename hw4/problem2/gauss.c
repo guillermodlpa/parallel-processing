@@ -341,7 +341,7 @@ int main(int argc, char **argv) {
 				(cputstart.tms_cutime + cputstart.tms_cstime) ) /
 				(float)CLOCKS_PER_SEC * 1000);
 		printf("--------------------------------------------\n");
-
+printf("FREEEEEEEEe111 ");
 	}
 
 	/* For any other process, just execute gauss */
