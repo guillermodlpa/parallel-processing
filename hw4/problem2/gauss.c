@@ -267,6 +267,9 @@ int main(int argc, char **argv) {
 	/* Find out how many processes are being used */
     MPI_Comm_size(MPI_COMM_WORLD, &p);
 
+
+	allocate_memory();
+
     if ( my_rank == 0 ) {
 
 		/* Timing variables */
@@ -280,7 +283,6 @@ int main(int argc, char **argv) {
 		parameters(argc, argv);
 
 		/* Initialize A and B */
-		allocate_memory();
 		initialize_inputs();
 
 		/* Print input matrices */
@@ -338,12 +340,12 @@ int main(int argc, char **argv) {
 	/* For any other process, just execute gauss */
 	else {
 
-		/* allocate memory for the arrays */
-		allocate_memory();
-
 		/* Gaussian Elimination */
 		gauss();
+
 	}
+
+	free_memory();
 
 	MPI_Finalize();
   
