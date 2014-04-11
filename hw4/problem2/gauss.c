@@ -319,9 +319,6 @@ int main(int argc, char **argv) {
 		/* Display output */
 		print_X();
 
-	    /* Free allocated memory */
-		free_memory();
-
 
 		/* Display timing results */
 		printf("\nElapsed time = %g ms.\n",
