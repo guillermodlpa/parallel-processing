@@ -161,7 +161,7 @@ void gaussianElimination() {
     	float test = 1;
 
     	/* Now, the process 0 must send to the other processes the information that they are going to work with */
-    	if ( my_rank == SOURCE ) {
+    	if ( my_rank == 0 ) {
     		int i;
     		test = 2;
 	    	for ( i = 1; i < p; i++ ) {
