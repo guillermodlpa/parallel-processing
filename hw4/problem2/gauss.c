@@ -354,6 +354,8 @@ int main(int argc, char **argv) {
 
 	free_memory();
 
+	printf("FREEEEEEEEe ");
+
 	MPI_Finalize();
 }
 
