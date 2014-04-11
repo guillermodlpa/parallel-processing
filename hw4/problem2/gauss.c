@@ -234,7 +234,7 @@ void gauss() {
     printf("Process number %d of %d says hi\n",
             my_rank+1, p);
 
-	//gaussianElimination();
+	gaussianElimination();
 
 	if ( my_rank == 0 ) {
 		/* (Diagonal elements are not normalized to 1.  This is treated in back
