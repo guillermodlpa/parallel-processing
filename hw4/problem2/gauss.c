@@ -147,6 +147,9 @@ void print_X() {
 /* This is probably not optimal because it requires a lot of communication */
 void gaussianElimination() {
 
+    printf("Process number %d of %d says hi\n",
+            my_rank+1, p);
+
     MPI_Status status;
 
     int norm;
@@ -192,7 +195,7 @@ void gaussianElimination() {
 
     	printf("Process number %d of %d says phase 2 ready\n",
             my_rank+1, p);
-
+/*
     	if ( my_rank != SOURCE )
     		MPI_Send( &A, N*N, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
     	else {
@@ -200,7 +203,7 @@ void gaussianElimination() {
     		for ( i = 1; i < p; i++ ) {
 	    		MPI_Recv( A, N*N, MPI_FLOAT, i, 0, MPI_COMM_WORLD, &status);
 	    	}
-	    }
+	    }*/
 
 	    printf("Process number %d of %d says phase 2 completed\n",
             my_rank+1, p);
@@ -234,9 +237,6 @@ void gauss() {
 	}
 
 
-
-    printf("Process number %d of %d says hi\n",
-            my_rank+1, p);
 
 	gaussianElimination();
 
