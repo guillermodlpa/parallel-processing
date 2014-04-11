@@ -183,7 +183,7 @@ void gaussianElimination() {
     	int local_row_b = floor( step * (my_rank+1) );
 
     	/* Verify that we are inside the subset to avoid segmentation fault errors */
-    	if ( local_row_a < subset && local_row_b < subset ) {}
+    	if ( local_row_a < subset && local_row_b < subset ) {
 
 	    	int row, col;
 			float multiplier;
