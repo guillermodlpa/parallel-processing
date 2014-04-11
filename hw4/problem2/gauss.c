@@ -31,6 +31,11 @@ int N; /* Matrix size */
 /* Matrixes given by a pointer */
 float *A, *B, *X;
 
+/* My process rank           */
+int my_rank;
+/* The number of processes   */
+int p;         
+
 
 /* returns a seed for srand based on the time */
 unsigned int time_seed() {
@@ -134,65 +139,54 @@ void print_X() {
   }
 }
 
-
-/* Used for MPI_Init() */
-int argcG;
-char **argvG;
-
 /* Gaussian elimination algorithm */
 /* The parallelization is made in the second loop */
 /* This is probably not optimal because it requires a lot of communication */
 void gaussianElimination() {
 
-	int my_rank;   /* My process rank           */
-    int p;         /* The number of processes   */
-
-	MPI_Init(&argcG, &argvG);
-
-	/* Get my process rank */
-	MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-	/* Find out how many processes are being used */
-    MPI_Comm_size(MPI_COMM_WORLD, &p);
-
     printf("Process number %d of %d says hi\n",
             my_rank+1, p);
-
-	MPI_Finalize();
 }
 
 
 /* Main function that performs the algorithms */
 void gauss() {
 
-	printf("Computing in parallel using MPI.\n");
+	if ( my_rank == 0 ) {
+		printf("Computing in parallel using MPI.\n");
 
-	int norm, row, col;  /* Normalization row, and zeroing
-			* element row and col */
-	float multiplier;
+		int norm, row, col;  /* Normalization row, and zeroing
+				* element row and col */
+		float multiplier;
 
-	/* Gaussian elimination */
-	/*for (norm = 0; norm < N - 1; norm++) {
-		for (row = norm + 1; row < N; row++) {
-			multiplier = A[row][norm] / A[norm][norm];
-			for (col = norm; col < N; col++) {
-				A[row][col] -= A[norm][col] * multiplier;
+		/* Gaussian elimination */
+		/*for (norm = 0; norm < N - 1; norm++) {
+			for (row = norm + 1; row < N; row++) {
+				multiplier = A[row][norm] / A[norm][norm];
+				for (col = norm; col < N; col++) {
+					A[row][col] -= A[norm][col] * multiplier;
+				}
+				B[row] -= B[norm] * multiplier;
 			}
-			B[row] -= B[norm] * multiplier;
-		}
-	}*/
+		}*/
+
+	}
+
 	gaussianElimination();
 
-	/* (Diagonal elements are not normalized to 1.  This is treated in back
-	* substitution.)
-	*/
+	if ( my_rank == 0 ) {
+		/* (Diagonal elements are not normalized to 1.  This is treated in back
+		* substitution.)
+		*/
 
-	/* Back substitution */
-	for (row = N - 1; row >= 0; row--) {
-		X[row] = B[row];
-		for (col = N-1; col > row; col--) {
-			X[row] -= A[row + col*N] * X[col];
+		/* Back substitution */
+		for (row = N - 1; row >= 0; row--) {
+			X[row] = B[row];
+			for (col = N-1; col > row; col--) {
+				X[row] -= A[row + col*N] * X[col];
+			}
+			X[row] /= A[row + N*row];
 		}
-		X[row] /= A[row + N*row];
 	}
 }
 
@@ -200,69 +194,83 @@ void gauss() {
 
 int main(int argc, char **argv) {
 
-	argcG = argc;
-	argvG = argv;
+	MPI_Init(&argc, &argv);
 
-	/* Timing variables */
-	struct timeval etstart, etstop;  /* Elapsed times using gettimeofday() */
-	struct timezone tzdummy;
-	clock_t etstart2, etstop2;  /* Elapsed times using times() */
-	unsigned long long usecstart, usecstop;
-	struct tms cputstart, cputstop;  /* CPU times for my processes */
+	/* Get my process rank */
+	MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+	/* Find out how many processes are being used */
+    MPI_Comm_size(MPI_COMM_WORLD, &p);
 
- 	/* Process program parameters */
-	parameters(argc, argv);
+    if ( my_rank == 0 ) {
 
-	/* Initialize A and B */
-	initialize_inputs();
+		/* Timing variables */
+		struct timeval etstart, etstop;  /* Elapsed times using gettimeofday() */
+		struct timezone tzdummy;
+		clock_t etstart2, etstop2;  /* Elapsed times using times() */
+		unsigned long long usecstart, usecstop;
+		struct tms cputstart, cputstop;  /* CPU times for my processes */
 
-	/* Print input matrices */
-	print_inputs();
+	 	/* Process program parameters */
+		parameters(argc, argv);
 
-	/* Start Clock */
-	printf("\nStarting clock.\n");
-	gettimeofday(&etstart, &tzdummy);
-	etstart2 = times(&cputstart);
+		/* Initialize A and B */
+		initialize_inputs();
+
+		/* Print input matrices */
+		print_inputs();
+
+		/* Start Clock */
+		printf("\nStarting clock.\n");
+		gettimeofday(&etstart, &tzdummy);
+		etstart2 = times(&cputstart);
+
+	}
 
 	/* Gaussian Elimination */
 	gauss();
 
-	/* Stop Clock */
-	gettimeofday(&etstop, &tzdummy);
-	etstop2 = times(&cputstop);
-	printf("Stopped clock.\n");
-	usecstart = (unsigned long long)etstart.tv_sec * 1000000 + etstart.tv_usec;
-	usecstop = (unsigned long long)etstop.tv_sec * 1000000 + etstop.tv_usec;
+	if ( my_rank == 0 ) {
 
-	/* Comment to see result of elmination */
-	printf("After gaussian elimination");
-	print_inputs();
+		/* Stop Clock */
+		gettimeofday(&etstop, &tzdummy);
+		etstop2 = times(&cputstop);
+		printf("Stopped clock.\n");
+		usecstart = (unsigned long long)etstart.tv_sec * 1000000 + etstart.tv_usec;
+		usecstop = (unsigned long long)etstop.tv_sec * 1000000 + etstop.tv_usec;
 
-	/* Display output */
-	print_X();
+		/* Comment to see result of elmination */
+		printf("After gaussian elimination");
+		print_inputs();
 
-    /* Free allocated memory */
-	free_memory();
+		/* Display output */
+		print_X();
+
+	    /* Free allocated memory */
+		free_memory();
 
 
-	/* Display timing results */
-	printf("\nElapsed time = %g ms.\n",
-		(float)(usecstop - usecstart)/(float)1000);
+		/* Display timing results */
+		printf("\nElapsed time = %g ms.\n",
+			(float)(usecstop - usecstart)/(float)1000);
 
-	printf("(CPU times are accurate to the nearest %g ms)\n",
-		1.0/(float)CLOCKS_PER_SEC * 1000.0);
-	printf("My total CPU time for parent = %g ms.\n",
-		(float)( (cputstop.tms_utime + cputstop.tms_stime) -
-			(cputstart.tms_utime + cputstart.tms_stime) ) /
+		printf("(CPU times are accurate to the nearest %g ms)\n",
+			1.0/(float)CLOCKS_PER_SEC * 1000.0);
+		printf("My total CPU time for parent = %g ms.\n",
+			(float)( (cputstop.tms_utime + cputstop.tms_stime) -
+				(cputstart.tms_utime + cputstart.tms_stime) ) /
+				(float)CLOCKS_PER_SEC * 1000);
+		printf("My system CPU time for parent = %g ms.\n",
+			(float)(cputstop.tms_stime - cputstart.tms_stime) /
 			(float)CLOCKS_PER_SEC * 1000);
-	printf("My system CPU time for parent = %g ms.\n",
-		(float)(cputstop.tms_stime - cputstart.tms_stime) /
-		(float)CLOCKS_PER_SEC * 1000);
-	printf("My total CPU time for child processes = %g ms.\n",
-		(float)( (cputstop.tms_cutime + cputstop.tms_cstime) -
-			(cputstart.tms_cutime + cputstart.tms_cstime) ) /
-			(float)CLOCKS_PER_SEC * 1000);
-	printf("--------------------------------------------\n");
+		printf("My total CPU time for child processes = %g ms.\n",
+			(float)( (cputstop.tms_cutime + cputstop.tms_cstime) -
+				(cputstart.tms_cutime + cputstart.tms_cstime) ) /
+				(float)CLOCKS_PER_SEC * 1000);
+		printf("--------------------------------------------\n");
+
+	}
+
+	MPI_Finalize();
   
 	exit(0);
 }
