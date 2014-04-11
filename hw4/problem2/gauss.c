@@ -242,7 +242,7 @@ void gauss() {
 	}
 
 
-
+	if ( my_rank == SOURCE )
 	gaussianElimination();
 
 	if ( my_rank == 0 ) {
