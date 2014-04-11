@@ -288,11 +288,11 @@ int main(int argc, char **argv) {
     if ( my_rank == 0 ) {
 
 		/* Timing variables */
-		struct timeval etstart, etstop;  /* Elapsed times using gettimeofday() */
-		struct timezone tzdummy;
-		clock_t etstart2, etstop2;  /* Elapsed times using times() */
-		unsigned long long usecstart, usecstop;
-		struct tms cputstart, cputstop;  /* CPU times for my processes */
+		// struct timeval etstart, etstop;  /* Elapsed times using gettimeofday() */
+		// struct timezone tzdummy;
+		// clock_t etstart2, etstop2;  /* Elapsed times using times() */
+		// unsigned long long usecstart, usecstop;
+		// struct tms cputstart, cputstop;  /* CPU times for my processes */
 
 	 	/* Process program parameters */
 		parameters(argc, argv);
@@ -304,21 +304,23 @@ int main(int argc, char **argv) {
 		print_inputs();
 
 		/* Start Clock */
-		printf("\nStarting clock.\n");
-		gettimeofday(&etstart, &tzdummy);
-		etstart2 = times(&cputstart);
+		// printf("\nStarting clock.\n");
+		// gettimeofday(&etstart, &tzdummy);
+		// etstart2 = times(&cputstart);
 
+	}
 
-		/* Gaussian Elimination */
-		gauss();
+	/* Gaussian Elimination */
+	gauss();
 
+	if ( my_rank == 0 ) {
 
 		/* Stop Clock */
-		gettimeofday(&etstop, &tzdummy);
-		etstop2 = times(&cputstop);
-		printf("Stopped clock.\n");
-		usecstart = (unsigned long long)etstart.tv_sec * 1000000 + etstart.tv_usec;
-		usecstop = (unsigned long long)etstop.tv_sec * 1000000 + etstop.tv_usec;
+		// gettimeofday(&etstop, &tzdummy);
+		// etstop2 = times(&cputstop);
+		// printf("Stopped clock.\n");
+		// usecstart = (unsigned long long)etstart.tv_sec * 1000000 + etstart.tv_usec;
+		// usecstop = (unsigned long long)etstop.tv_sec * 1000000 + etstop.tv_usec;
 
 		/* Comment to see result of elmination */
 		printf("After gaussian elimination");
@@ -329,33 +331,33 @@ int main(int argc, char **argv) {
 
 
 		/* Display timing results */
-		printf("\nElapsed time = %g ms.\n",
-			(float)(usecstop - usecstart)/(float)1000);
+		// printf("\nElapsed time = %g ms.\n",
+		// 	(float)(usecstop - usecstart)/(float)1000);
 
-		printf("(CPU times are accurate to the nearest %g ms)\n",
-			1.0/(float)CLOCKS_PER_SEC * 1000.0);
-		printf("My total CPU time for parent = %g ms.\n",
-			(float)( (cputstop.tms_utime + cputstop.tms_stime) -
-				(cputstart.tms_utime + cputstart.tms_stime) ) /
-				(float)CLOCKS_PER_SEC * 1000);
-		printf("My system CPU time for parent = %g ms.\n",
-			(float)(cputstop.tms_stime - cputstart.tms_stime) /
-			(float)CLOCKS_PER_SEC * 1000);
-		printf("My total CPU time for child processes = %g ms.\n",
-			(float)( (cputstop.tms_cutime + cputstop.tms_cstime) -
-				(cputstart.tms_cutime + cputstart.tms_cstime) ) /
-				(float)CLOCKS_PER_SEC * 1000);
-		printf("--------------------------------------------\n");
+		// printf("(CPU times are accurate to the nearest %g ms)\n",
+		// 	1.0/(float)CLOCKS_PER_SEC * 1000.0);
+		// printf("My total CPU time for parent = %g ms.\n",
+		// 	(float)( (cputstop.tms_utime + cputstop.tms_stime) -
+		// 		(cputstart.tms_utime + cputstart.tms_stime) ) /
+		// 		(float)CLOCKS_PER_SEC * 1000);
+		// printf("My system CPU time for parent = %g ms.\n",
+		// 	(float)(cputstop.tms_stime - cputstart.tms_stime) /
+		// 	(float)CLOCKS_PER_SEC * 1000);
+		// printf("My total CPU time for child processes = %g ms.\n",
+		// 	(float)( (cputstop.tms_cutime + cputstop.tms_cstime) -
+		// 		(cputstart.tms_cutime + cputstart.tms_cstime) ) /
+		// 		(float)CLOCKS_PER_SEC * 1000);
+		// printf("--------------------------------------------\n");
 
 	}
 
 	/* For any other process, just execute gauss */
-	else {
+	//else {
 
 		/* Gaussian Elimination */
-		gauss();
+		//gauss();
 
-	}
+	//}
 
 	//free_memory();
 
