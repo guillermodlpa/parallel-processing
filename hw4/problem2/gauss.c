@@ -348,15 +348,13 @@ int main(int argc, char **argv) {
 	else {
 
 		/* Gaussian Elimination */
-		//gauss();
+		gauss();
 
 	}
 
 	//free_memory();
 
-	MPI_Barrier(MPI_COMM_WORLD);
-
-	MPI_Finalize();
+	//MPI_Finalize();
   
 	exit(0);
 }
