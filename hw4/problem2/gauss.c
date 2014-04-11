@@ -182,15 +182,20 @@ void gaussianElimination() {
     	int local_row_a = ceil( step * my_rank );
     	int local_row_b = floor( step * (my_rank+1) );
 
-    	int row, col;
-		float multiplier;
-    	for (row = local_row_a; row <= local_row_b; row++) {
-    		multiplier = A[row + norm*N] / A[norm + norm*N];
-    		for (col = norm; col < N; col++) {
-				A[row + col*N] -= A[norm + col*N] * multiplier;
-			}
-			B[row] -= B[norm] * multiplier;
-    	}
+    	/* Verify that we are inside the subset to avoid segmentation fault errors */
+    	if ( local_row_a < subset && local_row_b < subset ) {}
+
+	    	int row, col;
+			float multiplier;
+	    	for (row = local_row_a; row <= local_row_b; row++) {
+	    		multiplier = A[row + norm*N] / A[norm + norm*N];
+	    		for (col = norm; col < N; col++) {
+					A[row + col*N] -= A[norm + col*N] * multiplier;
+				}
+				B[row] -= B[norm] * multiplier;
+	    	}
+
+	    }
 
 
     	printf("Process number %d of %d says phase 2 ready\n",
