@@ -163,6 +163,9 @@ void gaussianElimination() {
 
     	int test;
 
+    	printf("Process number %d of %d says phase 1 ready\n",
+            my_rank+1, p);
+
     	/* Now, the process 0 must send to the other processes the information that they are going to work with */
     	if ( my_rank == SOURCE ) {
     		int i;
