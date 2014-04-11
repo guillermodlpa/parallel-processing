@@ -80,15 +80,16 @@ void parameters(int argc, char **argv) {
 }
 
 
-
+/* Allocates memory for A, B and X */
+void allocate_memory() {
+	A = (float*)malloc( N*N*sizeof(float) );
+	B = (float*)malloc( N*sizeof(float) );
+	X = (float*)malloc( N*sizeof(float) );
+}
 
 
 /* Initialize A and B (and X to 0.0s) */
 void initialize_inputs() {
-
-	A = (float*)malloc( N*N*sizeof(float) );
-	B = (float*)malloc( N*sizeof(float) );
-	X = (float*)malloc( N*sizeof(float) );
 
   int row, col;
 
@@ -145,8 +146,6 @@ void print_X() {
 /* The parallelization is made in the second loop */
 /* This is probably not optimal because it requires a lot of communication */
 void gaussianElimination() {
-
-    float *local_A, *local_B, *local_X;
 
     MPI_Status status;
 
@@ -281,6 +280,7 @@ int main(int argc, char **argv) {
 		parameters(argc, argv);
 
 		/* Initialize A and B */
+		allocate_memory();
 		initialize_inputs();
 
 		/* Print input matrices */
@@ -337,6 +337,9 @@ int main(int argc, char **argv) {
 
 	/* For any other process, just execute gauss */
 	else {
+
+		/* allocate memory for the arrays */
+		allocate_memory();
 
 		/* Gaussian Elimination */
 		gauss();
