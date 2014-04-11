@@ -27,6 +27,8 @@
 int N; /* Matrix size */
 #define DIVFACTOR 327680000.0f
 
+#define SOURCE 0
+
 
 /* Matrixes given by a pointer */
 float *A, *B, *X;
@@ -162,14 +164,14 @@ void gaussianElimination() {
 
 
     	/* Now, the process 0 must send to the other processes the information that they are going to work with */
-    	if ( my_rank == 0 ) {
+    	if ( my_rank == SOURCE ) {
     		int i;
 	    	for ( i = 1; i < p; i++ ) {
-	    		MPI_Send( &A, N*N, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+	    		MPI_Send( A, N*N, MPI_FLOAT, i,0, MPI_COMM_WORLD );
 	    	}
 	    }
 	    else
-    		MPI_Recv( &A, N*N, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, &status);
+    		MPI_Recv( A, N*N, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
 
     	printf("Process number %d of %d says phase 1 completed\n",
             my_rank+1, p);
@@ -190,8 +192,8 @@ void gaussianElimination() {
     	}
 
 
-    	if ( my_rank != 0 )
-    		MPI_Send( &A, N*N, MPI_FLOAT, 0,0, MPI_COMM_WORLD );
+    	if ( my_rank != SOURCE )
+    		MPI_Send( &A, N*N, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
     	else {
     		int i;
     		for ( i = 1; i < p; i++ ) {
