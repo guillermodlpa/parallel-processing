@@ -156,7 +156,7 @@ main(int argc, char** argv) {
 
         total = integral;
 
-        for (source = 1; source < p; source++) {
+        for (source = 0; source < p-1; source++) {
 
             MPI_Recv(&integral, 1, MPI_FLOAT, source, tag, 
 
