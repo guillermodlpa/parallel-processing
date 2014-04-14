@@ -242,7 +242,7 @@ void gauss() {
 
     	/* Gaussian elimination */
     	if ( number_of_rows > 0 ) {
-    		for (col = 0; col < norm; col++) {
+    		for (col = 0; col < norm; col++)
     			for (row = local_row_a; row < local_row_b; row++) 
     				A[row + N*col] = 0;
     	}
