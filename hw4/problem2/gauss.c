@@ -71,11 +71,11 @@ void gauss() {
 		int i,k;
 		for (k = 0; k < N; k++) test[k] = 1;
     	for ( i = 1; i < p; i++ ) {
-    		MPI_Send( &test, N, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+    		MPI_Send( &test[0], N, MPI_FLOAT, i,0, MPI_COMM_WORLD );
     	}
     }
     else
-		MPI_Recv( &test, N, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+		MPI_Recv( &test[0], N, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
 
 
 	int k;
@@ -87,12 +87,12 @@ void gauss() {
 
 
 	if ( my_rank != SOURCE )
-		MPI_Send( &test, N, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
+		MPI_Send( &test[0], N, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
 	else {
 		int i;
 		float *local_test = (float*) malloc( N*sizeof(float));
 		for ( i = 1; i < p; i++ ) {
-    		MPI_Recv( &local_test, N, MPI_FLOAT, i, 0, MPI_COMM_WORLD, &status);
+    		MPI_Recv( &local_test[0], N, MPI_FLOAT, i, 0, MPI_COMM_WORLD, &status);
     		int k;
 			for (k = 0; k < N; k++) test[k] += local_test[k];
     	}
