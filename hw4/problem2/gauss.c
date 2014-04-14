@@ -246,8 +246,8 @@ void gauss() {
 
     		if ( number_of_rows > 0 ) {
 
-    			for (row = 0; row < N; row++) {
-			      for (col = 0; col < N; col++) {
+    			for (row = 0; row < N; row++)
+			      for (col = 0; col < N; col++)
 						A[row + N*col] = 0;
 
 	    		MPI_Recv( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
