@@ -86,7 +86,7 @@ void gauss() {
 
 
 	if ( my_rank != SOURCE )
-		MPI_Send( &test, 2, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
+		MPI_Isend( &test, 2, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
 	else {
 		int i;
 		float local_test [2];
@@ -95,7 +95,8 @@ void gauss() {
     		test[0] = test[0] + local_test[0];
     		test[1] = test[1] + local_test[1];
     	}
-
+    	printf("\nProcess number %d of %d says: got %5.2f and %5.2f\n",
+        my_rank+1, p, test[0], test[1]);
     }
 
 
