@@ -34,7 +34,7 @@ int my_rank;
 /* The number of processes   */
 int p; 
 
-float *test;
+
 
 #define N 4
 
@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
     printf("\nProcess number %d of %d says hi\n",
             my_rank+1, p);
 
-    test = (float*) malloc( N*sizeof(float));
+    
     
     gauss();
 
@@ -63,17 +63,19 @@ int main(int argc, char **argv) {
 /* Main function that performs the algorithms */
 void gauss() {
 
+	float *test = (float*) malloc( N*sizeof(float));
+
 	MPI_Status status;
 
     if ( my_rank == SOURCE ) {
 		int i,k;
 		for (k = 0; k < N; k++) test[k] = 1;
     	for ( i = 1; i < p; i++ ) {
-    		MPI_Send( &test, 2, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+    		MPI_Send( &test, N, MPI_FLOAT, i,0, MPI_COMM_WORLD );
     	}
     }
     else
-		MPI_Recv( &test, 2, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+		MPI_Recv( &test, N, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
 
 
 	int k;
@@ -85,12 +87,12 @@ void gauss() {
 
 
 	if ( my_rank != SOURCE )
-		MPI_Send( &test, 2, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
+		MPI_Send( &test, N, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
 	else {
 		int i;
 		float *local_test = (float*) malloc( N*sizeof(float));
 		for ( i = 1; i < p; i++ ) {
-    		MPI_Recv( &local_test, 2, MPI_FLOAT, i, 0, MPI_COMM_WORLD, &status);
+    		MPI_Recv( &local_test, N, MPI_FLOAT, i, 0, MPI_COMM_WORLD, &status);
     		int k;
 			for (k = 0; k < N; k++) test[k] += local_test[k];
     	}
