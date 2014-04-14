@@ -168,6 +168,7 @@ int main(int argc, char **argv) {
 
     free_memory();
 
+    MPI_Barrier();
 	MPI_Finalize();
 }
 
