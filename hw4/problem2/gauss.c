@@ -90,6 +90,8 @@ int main(int argc, char **argv) {
 	/* Find out how many processes are being used */
     MPI_Comm_size(MPI_COMM_WORLD, &p);
 
+    parameters(argc, argv);
+
     printf("\nProcess number %d of %d says hi\n",
             my_rank+1, p);
 
