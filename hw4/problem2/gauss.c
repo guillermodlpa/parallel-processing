@@ -217,8 +217,8 @@ void gauss() {
 
 	for( i = 0; i < local_size; i++ ) local_test = 0;
 
-	MPI_Scatter(test, 40, MPI_INT,
-               local_test, 10, MPI_INT, 0,
+	MPI_Scatter(&test[0], 40, MPI_INT,
+               &local_test[0], 10, MPI_INT, 0,
                MPI_COMM_WORLD);
 
 	
