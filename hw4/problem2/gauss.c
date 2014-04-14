@@ -49,8 +49,8 @@ int main(int argc, char **argv) {
     printf("\nProcess number %d of %d says hi\n",
             my_rank+1, p);
 
-    test[0] = 0f;
-    test[1] = 0f;
+    test[0] = 0;
+    test[1] = 0;
     MPI_Status status;
 
     if ( my_rank == SOURCE ) {
