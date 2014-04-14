@@ -209,8 +209,9 @@ void gauss() {
 
 	for (norm = 0; norm < N - 1; norm++) {
 
-		/* Broadcast the A[norm][norm] */
+		/* Broadcast the A[norm] row and B[norm], important values of this iteration */
 		MPI_Bcast( &A[ N*norm ], N, MPI_FLOAT, SOURCE, MPI_COMM_WORLD );
+		MPI_Bcast( &B[norm], 1, MPI_FLOAT, SOURCE, MPI_COMM_WORLD );
 
 		/* subset of rows of this iteration */
     	int subset = N - 1 - norm;
