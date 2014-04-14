@@ -223,7 +223,12 @@ void gauss() {
 	/* Times */
 	double t1, t2, tick;
 
-	t1 = MPI_Wtime();
+	/* Barrier to sync all processes before starting the algorithms */
+	MPI_Barrier(MPI_COMM_WORLD);
+
+	/* Initial time */
+	if ( my_rank == SOURCE )
+		t1 = MPI_Wtime();
 
 	/* Gauss Elimination is performed using MPI */
 	gaussElimination();
@@ -231,12 +236,14 @@ void gauss() {
 	/* Back Substitution is performed sequentially */
 	if ( my_rank == SOURCE ) {
 		backSubstitution();
+
+		/* Finish time */
+		t2 = MPI_Wtime();
+		tick = MPI_Wtick(); // Time in seconds that an MPI tick represents
+
+		printf("\nElapsed time: %d miliseconds\n", (t2-t1)*tick/1000);
 	}
-
-	t2 = MPI_Wtime();
-	tick = MPI_Wtick(); // Time in seconds that an MPI tick represents
-
-	printf("\nElapsed time: %5.2f seconds\n",(t2-t1)*tick);
+	
 }
 
 
