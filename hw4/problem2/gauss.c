@@ -103,7 +103,7 @@ void print_inputs() {
     printf("\nA =\n\t");
     for (row = 0; row < N; row++) {
       for (col = 0; col < N; col++) {
-	printf("%5.2f%s", A[row + N*col], (col < N-1) ? ", " : ";\n\t");
+	printf("%5.2f%s", A[col+N*row], (col < N-1) ? ", " : ";\n\t");
       }
     }
     printf("\nB = [");
@@ -121,7 +121,7 @@ void print_A() {
     printf("\nA =\n\t");
     for (row = 0; row < N; row++) {
       for (col = 0; col < N; col++) {
-	printf("%5.2f%s", A[row + N*col], (col < N-1) ? ", " : ";\n\t");
+	printf("%5.2f%s", A[col+N*row], (col < N-1) ? ", " : ";\n\t");
       }
     }
   }
@@ -143,12 +143,12 @@ void initialize_inputs() {
   int row, col;
 
   printf("\nInitializing...\n");
-  for (col = 0; col < N; col++) {
-    for (row = 0; row < N; row++) {
-      A[row + N*col] = (float)rand() / DIVFACTOR;
+  for (row = 0; row < N; row++) {
+    for (col = 0; col < N; col++) {
+      A[col+N*row] = (float)rand() / DIVFACTOR;
     }
-    B[col] = (float)rand() / DIVFACTOR;
-    X[col] = 0.0;
+    B[row] = (float)rand() / DIVFACTOR;
+    X[row] = 0.0;
   }
 
 }
@@ -248,7 +248,7 @@ void gauss() {
 
     			for (row = 0; row < N; row++)
 			      for (col = 0; col < N; col++)
-						A[row + N*col] = 0;
+						A[N*row + col] = 0;
 
 	    		MPI_Recv( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
 	    		MPI_Recv( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
@@ -274,9 +274,9 @@ void gauss() {
 			/* Similar code than in the sequential case */
 			for (row = local_row_a; row <= local_row_b; row++) {
 
-		 		multiplier = A[row + N*norm] / A[norm + N*norm];
+		 		multiplier = A[N*row + norm] / A[norm + N*norm];
 				for (col = norm; col < N; col++) {
-		 			A[row + N*col] -= A[norm + N*col] * multiplier;
+		 			A[col+N*row] -= A[N*norm + col] * multiplier;
 		 		}
 
 		 		B[row] -= B[norm] * multiplier;
@@ -329,7 +329,7 @@ void gauss2() {
 		for (col = 0; col < N; col++) {
 			B[col] = 0;
 			for (row = 0; row < N; row++)
-				A[row + N*col] = 1;
+				A[N*row + col] = 1;
 		}
 
     	for ( i = 1; i < p; i++ ) {
@@ -348,7 +348,7 @@ void gauss2() {
 	for (col = 0; col < N; col++) {
 		B[col] += 0.1f;
 		for (row = 0; row < N; row++)
-			A[row + N*col] += 0.01f;
+			A[N*row + col] += 0.01f;
 	}
 
 
@@ -372,7 +372,7 @@ void gauss2() {
 			for (col = 0; col < N; col++) {
 				B[col] += local_B[col];
 				for (row = 0; row < N; row++)
-					A[row + N*col] += local_A[row + N*col];
+					A[N*row + col] += local_A[row + N*col];
 			}
     	}
     	free(local_A);
