@@ -161,13 +161,14 @@ int main(int argc, char **argv) {
     gauss();
 
     if ( my_rank == SOURCE ) {
+
 		/* Print input matrices */
 		print_inputs();
 	}
 
-	MPI_Finalize();
+    free_memory();
 
-	exit(0);
+	MPI_Finalize();
 }
 
 /* Main function that performs the algorithms */
@@ -199,20 +200,7 @@ void gauss() {
         my_rank+1, p, A[0], A[1], A[2], A[3]);*/
 
 
-	if ( my_rank != SOURCE )
-		MPI_Send( &A[0], N*N, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
-	else {
-		int i;
-		float *local_A = (float*) malloc( N*sizeof(float));
-		for ( i = 1; i < p; i++ ) {
-    		MPI_Recv( &local_A[0], N*N, MPI_FLOAT, i, 0, MPI_COMM_WORLD, &status);
-			for (col = 0; col < N; col++)
-				for (row = 0; row < N; row++)
-					A[row + N*col] += local_A[row + N*col];
-    	}
-    	/*printf("\nProcess number %d of %d says: got %5.2f, %5.2f, %5.2f, %5.2f\n",
-        	my_rank+1, p, A[0], A[1], A[2], A[3]);*/
-    }
+	
 
 
 }
