@@ -35,8 +35,37 @@ int my_rank;
 int p; 
 
 
+/* Set the program parameters from the command-line arguments */
+void parameters(int argc, char **argv) {
+  int seed = 0;  /* Random seed */
+  char uid[32]; /*User name */
 
-#define N 4
+  /* Read command-line arguments */
+  srand(time_seed());  /* Randomize */
+
+  if (argc == 3) {
+    seed = atoi(argv[2]);
+    srand(seed);
+    printf("Random seed = %i\n", seed);
+  } 
+  if (argc >= 2) {
+    N = atoi(argv[1]);
+    if (N < 1 || N > MAXN) {
+      printf("N = %i is out of range.\n", N);
+      exit(0);
+    }
+  }
+  else {
+    printf("Usage: %s <matrix_dimension> [random seed]\n",
+           argv[0]);    
+    exit(0);
+  }
+
+  /* Print parameters */
+  printf("\nMatrix dimension N = %i.\n", N);
+}
+
+
 
 int main(int argc, char **argv) {
 
@@ -53,8 +82,6 @@ int main(int argc, char **argv) {
     printf("\nProcess number %d of %d says hi\n",
             my_rank+1, p);
 
-    
-    
     gauss();
 
 	MPI_Finalize();
