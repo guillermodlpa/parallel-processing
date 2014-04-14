@@ -29,6 +29,11 @@ int N; /* Matrix size */
 
 #define SOURCE 0
 
+/* My process rank           */
+int my_rank;
+/* The number of processes   */
+int p; 
+
 
 int main(int argc, char **argv) {
 
