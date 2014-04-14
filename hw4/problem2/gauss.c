@@ -34,7 +34,6 @@ int my_rank;
 /* The number of processes   */
 int p; 
 
-
 int main(int argc, char **argv) {
 
 	MPI_Init(&argc, &argv);
@@ -47,22 +46,25 @@ int main(int argc, char **argv) {
     printf("\nProcess number %d of %d says hi\n",
             my_rank+1, p);
 
-    int test = 0;
+    int test[] = new int [2];
+    test[0] = 0;
+    test[1] = 0;
     MPI_Status status;
 
     if ( my_rank == SOURCE ) {
 		int i;
-		test = 1;
+		test[0] = 1;
+		test[1] = 2;
     	for ( i = 1; i < p-1; i++ ) {
-    		MPI_Send( &test, 1, MPI_INT, i,0, MPI_COMM_WORLD );
+    		MPI_Send( &test, 2, MPI_INT, i,0, MPI_COMM_WORLD );
     	}
     }
     else
     	if ( my_rank != p-1 )
-		MPI_Recv( &test, 1, MPI_INT, SOURCE, 0, MPI_COMM_WORLD, &status);
+		MPI_Recv( &test, 2, MPI_INT, SOURCE, 0, MPI_COMM_WORLD, &status);
 
-	printf("\nProcess number %d of %d says: got %d\n",
-        my_rank+1, p, test);
+	printf("\nProcess number %d of %d says: got %d\n and %d",
+        my_rank+1, p, test[0], test[1]);
 
 
 	MPI_Finalize();
