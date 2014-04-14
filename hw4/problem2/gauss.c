@@ -215,7 +215,7 @@ void gauss() {
 				for (row = 0; row < N; row++)
 					A[row + N*col] += local_A[row + N*col];
     	}
-    	free(local_A);
+    	
     	/*printf("\nProcess number %d of %d says: got %5.2f, %5.2f, %5.2f, %5.2f\n",
         	my_rank+1, p, A[0], A[1], A[2], A[3]);*/
     }
