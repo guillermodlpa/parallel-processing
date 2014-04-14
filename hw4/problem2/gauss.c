@@ -170,6 +170,7 @@ int main(int argc, char **argv) {
 	/* Prototype functions*/
 	void gaussElimination();
 	void backSubstitution();
+	void gauss();
 
 	MPI_Init(&argc, &argv);
 
