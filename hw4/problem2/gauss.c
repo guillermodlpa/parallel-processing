@@ -156,8 +156,9 @@ void initialize_inputs() {
 
 int main(int argc, char **argv) {
 
-	/* Prototype function*/
-	void gauss();
+	/* Prototype functions*/
+	void gaussElimination();
+	void backSubstitution();
 
 	MPI_Init(&argc, &argv);
 
@@ -183,12 +184,16 @@ int main(int argc, char **argv) {
     /*printf("\nProcess number %d of %d says hi\n",
             my_rank+1, p);*/
 
-    gauss();
+    gaussElimination();
 
     if ( my_rank == SOURCE ) {
 
+    	backSubstitution();
+
 		/* Print input matrices */
-		print_inputs();
+		print_A();
+		print_B();
+		print_X();
 	}
 
 	/* Free memory used for the arrays that we allocated previously */
@@ -200,19 +205,49 @@ int main(int argc, char **argv) {
 	MPI_Finalize();
 }
 
-/* Main function that performs the algorithms */
-void gauss() {
+
+/* Back substitution sequential algorithm */
+void backSubstitution () {
+
+	int norm, row, col;  /* Normalization row, and zeroing
+      * element row and col */
+
+	/* Back substitution */
+	for (row = N - 1; row >= 0; row--) {
+		X[row] = B[row];
+
+		for (col = N-1; col > row; col--) {
+			X[row] -= A[N*row+col] * X[col];
+		}
+	    
+		X[row] /= A[N*row + row];
+	}
+}
+
+
+
+/* Guassian Elimination algorithm using MPI */
+void gaussElimination() {
 
 	MPI_Status status;
 	int row, col, i, norm;
 	float multiplier;
 
+	/* Main loop. After every iteration, a new column will have all 0 values down the [norm] index */
 	for (norm = 0; norm < N - 1; norm++) {
 
+		/* --------------------------------------- */
+		/* 	Broadcasting of common values          */
+    	/* 	-------------------------------------- */
 		/* Broadcast the A[norm] row and B[norm], important values of this iteration */
 		MPI_Bcast( &A[ N*norm ], N, MPI_FLOAT, SOURCE, MPI_COMM_WORLD );
 		MPI_Bcast( &B[norm], 1, MPI_FLOAT, SOURCE, MPI_COMM_WORLD );
 
+
+
+		/* ---------------------------------------   */
+		/* 	Calculation of number of rows to operate */
+    	/* 	--------------------------------------   */
 		/* subset of rows of this iteration */
     	int subset = N - 1 - norm;
     	/* number that indicates the step as a float */
@@ -225,17 +260,21 @@ void gauss() {
 		/*printf("\nProcess number %d of %d says in iteration %d that a=%d, b=%d and n=%d\n",
 					        my_rank+1, p, norm+1,local_row_a,local_row_b,number_of_rows) ;*/
 
-    	/* Sender side */
+
+
+    	/* --------------------------------------- */
+		/* 	Send data from process 0 to others     */
+    	/* 	-------------------------------------- */
     	if ( my_rank == SOURCE ) {
 
     		for ( i = 1; i < p; i++ ) {
 
-    			/* We send to each processor the amount of data that they are going to handle */
+    			/* We send to each process the amount of data that they are going to handle */
     			int remote_row_a = norm + 1 + ceil( step * i );
 		    	int remote_row_b = norm + 1 + floor( step * (i+1) );
 		    	int number_of_rows_r = remote_row_b - remote_row_a +1;
 
-		    	/* In case this processor isn't assigned any task, continue. This happens when there are more processors than rows */
+		    	/* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
 		    	if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
 
 	    		MPI_Send( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
@@ -253,20 +292,17 @@ void gauss() {
     	}
 
 
-
     	
-    	/*if ( number_of_rows > 0 ) {
-    		for (col = 0; col < norm; col++)
-    			for (row = local_row_a; row < local_row_b; row++) 
-    				A[row + N*col] = 0;
-
-			B[local_row_a] = 0;	
-    	}*/
-	printf("\nProcess %d: Iteration number %d of %d\n",
+	    /*printf("\nProcess %d: Iteration number %d of %d\n",
 			        my_rank, norm+1, N-1);
-			//print_A();
+		print_A();*/
 
-		/* Gaussian elimination */
+
+
+		/* --------------------------------------- */
+		/* 	Gaussian elimination                   */
+		/* 	The arrays only have the needed values */
+    	/* 	-------------------------------------- */
 		if ( number_of_rows > 0  && local_row_a < N) {	
 			/* Similar code than in the sequential case */
 			for (row = local_row_a; row <= local_row_b; row++) {
@@ -282,7 +318,10 @@ void gauss() {
     	
 
 
-    	/* Send back results */
+    	/* --------------------------------------- */
+		/* 	Send back the results                  */
+    	/* 	-------------------------------------- */
+
     	/* Sender side */
     	if ( my_rank != SOURCE ) {
     		if ( number_of_rows > 0  && local_row_a < N) {
@@ -295,88 +334,22 @@ void gauss() {
 
     		for ( i = 1; i < p; i++ ) {
 
-    			/* We send to each processor the amount of data that they are going to handle */
+    			/* We send to each process the amount of data that they are going to handle */
     			int remote_row_a = norm + 1 + ceil( step * i );
 		    	int remote_row_b = norm + 1 + floor( step * (i+1) );
 		    	int number_of_rows_r = remote_row_b - remote_row_a +1;
 
-		    	/* In case this processor isn't assigned any task, continue. This happens when there are more processors than rows */
+		    	/* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
 		    	if( number_of_rows_r < 1  || remote_row_a >= N) continue;
 
 	    		MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
 	    		MPI_Recv( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
 	    	}
-			printf("\nIteration number %d of %d\n",
+
+	    	/* Trace to see the progress of the algorithm iteration after iteration */
+			/*printf("\nIteration number %d of %d\n",
 			        norm+1, N-1);
-	    	print_A();
+	    	print_A();*/
     	}
-
     }
-}
-
-
-
-void gauss2() {
-
-	MPI_Status status;
-	int row, col, i;
-
-	/* Sender side */
-    if ( my_rank == SOURCE ) {
-		for (col = 0; col < N; col++) {
-			B[col] = 0;
-			for (row = 0; row < N; row++)
-				A[N*row + col] = 1;
-		}
-
-    	for ( i = 1; i < p; i++ ) {
-    		MPI_Send( &A[0], N*N, MPI_FLOAT, i,0, MPI_COMM_WORLD );
-    		MPI_Send( &B[0], N, MPI_FLOAT, i,0, MPI_COMM_WORLD );
-    	}
-
-    }
-    /* Receiver side */
-    else {
-		MPI_Recv( &A[0], N*N, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
-		MPI_Recv( &B[0], N, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
-	}
-
-
-	for (col = 0; col < N; col++) {
-		B[col] += 0.1f;
-		for (row = 0; row < N; row++)
-			A[N*row + col] += 0.01f;
-	}
-
-
-	/*printf("\nProcess number %d of %d says: got %5.2f, %5.2f, %5.2f, %5.2f\n",
-        my_rank+1, p, A[0], A[1], A[2], A[3]);*/
-
-	/* Sender side */
-	if ( my_rank != SOURCE ) {
-		MPI_Send( &A[0], N*N, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
-		MPI_Send( &B[0], N, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
-	}
-	/* Receiver side */
-	else {
-		int i;
-		float *local_A = (float*) malloc( N*N*sizeof(float));
-		float *local_B = (float*) malloc( N*sizeof(float));
-		for ( i = 1; i < p; i++ ) {
-    		MPI_Recv( &local_A[0], N*N, MPI_FLOAT, i, 0, MPI_COMM_WORLD, &status);
-    		MPI_Recv( &local_B[0], N, MPI_FLOAT, i, 0, MPI_COMM_WORLD, &status);
-
-			for (col = 0; col < N; col++) {
-				B[col] += local_B[col];
-				for (row = 0; row < N; row++)
-					A[N*row + col] += local_A[row + N*col];
-			}
-    	}
-    	free(local_A);
-    	free(local_B);
-    	/*printf("\nProcess number %d of %d says: got %5.2f, %5.2f, %5.2f, %5.2f\n",
-        	my_rank+1, p, A[0], A[1], A[2], A[3]);*/
-    }
-
-
 }
