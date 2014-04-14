@@ -94,6 +94,41 @@ void free_memory() {
 }
 
 
+/* Print input matrices */
+void print_inputs() {
+  int row, col;
+
+  if (N < 10) {
+    printf("\nA =\n\t");
+    for (row = 0; row < N; row++) {
+      for (col = 0; col < N; col++) {
+	printf("%5.2f%s", A[row + N*col], (col < N-1) ? ", " : ";\n\t");
+      }
+    }
+    /*printf("\nB = [");
+    for (col = 0; col < N; col++) {
+      printf("%5.2f%s", B[col], (col < N-1) ? "; " : "]\n");
+    }*/
+  }
+}
+
+/* Initialize A and B (and X to 0.0s) */
+void initialize_inputs() {
+
+  int row, col;
+
+  printf("\nInitializing...\n");
+  for (col = 0; col < N; col++) {
+    for (row = 0; row < N; row++) {
+      A[row + N*col] = (float)rand() / DIVFACTOR;
+    }
+    //B[col] = (float)rand() / DIVFACTOR;
+    //X[col] = 0.0;
+  }
+
+}
+
+
 int main(int argc, char **argv) {
 
 	/* Prototype function*/
@@ -112,10 +147,23 @@ int main(int argc, char **argv) {
     /* Every process must allocate memory for the arrays */
     allocate_memory();
 
+    if ( my_rank == SOURCE ) {
+	    /* Initialize A and B */
+		initialize_inputs();
+
+		/* Print input matrices */
+		print_inputs();
+	}
+
     /*printf("\nProcess number %d of %d says hi\n",
             my_rank+1, p);*/
 
     gauss();
+
+    if ( my_rank == SOURCE ) {
+		/* Print input matrices */
+		print_inputs();
+	}
 
     free_memory();
 
@@ -126,38 +174,44 @@ int main(int argc, char **argv) {
 void gauss() {
 
 	MPI_Status status;
+	int row, col, i;
 
     if ( my_rank == SOURCE ) {
-		int i,k;
-		for (k = 0; k < N; k++) A[k] = 1;
+		
+		for (col = 0; col < N; col++)
+			for (row = 0; row < N; row++)
+				A[row + N*col] = 1;
+
     	for ( i = 1; i < p; i++ ) {
-    		MPI_Send( &A[0], N, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+    		MPI_Send( &A[0], N*N, MPI_FLOAT, i,0, MPI_COMM_WORLD );
     	}
     }
     else
-		MPI_Recv( &A[0], N, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+		MPI_Recv( &A[0], N*N, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
 
 
-	int k;
-	for (k = 0; k < N; k++) A[k] += 0.01f;
+	for (col = 0; col < N; col++)
+		for (row = 0; row < N; row++)
+			A[row + N*col] += 0.01f;
 
 
-	printf("\nProcess number %d of %d says: got %5.2f, %5.2f, %5.2f, %5.2f\n",
-        my_rank+1, p, A[0], A[1], A[2], A[3]);
+	/*printf("\nProcess number %d of %d says: got %5.2f, %5.2f, %5.2f, %5.2f\n",
+        my_rank+1, p, A[0], A[1], A[2], A[3]);*/
 
 
 	if ( my_rank != SOURCE )
-		MPI_Send( &A[0], N, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
+		MPI_Send( &A[0], N*N, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
 	else {
 		int i;
 		float *local_A = (float*) malloc( N*sizeof(float));
 		for ( i = 1; i < p; i++ ) {
-    		MPI_Recv( &local_A[0], N, MPI_FLOAT, i, 0, MPI_COMM_WORLD, &status);
-    		int k;
-			for (k = 0; k < N; k++) A[k] += local_A[k];
+    		MPI_Recv( &local_A[0], N*N, MPI_FLOAT, i, 0, MPI_COMM_WORLD, &status);
+			for (col = 0; col < N; col++)
+				for (row = 0; row < N; row++)
+					A[row + N*col] += local_A[row + N*col];
     	}
-    	printf("\nProcess number %d of %d says: got %5.2f, %5.2f, %5.2f, %5.2f\n",
-        	my_rank+1, p, A[0], A[1], A[2], A[3]);
+    	/*printf("\nProcess number %d of %d says: got %5.2f, %5.2f, %5.2f, %5.2f\n",
+        	my_rank+1, p, A[0], A[1], A[2], A[3]);*/
     }
 
 
