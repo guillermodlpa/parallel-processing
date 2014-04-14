@@ -47,6 +47,21 @@ int main(int argc, char **argv) {
     printf("\nProcess number %d of %d says hi\n",
             my_rank+1, p);
 
+    int test = 0;
+    if ( my_rank == SOURCE ) {
+		int i;
+		test = 1;
+    	for ( i = 1; i < p; i++ ) {
+    		MPI_Send( &test, 1, MPI_INT, i,0, MPI_COMM_WORLD );
+    	}
+    }
+    else
+		MPI_Recv( &test, 1, MPI_INT, SOURCE, 0, MPI_COMM_WORLD, &status);
+
+	printf("\nProcess number %d of %d says: got %d\n",
+        my_rank+1, p, i);
+
+
 	MPI_Finalize();
 }
 
