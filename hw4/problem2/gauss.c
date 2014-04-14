@@ -210,7 +210,7 @@ void gauss() {
 	for (norm = 0; norm < N - 1; norm++) {
 
 		/* Broadcast the A[norm][norm] */
-		MPI_Bcast( &A[ norm*N ], N, MPI_FLOAT, SOURCE, MPI_COMM_WORLD );
+		MPI_Bcast( &A[ N*norm ], N, MPI_FLOAT, SOURCE, MPI_COMM_WORLD );
 
 		/* subset of rows of this iteration */
     	int subset = N - 1 - norm;
@@ -245,11 +245,7 @@ void gauss() {
     	else {
 
     		if ( number_of_rows > 0 ) {
-
-    			for (row = 0; row < N; row++)
-			      for (col = 0; col < N; col++)
-						A[N*row + col] = 0;
-
+    			
 	    		MPI_Recv( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
 	    		MPI_Recv( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
 	    	}
