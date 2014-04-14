@@ -166,9 +166,12 @@ int main(int argc, char **argv) {
 		print_inputs();
 	}
 
+	/* Free memory used for the arrays that we allocated previously */
     free_memory();
 
+    /* The barrier prevents any process to reach the finalize before the others have finished their communications */
     MPI_Barrier();
+
 	MPI_Finalize();
 }
 
