@@ -195,11 +195,9 @@ int main(int argc, char **argv) {
     /*printf("\nProcess number %d of %d says hi\n",
             my_rank+1, p);*/
 
-    gaussElimination();
+	gauss();
 
     if ( my_rank == SOURCE ) {
-
-    	backSubstitution();
 
 		/* Print input matrices */
 		print_A();
@@ -216,6 +214,28 @@ int main(int argc, char **argv) {
 	MPI_Finalize();
 }
 
+
+/* Includes both algorithms */
+void gauss() {
+
+	/* Times */
+	double t1, t2, tick;
+
+	t1 = MPI_Wtime();
+
+	/* Gauss Elimination is performed using MPI */
+	gaussElimination();
+
+	/* Back Substitution is performed sequentially */
+	if ( my_rank == SOURCE ) {
+		backSubstitution();
+	}
+
+	t2 = MPI_Wtime();
+	tick = MPI_Wtick(); // Time in seconds that an MPI tick represents
+
+	printf("\nElapsed time: %5.2f seconds\n",(t2-t1)*tick);
+}
 
 /* Back substitution sequential algorithm */
 void backSubstitution () {
