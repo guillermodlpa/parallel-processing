@@ -198,15 +198,87 @@ void gauss() {
 
 	for (norm = 0; norm < N - 1; norm++) {
 
-		float A_norm = A[norm + N*norm];
-
 		/* Broadcast the A[norm][norm] */
-		MPI_Bcast( &A_norm, 1, MPI_FLOAT, SOURCE, MPI_COMM_WORLD );
+		MPI_Bcast( &A[ norm*N ], N, MPI_FLOAT, SOURCE, MPI_COMM_WORLD );
 
-		printf("\nProcess number %d of %d says: my A[norm][norm] is %5.2f\n",
-        	my_rank+1, p, A_norm);
-	}
+		/* subset of rows of this iteration */
+    	int subset = N - 1 - norm;
+    	/* number that indicates the step as a float */
+    	float step = ((float)subset ) / p;
+    	/* First and last rows that this process will work into for this iteration */
+    	int local_row_a = norm + 1 + ceil( step * my_rank );
+    	int local_row_b = norm + 1 + floor( step * (my_rank+1) );
+    	int number_of_rows = local_row_a - local_row_b;
 
+
+
+    	/* Sender side */
+    	if ( my_rank == SOURCE ) {
+
+    		for ( i = 1; i < p; i++ ) {
+
+    			/* We send to each processor the amount of data that they are going to handle */
+    			int remote_row_a = norm + 1 + ceil( step * i );
+		    	int remote_row_b = norm + 1 + floor( step * (i+1) );
+		    	int number_of_rows_r = remote_row_a - remote_row_b;
+
+		    	/* In case this processor isn't assigned any task, continue. This happens when there are more processors than rows */
+		    	if( number_of_rows_r < 1 ) continue;
+
+	    		MPI_Send( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+	    		MPI_Send( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+	    	}
+    	}
+    	/* Receiver side */
+    	else {
+
+    		if ( number_of_rows > 0 ) {
+	    		MPI_Recv( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+	    		MPI_Recv( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+	    	}
+    	}
+
+
+
+    	/* Gaussian elimination */
+    	if ( number_of_rows > 0 ) {
+    		for (col = 0; col < norm; col++) {
+    			for (row = local_row_a; row < local_row_b; row++) 
+    				A[row + N*col] = 0;
+    	}
+
+
+
+    	/* Send back results */
+    	/* Sender side */
+    	if ( my_rank != SOURCE ) {
+    		if ( number_of_rows > 0 ) {
+    			MPI_Send( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
+	    		MPI_Send( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
+    		}
+    	}
+    	/* Receiver side */
+    	else {
+
+    		for ( i = 1; i < p; i++ ) {
+
+    			/* We send to each processor the amount of data that they are going to handle */
+    			int remote_row_a = norm + 1 + ceil( step * i );
+		    	int remote_row_b = norm + 1 + floor( step * (i+1) );
+		    	int number_of_rows_r = remote_row_a - remote_row_b;
+
+		    	/* In case this processor isn't assigned any task, continue. This happens when there are more processors than rows */
+		    	if( number_of_rows_r < 1 ) continue;
+
+	    		MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+	    		MPI_Recv( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+	    	}
+			printf("\nIteration number %d of %d\n",
+			        norm, N-1);
+	    	print_A();
+    	}
+
+    }
 }
 
 
