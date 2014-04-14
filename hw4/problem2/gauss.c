@@ -197,7 +197,7 @@ void gauss() {
 	int row, col, i;
 
 	int size = 40;
-	int * test = (int) malloc ( size*sizeof(int) );
+	int * test = (int*) malloc ( size*sizeof(int) );
 
 	for ( i = 0; i < size; i++ ) {
 		test[i] = 0;
@@ -213,7 +213,7 @@ void gauss() {
 	}
 
 	int local_size = 10;
-	int * local_test = (int) malloc (local_size*sizeof(int));
+	int * local_test = (int*) malloc (local_size*sizeof(int));
 
 	for( i = 0; i < local_size; i++ ) local_test = 0;
 
