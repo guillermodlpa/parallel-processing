@@ -198,9 +198,8 @@ void gauss() {
 
 	/* Sender side */
     if ( my_rank == SOURCE ) {
-		B[col] = -10;
 		for (col = 0; col < N; col++) {
-
+			B[col] = 0;
 			for (row = 0; row < N; row++)
 				A[row + N*col] = 1;
 		}
