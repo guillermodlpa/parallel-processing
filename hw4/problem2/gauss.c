@@ -220,7 +220,8 @@ void gauss() {
     	int local_row_b = norm + 1 + floor( step * (my_rank+1) );
     	int number_of_rows = local_row_a - local_row_b +1;
 
-
+		printf("\nProcess number %d of %d says in iteration %d that a=%d, b=%d and n=%d\n",
+					        my_rank+1, p, norm+1,local_row_a,local_row_b,number_of_rows) ;
 
     	/* Sender side */
     	if ( my_rank == SOURCE ) {
