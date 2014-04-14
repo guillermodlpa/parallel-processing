@@ -67,15 +67,16 @@ void gauss() {
 
     if ( my_rank == SOURCE ) {
 		int i;
-		test[0] = 1.1f;
-		test[1] = 2.2f;
-    	for ( i = 1; i < p-1; i++ ) {
-    		MPI_Send( &test, 2, MPI_INT, i,0, MPI_COMM_WORLD );
+		test[0] = 1;
+		test[1] = 2;
+    	for ( i = 1; i < p; i++ ) {
+    		MPI_Send( &test, 2, MPI_FLOAT, i,0, MPI_COMM_WORLD );
     	}
     }
     else
-    	if ( my_rank != p-1 )
-		MPI_Recv( &test, 2, MPI_INT, SOURCE, 0, MPI_COMM_WORLD, &status);
+		MPI_Recv( &test, 2, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+
+
 
 	printf("\nProcess number %d of %d says: got %5.2f and %5.2f\n",
         my_rank+1, p, test[0], test[1]);
