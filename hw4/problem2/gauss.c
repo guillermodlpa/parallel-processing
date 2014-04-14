@@ -35,7 +35,7 @@ int my_rank;
 int p; 
 
 
-int test[2];
+float test[2];
 
 int main(int argc, char **argv) {
 
@@ -49,14 +49,14 @@ int main(int argc, char **argv) {
     printf("\nProcess number %d of %d says hi\n",
             my_rank+1, p);
 
-    test[0] = 0;
-    test[1] = 0;
+    test[0] = 0f;
+    test[1] = 0f;
     MPI_Status status;
 
     if ( my_rank == SOURCE ) {
 		int i;
-		test[0] = 1;
-		test[1] = 2;
+		test[0] = 1.1f;
+		test[1] = 2.2f;
     	for ( i = 1; i < p-1; i++ ) {
     		MPI_Send( &test, 2, MPI_INT, i,0, MPI_COMM_WORLD );
     	}
