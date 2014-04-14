@@ -34,6 +34,9 @@ int my_rank;
 /* The number of processes   */
 int p; 
 
+float *test;
+
+
 
 /* returns a seed for srand based on the time */
 unsigned int time_seed() {
@@ -43,7 +46,6 @@ unsigned int time_seed() {
   gettimeofday(&t, &tzdummy);
   return (unsigned int)(t.tv_usec);
 }
-
 
 
 /* Set the program parameters from the command-line arguments */
@@ -90,10 +92,11 @@ int main(int argc, char **argv) {
 	/* Find out how many processes are being used */
     MPI_Comm_size(MPI_COMM_WORLD, &p);
 
+    /* Every process reads the parameters to prepare dimension */
     parameters(argc, argv);
 
-    printf("\nProcess number %d of %d says hi\n",
-            my_rank+1, p);
+    /*printf("\nProcess number %d of %d says hi\n",
+            my_rank+1, p);*/
 
     gauss();
 
@@ -103,7 +106,7 @@ int main(int argc, char **argv) {
 /* Main function that performs the algorithms */
 void gauss() {
 
-	float *test = (float*) malloc( N*sizeof(float));
+	test = (float*) malloc( N*sizeof(float));
 
 	MPI_Status status;
 
