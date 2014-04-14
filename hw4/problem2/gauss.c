@@ -34,7 +34,7 @@ int my_rank;
 /* The number of processes   */
 int p; 
 
-float *test;
+float *A;
 
 
 
@@ -81,18 +81,16 @@ void parameters(int argc, char **argv) {
 
 /* Allocates memory for A, B and X */
 void allocate_memory() {
-	/*A = (float*)malloc( N*N*sizeof(float) );
-	B = (float*)malloc( N*sizeof(float) );
+	A = (float*)malloc( N*N*sizeof(float) );
+	/*B = (float*)malloc( N*sizeof(float) );
 	X = (float*)malloc( N*sizeof(float) );*/
-	test = (float*) malloc( N*sizeof(float));
 }
 
 /* Free allocated memory for arrays */
 void free_memory() {
-	/*free(A);
-	free(B);
+	free(A);
+	/*free(B);
 	free(X);*/
-	free(test);
 }
 
 
@@ -131,35 +129,35 @@ void gauss() {
 
     if ( my_rank == SOURCE ) {
 		int i,k;
-		for (k = 0; k < N; k++) test[k] = 1;
+		for (k = 0; k < N; k++) A[k] = 1;
     	for ( i = 1; i < p; i++ ) {
-    		MPI_Send( &test[0], N, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+    		MPI_Send( &A[0], N, MPI_FLOAT, i,0, MPI_COMM_WORLD );
     	}
     }
     else
-		MPI_Recv( &test[0], N, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+		MPI_Recv( &A[0], N, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
 
 
 	int k;
-	for (k = 0; k < N; k++) test[k] += 0.01f;
+	for (k = 0; k < N; k++) A[k] += 0.01f;
 
 
 	printf("\nProcess number %d of %d says: got %5.2f, %5.2f, %5.2f, %5.2f\n",
-        my_rank+1, p, test[0], test[1], test[2], test[3]);
+        my_rank+1, p, A[0], A[1], A[2], A[3]);
 
 
 	if ( my_rank != SOURCE )
-		MPI_Send( &test[0], N, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
+		MPI_Send( &A[0], N, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
 	else {
 		int i;
-		float *local_test = (float*) malloc( N*sizeof(float));
+		float *local_A = (float*) malloc( N*sizeof(float));
 		for ( i = 1; i < p; i++ ) {
-    		MPI_Recv( &local_test[0], N, MPI_FLOAT, i, 0, MPI_COMM_WORLD, &status);
+    		MPI_Recv( &local_A[0], N, MPI_FLOAT, i, 0, MPI_COMM_WORLD, &status);
     		int k;
-			for (k = 0; k < N; k++) test[k] += local_test[k];
+			for (k = 0; k < N; k++) A[k] += local_A[k];
     	}
     	printf("\nProcess number %d of %d says: got %5.2f, %5.2f, %5.2f, %5.2f\n",
-        	my_rank+1, p, test[0], test[1], test[2], test[3]);
+        	my_rank+1, p, A[0], A[1], A[2], A[3]);
     }
 
 
