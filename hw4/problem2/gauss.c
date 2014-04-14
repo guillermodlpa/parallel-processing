@@ -48,6 +48,8 @@ int main(int argc, char **argv) {
             my_rank+1, p);
 
     int test = 0;
+    MPI_Status status;
+    
     if ( my_rank == SOURCE ) {
 		int i;
 		test = 1;
@@ -59,7 +61,7 @@ int main(int argc, char **argv) {
 		MPI_Recv( &test, 1, MPI_INT, SOURCE, 0, MPI_COMM_WORLD, &status);
 
 	printf("\nProcess number %d of %d says: got %d\n",
-        my_rank+1, p, i);
+        my_rank+1, p, test);
 
 
 	MPI_Finalize();
