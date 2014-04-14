@@ -34,6 +34,9 @@ int my_rank;
 /* The number of processes   */
 int p; 
 
+
+int test[2];
+
 int main(int argc, char **argv) {
 
 	MPI_Init(&argc, &argv);
@@ -46,7 +49,6 @@ int main(int argc, char **argv) {
     printf("\nProcess number %d of %d says hi\n",
             my_rank+1, p);
 
-    int test[2];
     test[0] = 0;
     test[1] = 0;
     MPI_Status status;
