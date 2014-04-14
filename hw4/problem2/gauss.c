@@ -39,6 +39,9 @@ float test[2];
 
 int main(int argc, char **argv) {
 
+	/* Prototype function*/
+	void gauss();
+
 	MPI_Init(&argc, &argv);
 
 	/* Get my process rank */
@@ -51,7 +54,16 @@ int main(int argc, char **argv) {
 
     test[0] = 0;
     test[1] = 0;
-    MPI_Status status;
+    
+    gauss();
+
+	MPI_Finalize();
+}
+
+/* Main function that performs the algorithms */
+void gauss() {
+
+	MPI_Status status;
 
     if ( my_rank == SOURCE ) {
 		int i;
@@ -68,8 +80,4 @@ int main(int argc, char **argv) {
 	printf("\nProcess number %d of %d says: got %5.2f and %5.2f\n",
         my_rank+1, p, test[0], test[1]);
 
-
-	MPI_Finalize();
 }
-
-
