@@ -218,7 +218,7 @@ void gauss() {
     	/* First and last rows that this process will work into for this iteration */
     	int local_row_a = norm + 1 + ceil( step * my_rank );
     	int local_row_b = norm + 1 + floor( step * (my_rank+1) );
-    	int number_of_rows = local_row_a - local_row_b +1;
+    	int number_of_rows = local_row_b - local_row_a +1;
 
 		printf("\nProcess number %d of %d says in iteration %d that a=%d, b=%d and n=%d\n",
 					        my_rank+1, p, norm+1,local_row_a,local_row_b,number_of_rows) ;
@@ -231,7 +231,7 @@ void gauss() {
     			/* We send to each processor the amount of data that they are going to handle */
     			int remote_row_a = norm + 1 + ceil( step * i );
 		    	int remote_row_b = norm + 1 + floor( step * (i+1) );
-		    	int number_of_rows_r = remote_row_a - remote_row_b;
+		    	int number_of_rows_r = remote_row_b - remote_row_a +1;
 
 		    	/* In case this processor isn't assigned any task, continue. This happens when there are more processors than rows */
 		    	if( number_of_rows_r < 1 ) continue;
@@ -278,7 +278,7 @@ void gauss() {
     			/* We send to each processor the amount of data that they are going to handle */
     			int remote_row_a = norm + 1 + ceil( step * i );
 		    	int remote_row_b = norm + 1 + floor( step * (i+1) );
-		    	int number_of_rows_r = remote_row_a - remote_row_b;
+		    	int number_of_rows_r = remote_row_b - remote_row_a +1;
 
 		    	/* In case this processor isn't assigned any task, continue. This happens when there are more processors than rows */
 		    	if( number_of_rows_r < 1 ) continue;
