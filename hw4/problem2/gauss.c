@@ -126,6 +126,16 @@ void print_A() {
     }
   }
 }
+/* Print matrix b */
+void print_B() {
+  int col;
+  if (N < 10) {
+	  printf("\nB = [");
+	    for (col = 0; col < N; col++) {
+	      printf("%5.2f%s", B[col], (col < N-1) ? "; " : "]\n");
+	    }
+	}
+}
 
 /* Initialize A and B (and X to 0.0s) */
 void initialize_inputs() {
@@ -277,7 +287,7 @@ void gauss() {
 	    	}
 			printf("\nIteration number %d of %d\n",
 			        norm+1, N-1);
-	    	print_A();
+	    	print_B();
     	}
 
     }
