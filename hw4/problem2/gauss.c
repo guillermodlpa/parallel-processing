@@ -208,7 +208,7 @@ void gauss() {
     	/* First and last rows that this process will work into for this iteration */
     	int local_row_a = norm + 1 + ceil( step * my_rank );
     	int local_row_b = norm + 1 + floor( step * (my_rank+1) );
-    	int number_of_rows = local_row_a - local_row_b;
+    	int number_of_rows = local_row_a - local_row_b +1;
 
 
 
@@ -276,7 +276,7 @@ void gauss() {
 	    		MPI_Recv( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
 	    	}
 			printf("\nIteration number %d of %d\n",
-			        norm, N-1);
+			        norm+1, N-1);
 	    	print_A();
     	}
 
