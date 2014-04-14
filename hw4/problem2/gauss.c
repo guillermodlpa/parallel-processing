@@ -170,7 +170,7 @@ int main(int argc, char **argv) {
     free_memory();
 
     /* The barrier prevents any process to reach the finalize before the others have finished their communications */
-    MPI_Barrier();
+    MPI_Barrier(MPI_COMM_WORLD);
 
 	MPI_Finalize();
 }
