@@ -205,6 +205,7 @@ void gauss() {
 
 	MPI_Status status;
 	int row, col, i, norm;
+	float multiplier;
 
 	for (norm = 0; norm < N - 1; norm++) {
 
@@ -265,9 +266,9 @@ void gauss() {
 			/* Similar code than in the sequential case */
 			for (row = local_row_a; row <= local_row_b; row++) {
 
-		 		multiplier = A[row][norm] / A[norm][norm];
+		 		multiplier = A[row + N*norm] / A[norm + N*norm];
 				for (col = norm; col < N; col++) {
-		 			A[row][col] -= A[norm][col] * multiplier;
+		 			A[row + N*col] -= A[norm + N*col] * multiplier;
 		 		}
 
 		 		B[row] -= B[norm] * multiplier;
