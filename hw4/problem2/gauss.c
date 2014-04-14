@@ -212,7 +212,7 @@ void gauss() {
 
 	}
 
-	int local_size = 10;
+	int local_size = 5;
 	int * local_test = (int*) malloc (local_size*sizeof(int));
 
 	for( i = 0; i < local_size; i++ ) local_test = 0;
