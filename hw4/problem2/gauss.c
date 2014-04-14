@@ -126,7 +126,7 @@ void print_A() {
     }
   }
 }
-/* Print matrix b */
+/* Print matrix B */
 void print_B() {
   int col;
   if (N < 10) {
@@ -135,6 +135,17 @@ void print_B() {
 	      printf("%5.2f%s", B[col], (col < N-1) ? "; " : "]\n");
 	    }
 	}
+}
+/* Print matrix X */
+void print_X() {
+  int row;
+
+  if (N < 100) {
+    printf("\nX = [");
+    for (row = 0; row < N; row++) {
+      printf("%5.2f%s", X[row], (row < N-1) ? "; " : "]\n");
+    }
+  }
 }
 
 /* Initialize A and B (and X to 0.0s) */
