@@ -59,23 +59,23 @@ void parameters(int argc, char **argv) {
   if (argc == 3) {
     seed = atoi(argv[2]);
     srand(seed);
-    printf("Random seed = %i\n", seed);
+    if ( my_rank == SOURCE ) printf("Random seed = %i\n", seed);
   } 
   if (argc >= 2) {
     N = atoi(argv[1]);
     if (N < 1 || N > MAXN) {
-      printf("N = %i is out of range.\n", N);
+      if ( my_rank == SOURCE ) printf("N = %i is out of range.\n", N);
       exit(0);
     }
   }
   else {
-    printf("Usage: %s <matrix_dimension> [random seed]\n",
+    if ( my_rank == SOURCE ) printf("Usage: %s <matrix_dimension> [random seed]\n",
            argv[0]);    
     exit(0);
   }
 
   /* Print parameters */
-  printf("\nMatrix dimension N = %i.\n", N);
+  if ( my_rank == SOURCE )  printf("\nMatrix dimension N = %i.\n", N);
 }
 
 
@@ -86,6 +86,15 @@ void allocate_memory() {
 	X = (float*)malloc( N*sizeof(float) );*/
 	test = (float*) malloc( N*sizeof(float));
 }
+
+/* Free allocated memory for arrays */
+void free_memory() {
+	/*free(A);
+	free(B);
+	free(X);*/
+	free(test);
+}
+
 
 int main(int argc, char **argv) {
 
@@ -109,6 +118,8 @@ int main(int argc, char **argv) {
             my_rank+1, p);*/
 
     gauss();
+
+    free_memory();
 
 	MPI_Finalize();
 }
