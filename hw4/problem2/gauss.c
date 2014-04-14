@@ -194,7 +194,7 @@ int main(int argc, char **argv) {
 void gauss() {
 
 	MPI_Status status;
-	int row, col, i;
+	int row, col, i, norm;
 
 	for (norm = 0; norm < N - 1; norm++) {
 
