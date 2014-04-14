@@ -196,6 +196,43 @@ void gauss() {
 	MPI_Status status;
 	int row, col, i;
 
+	int size = 40;
+	int * test = (int) malloc ( size*sizeof(int) );
+
+	for ( i = 0; i < size; i++ ) {
+		test[i] = 0;
+	}
+
+
+	if ( my_rank == SOURCE ) {
+
+		for ( i = 0; i < size; i++ ) {
+			test[i] = 5;
+		}
+
+	}
+
+	int local_size = 10;
+	int * local_test = (int) malloc (local_size*sizeof(int));
+
+	for( i = 0; i < local_size; i++ ) local_test = 0;
+
+	MPI_Scatter(test, 40, MPI_INT,
+               local_test, 10, MPI_INT, 0,
+               MPI_COMM_WORLD);
+
+	
+	printf("\nProcess number %d of %d says: %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n",
+        my_rank+1, p, local_test[0], local_test[1], local_test[2], local_test[3], local_test[4], local_test[5], local_test[6], local_test[7], local_test[8], local_test[9]);
+}
+
+
+
+void gauss2() {
+
+	MPI_Status status;
+	int row, col, i;
+
 	/* Sender side */
     if ( my_rank == SOURCE ) {
 		for (col = 0; col < N; col++) {
