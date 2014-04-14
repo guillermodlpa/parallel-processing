@@ -265,8 +265,8 @@ void gauss() {
 
 			B[local_row_a] = 0;	
     	}*/
-	printf("\nIteration number %d of %d\n",
-			        norm+1, N-1);
+	printf("\nProcess %d: Iteration number %d of %d\n",
+			        my_rank, norm+1, N-1);
 			print_A();
 
 		/* Gaussian elimination */
