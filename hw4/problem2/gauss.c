@@ -245,6 +245,11 @@ void gauss() {
     	else {
 
     		if ( number_of_rows > 0 ) {
+
+    			for (row = 0; row < N; row++) {
+			      for (col = 0; col < N; col++) {
+						A[row + N*col] = 0;
+
 	    		MPI_Recv( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
 	    		MPI_Recv( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
 	    	}
@@ -260,6 +265,9 @@ void gauss() {
 
 			B[local_row_a] = 0;	
     	}*/
+	printf("\nIteration number %d of %d\n",
+			        norm+1, N-1);
+			print_A();
 
 		/* Gaussian elimination */
 		if ( number_of_rows > 0 ) {	
