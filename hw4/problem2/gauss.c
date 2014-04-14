@@ -163,7 +163,7 @@ void gaussianElimination() {
     	/* number that indicates the step as a float */
     	float step = ((float)subset ) / p;
 
-    	int test;
+    	int test = malloc( sizeof(int));
 
     	printf("Process number %d of %d says phase 1 ready\n",
             my_rank+1, p);
