@@ -303,7 +303,7 @@ void gauss() {
 	    	}
 			printf("\nIteration number %d of %d\n",
 			        norm+1, N-1);
-	    	print_B();
+	    	print_A();
     	}
 
     }
