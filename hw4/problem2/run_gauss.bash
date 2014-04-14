@@ -7,4 +7,4 @@
 	echo "Working directory is:"
 	pwd
 
-mpirun -npernode 8 ./gauss 5
+mpirun -npernode 8 ./gauss 8
