@@ -168,8 +168,6 @@ void initialize_inputs() {
 int main(int argc, char **argv) {
 
 	/* Prototype functions*/
-	void gaussElimination();
-	void backSubstitution();
 	void gauss();
 
 	MPI_Init(&argc, &argv);
@@ -219,6 +217,9 @@ int main(int argc, char **argv) {
 /* Includes both algorithms */
 void gauss() {
 
+	void gaussElimination();
+	void backSubstitution();
+
 	/* Times */
 	double t1, t2, tick;
 
@@ -236,24 +237,6 @@ void gauss() {
 	tick = MPI_Wtick(); // Time in seconds that an MPI tick represents
 
 	printf("\nElapsed time: %5.2f seconds\n",(t2-t1)*tick);
-}
-
-/* Back substitution sequential algorithm */
-void backSubstitution () {
-
-	int norm, row, col;  /* Normalization row, and zeroing
-      * element row and col */
-
-	/* Back substitution */
-	for (row = N - 1; row >= 0; row--) {
-		X[row] = B[row];
-
-		for (col = N-1; col > row; col--) {
-			X[row] -= A[N*row+col] * X[col];
-		}
-	    
-		X[row] /= A[N*row + row];
-	}
 }
 
 
@@ -384,4 +367,23 @@ void gaussElimination() {
 	    	print_A();*/
     	}
     }
+}
+
+
+/* Back substitution sequential algorithm */
+void backSubstitution () {
+
+	int norm, row, col;  /* Normalization row, and zeroing
+      * element row and col */
+
+	/* Back substitution */
+	for (row = N - 1; row >= 0; row--) {
+		X[row] = B[row];
+
+		for (col = N-1; col > row; col--) {
+			X[row] -= A[N*row+col] * X[col];
+		}
+	    
+		X[row] /= A[N*row + row];
+	}
 }
