@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
     	if ( my_rank != p-1 )
 		MPI_Recv( &test, 2, MPI_INT, SOURCE, 0, MPI_COMM_WORLD, &status);
 
-	printf("\nProcess number %d of %d says: got %d and %d\n",
+	printf("\nProcess number %d of %d says: got %5.2f and %5.2f\n",
         my_rank+1, p, test[0], test[1]);
 
 
