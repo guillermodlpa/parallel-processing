@@ -270,8 +270,8 @@ void gauss() {
 		    	/* In case this processor isn't assigned any task, continue. This happens when there are more processors than rows */
 		    	if( number_of_rows_r < 1 ) continue;
 
-	    		MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
-	    		MPI_Recv( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+	    		MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
+	    		MPI_Recv( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
 	    	}
 			printf("\nIteration number %d of %d\n",
 			        norm, N-1);
