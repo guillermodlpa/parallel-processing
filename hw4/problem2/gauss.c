@@ -49,11 +49,11 @@ int main(int argc, char **argv) {
 
     int test = 0;
     MPI_Status status;
-    
+
     if ( my_rank == SOURCE ) {
 		int i;
 		test = 1;
-    	for ( i = 1; i < p; i++ ) {
+    	for ( i = 1; i < p-1; i++ ) {
     		MPI_Send( &test, 1, MPI_INT, i,0, MPI_COMM_WORLD );
     	}
     }
