@@ -35,6 +35,17 @@ int my_rank;
 int p; 
 
 
+/* returns a seed for srand based on the time */
+unsigned int time_seed() {
+  struct timeval t;
+  struct timezone tzdummy;
+
+  gettimeofday(&t, &tzdummy);
+  return (unsigned int)(t.tv_usec);
+}
+
+
+
 /* Set the program parameters from the command-line arguments */
 void parameters(int argc, char **argv) {
   int seed = 0;  /* Random seed */
