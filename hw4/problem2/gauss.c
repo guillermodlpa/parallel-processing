@@ -165,9 +165,10 @@ int main(int argc, char **argv) {
 		print_inputs();
 	}
 
-    free_memory();
-
 	MPI_Finalize();
+	
+
+    free_memory();
 }
 
 /* Main function that performs the algorithms */
