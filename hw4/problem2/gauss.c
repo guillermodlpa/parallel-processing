@@ -198,7 +198,7 @@ void gauss() {
 
 	for (norm = 0; norm < N - 1; norm++) {
 
-		float A_norm = A[norm][norm];
+		float A_norm = A[norm + N*norm];
 
 		/* Broadcast the A[norm][norm] */
 		MPI_Bcast( &A_norm, 1, MPI_FLOAT, SOURCE, MPI_COMM_WORLD );
