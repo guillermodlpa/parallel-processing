@@ -166,9 +166,8 @@ int main(int argc, char **argv) {
 	}
 
 	MPI_Finalize();
-	
 
-    free_memory();
+	exit(0);
 }
 
 /* Main function that performs the algorithms */
