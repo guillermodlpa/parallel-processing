@@ -203,7 +203,7 @@ void gauss() {
 		/* Broadcast the A[norm][norm] */
 		MPI_Bcast( &A_norm, 1, MPI_FLOAT, SOURCE, MPI_COMM_WORLD );
 
-		printf("\nProcess number %d of %d says: my A[norm][norm] is %d\n",
+		printf("\nProcess number %d of %d says: my A[norm][norm] is %5.2f\n",
         	my_rank+1, p, A_norm);
 	}
 
