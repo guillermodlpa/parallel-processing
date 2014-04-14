@@ -79,6 +79,13 @@ void parameters(int argc, char **argv) {
 }
 
 
+/* Allocates memory for A, B and X */
+void allocate_memory() {
+	/*A = (float*)malloc( N*N*sizeof(float) );
+	B = (float*)malloc( N*sizeof(float) );
+	X = (float*)malloc( N*sizeof(float) );*/
+	test = (float*) malloc( N*sizeof(float));
+}
 
 int main(int argc, char **argv) {
 
@@ -95,6 +102,9 @@ int main(int argc, char **argv) {
     /* Every process reads the parameters to prepare dimension */
     parameters(argc, argv);
 
+    /* Every process must allocate memory for the arrays */
+    allocate_memory();
+
     /*printf("\nProcess number %d of %d says hi\n",
             my_rank+1, p);*/
 
@@ -105,8 +115,6 @@ int main(int argc, char **argv) {
 
 /* Main function that performs the algorithms */
 void gauss() {
-
-	test = (float*) malloc( N*sizeof(float));
 
 	MPI_Status status;
 
