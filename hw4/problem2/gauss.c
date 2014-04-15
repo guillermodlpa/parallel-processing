@@ -372,8 +372,8 @@ void gaussElimination() {
 
     		if ( number_of_rows > 0  && local_row_a < N) {
 
-				printf("\nProcess %d iteration %d OUT a=%d, b=%d and n=%d\n",
-					my_rank, norm,local_row_a,local_row_b,number_of_rows) ;
+				printf("\nProcess %d iteration %d OUT from=%d  size=%d\n",
+					my_rank, norm,local_row_a * N,N * number_of_rows) ;
 
     			MPI_Send( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
     			//MPI_Send( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
@@ -399,8 +399,8 @@ void gaussElimination() {
 		    	/* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
 		    	if ( number_of_rows_r > 0  && remote_row_a < N) {
 
-			    	printf("\nProcess %d iteration %d IN  a=%d, b=%d and n=%d\n",
-						        my_rank, norm,remote_row_a,remote_row_b,number_of_rows_r) ;
+			    	printf("\nProcess %d iteration %d IN from=%d  size=%d\n",
+						my_rank, norm,remote_row_a * N,N * number_of_rows_r) ;
 
 			    	MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
 		    		//MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
