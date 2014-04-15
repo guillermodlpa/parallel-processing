@@ -279,8 +279,6 @@ void gaussElimination() {
     	int local_row_b = norm + 1 + floor( step * (my_rank+1) );
     	int number_of_rows = local_row_b - local_row_a +1;
 
-		printf("\nProcess %d iteration %d OUT a=%d, b=%d and n=%d\n",
-					        my_rank+1, norm+1,local_row_a,local_row_b,number_of_rows) ;
 
 
 
@@ -358,6 +356,11 @@ void gaussElimination() {
 
     	/* Sender side */
     	if ( my_rank != SOURCE ) {
+
+
+			printf("\nProcess %d iteration %d OUT a=%d, b=%d and n=%d\n",
+				my_rank, norm,local_row_a,local_row_b,number_of_rows) ;
+
     		if ( number_of_rows > 0  && local_row_a < N) {
     			MPI_Send( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
     			//MPI_Send( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
@@ -381,7 +384,7 @@ void gaussElimination() {
 		    	number_of_rows_r = remote_row_b - remote_row_a +1;
 
 		    	printf("\nProcess %d iteration %d IN  a=%d, b=%d and n=%d\n",
-					        my_rank+1, norm+1,remote_row_a,remote_row_b,number_of_rows_r) ;
+					        my_rank, norm,remote_row_a,remote_row_b,number_of_rows_r) ;
 
 		    	/* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
 		    	if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
