@@ -7,4 +7,4 @@
 	echo "Working directory is:"
 	pwd
 
-mpirun -npernode 8 ./get_data
+mpirun -npernode 8 ./get_data 8
