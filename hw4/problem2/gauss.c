@@ -224,6 +224,8 @@ int main(int argc, char **argv) {
 	/* Free memory used for the arrays that we allocated previously */
     //free_memory();
 
+    sleep(2);
+
 	MPI_Finalize();
 }
 
