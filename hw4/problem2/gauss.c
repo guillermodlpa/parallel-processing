@@ -70,9 +70,10 @@ void parameters(int argc, char **argv) {
     }
   }
   else {
+    N = 9;
     if ( my_rank == SOURCE ) printf("Usage: %s <matrix_dimension> [random seed]\n",
            argv[0]);    
-    exit(0);
+    //exit(0);
   }
 
   /* Print parameters */
