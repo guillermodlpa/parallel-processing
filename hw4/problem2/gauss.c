@@ -171,6 +171,8 @@ void initialize_inputs() {
 
 int main(int argc, char **argv) {
 
+	printf("\nInitializing...\n");
+
 	/* Prototype functions*/
 	void gauss();
 
