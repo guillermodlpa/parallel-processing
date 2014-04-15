@@ -333,13 +333,13 @@ void gaussElimination() {
 	    			MPI_Recv( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
 	    		// Otherwise, we chunk it
 	    		else {
-	    			int remaining = N * number_of_rows_r;
+	    			int remaining = N * number_of_rows;
 	    			int messages = 0;
 	    			while ( remaining > max_message_size ) {
-	    				MPI_Recv( &A[remote_row_a * N + messages*max_message_size], max_message_size, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &status );
+	    				MPI_Recv( &A[local_row_a * N + messages*max_message_size], max_message_size, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &status );
 	    				messages++; remaining -= max_message_size;
 	    			}
-	    			MPI_Recv( &A[remote_row_a * N + messages*max_message_size], remaining, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &status );
+	    			MPI_Recv( &A[local_row_a * N + messages*max_message_size], remaining, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &status );
 	    		}
 	    	}
     	}
