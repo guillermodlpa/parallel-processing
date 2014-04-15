@@ -226,7 +226,9 @@ int main(int argc, char **argv) {
 
     sleep(1);
 
-    //free_memory();
+    A[0] = 0; B[0] = 0; X[0] = 0;
+
+    free_memory();
 
 	MPI_Finalize();
 }
