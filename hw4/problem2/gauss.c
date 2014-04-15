@@ -41,7 +41,7 @@ float *A, *B, *X;
 
 /* returns a seed for srand based on the time */
 unsigned int time_seed() {
-  struct timeval t;
+    struct timeval t;
   struct timezone tzdummy;
 
   gettimeofday(&t, &tzdummy);
@@ -167,10 +167,33 @@ void initialize_inputs() {
 
 int main(int argc, char **argv) {
 
-  MPI_Init(&argc, &argv);
+    MPI_Init(&argc, &argv);
 
-  MPI_Barrier(MPI_COMM_WORLD);
+    /* Get my process rank */
+    MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+    /* Find out how many processes are being used */
+    MPI_Comm_size(MPI_COMM_WORLD, &p);
 
-  MPI_Finalize();
+    /* Every process reads the parameters to prepare dimension */
+    parameters(argc, argv);
+
+    /* Every process must allocate memory for the arrays */
+    allocate_memory();
+
+    if ( my_rank == SOURCE ) {
+        /* Initialize A and B */
+        initialize_inputs();
+
+        /* Print input matrices */
+        print_inputs();
+    }
+
+    /* Free memory used for the arrays that we allocated previously */
+    free_memory();
+
+    /* The barrier prevents any process to reach the finalize before the others have finished their communications */
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MPI_Finalize();
 
 }
