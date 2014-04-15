@@ -221,7 +221,7 @@ void gauss() {
 	void backSubstitution();
 
 	/* Times */
-	double t1, t2, tick;
+	double t1, t2;
 
 	/* Barrier to sync all processes before starting the algorithms */
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -239,7 +239,6 @@ void gauss() {
 
 		/* Finish time */
 		t2 = MPI_Wtime();
-		tick = MPI_Wtick(); // Time in seconds that an MPI tick represents
 
 		printf("\nElapsed time: %f miliseconds\n", (t2-t1) * 1000 );
 	}
