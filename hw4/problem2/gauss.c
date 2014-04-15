@@ -29,10 +29,6 @@ int N; /* Matrix size */
 
 #define SOURCE 0
 
-#define MAX_MESSAGE_SIZE 1048576   // 1MB max message
-
-int max_message_size = MAX_MESSAGE_SIZE / sizeof(float);
-
 /* My process rank           */
 int my_rank;
 /* The number of processes   */
@@ -171,8 +167,6 @@ void initialize_inputs() {
 
 int main(int argc, char **argv) {
 
-	printf("\nInitializing...\n");
-
 	/* Prototype functions*/
 	void gauss();
 
@@ -304,23 +298,8 @@ void gaussElimination() {
 		    	/* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
 		    	if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
 
-	    		MPI_Send( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
-
-	    		// If the message size doesn't surpass the threshold
-	    		// we just send one
 	    		MPI_Send( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
-	    		/*if ( N * number_of_rows_r < max_message_size )
-	    			MPI_Send( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
-	    		// Otherwise, we chunk it
-	    		else {
-	    			int remaining = N * number_of_rows_r;
-	    			int messages = 0;
-	    			while ( remaining > max_message_size ) {
-	    				MPI_Send( &A[remote_row_a * N + messages*max_message_size], max_message_size, MPI_FLOAT, i,0, MPI_COMM_WORLD );
-	    				messages++; remaining -= max_message_size;
-	    			}
-	    			MPI_Send( &A[remote_row_a * N + messages*max_message_size], remaining, MPI_FLOAT, i,0, MPI_COMM_WORLD );
-	    		}*/
+	    		MPI_Send( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
 	    	}
     	}
     	/* Receiver side */
@@ -328,23 +307,8 @@ void gaussElimination() {
 
     		if ( number_of_rows > 0  && local_row_a < N) {
 
-	    		MPI_Recv( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
-
-				// If the message size doesn't surpass the threshold
-	    		// we just receive one
 	    		MPI_Recv( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
-	    		/*if ( N * number_of_rows < max_message_size )
-	    			MPI_Recv( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
-	    		// Otherwise, we chunk it
-	    		else {
-	    			int remaining = N * number_of_rows;
-	    			int messages = 0;
-	    			while ( remaining > max_message_size ) {
-	    				MPI_Recv( &A[local_row_a * N + messages*max_message_size], max_message_size, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &status );
-	    				messages++; remaining -= max_message_size;
-	    			}
-	    			MPI_Recv( &A[local_row_a * N + messages*max_message_size], remaining, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &status );
-	    		}*/
+	    		MPI_Recv( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
 	    	}
     	}
 
