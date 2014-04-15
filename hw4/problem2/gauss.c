@@ -228,6 +228,14 @@ int main(int argc, char **argv) {
 
     A[0] = 0; B[0] = 0; X[0] = 0;
 
+    if ( my_rank == SOURCE ) {
+
+		/* Print input matrices */
+		print_A();
+		print_B();
+		print_X();
+	}
+
     free_memory();
 
 	MPI_Finalize();
