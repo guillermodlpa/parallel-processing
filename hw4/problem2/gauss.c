@@ -304,10 +304,11 @@ void gaussElimination() {
 					        my_rank+1, p, norm+1,remote_row_a,remote_row_b,number_of_rows_r) ;*/
 
 		    	/* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
-		    	if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
+		    	if ( number_of_rows_r > 0  && remote_row_a < N) {
 
-	    		MPI_Send( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
-	    		MPI_Send( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+		    		MPI_Send( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+		    		MPI_Send( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+		    	}
 	    	}
     	}
     	/* Receiver side */
@@ -383,14 +384,15 @@ void gaussElimination() {
 		    	number_of_rows_r = remote_row_b - remote_row_a +1;
 
 		    	/* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
-		    	if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
+		    	if ( number_of_rows_r > 0  && remote_row_a < N) {
 
-		    	printf("\nProcess %d iteration %d IN  a=%d, b=%d and n=%d\n",
-					        my_rank, norm,remote_row_a,remote_row_b,number_of_rows_r) ;
+			    	printf("\nProcess %d iteration %d IN  a=%d, b=%d and n=%d\n",
+						        my_rank, norm,remote_row_a,remote_row_b,number_of_rows_r) ;
 
-		    	MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
-	    		//MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
-	    		//MPI_Recv( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
+			    	MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
+		    		//MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
+		    		//MPI_Recv( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
+			    }
 	    	}
 
 	    	/* Trace to see the progress of the algorithm iteration after iteration */
