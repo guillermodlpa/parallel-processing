@@ -241,7 +241,8 @@ void gauss() {
 		t2 = MPI_Wtime();
 		tick = MPI_Wtick(); // Time in seconds that an MPI tick represents
 
-		printf("\nElapsed time: %d miliseconds\n", (t2-t1)*tick );
+		printf("\nElapsed time: %d miliseconds\n", (t2-t1) );
+		printf("\n tick time: %d miliseconds\n", tick );
 	}
 	
 }
