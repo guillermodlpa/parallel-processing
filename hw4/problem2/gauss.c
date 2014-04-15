@@ -153,26 +153,14 @@ void initialize_inputs() {
 
   int row, col;
 
-	if ( my_rank == SOURCE ) {
-		printf("\nInitializing...\n");
-		for (row = 0; row < N; row++) {
-			for (col = 0; col < N; col++) {
-				A[col+N*row] = (float)rand() / DIVFACTOR;
-			}
-			B[row] = (float)rand() / DIVFACTOR;
-			X[row] = 0.0;
-		}
-	}
-	else {
-		for (row = 0; row < N; row++) {
-			for (col = 0; col < N; col++) {
-				A[col+N*row] = 0;
-			}
-			B[row] = 0;
-			X[row] = 0;
-		}
-	}
-
+  printf("\nInitializing...\n");
+  for (row = 0; row < N; row++) {
+    for (col = 0; col < N; col++) {
+      A[col+N*row] = (float)rand() / DIVFACTOR;
+    }
+    B[row] = (float)rand() / DIVFACTOR;
+    X[row] = 0.0;
+  }
 
 }
 
@@ -195,11 +183,10 @@ int main(int argc, char **argv) {
     /* Every process must allocate memory for the arrays */
     allocate_memory();
 
-    /* Initialize A and B */
-	initialize_inputs();
-
     if ( my_rank == SOURCE ) {
-	    
+	    /* Initialize A and B */
+		initialize_inputs();
+
 		/* Print input matrices */
 		print_inputs();
 	}
@@ -219,14 +206,10 @@ int main(int argc, char **argv) {
 
 
     /* The barrier prevents any process to reach the finalize before the others have finished their communications */
-    //MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(MPI_COMM_WORLD);
 
 	/* Free memory used for the arrays that we allocated previously */
     //free_memory();
-
-    sleep(1);
-
-    MPI_Barrier(MPI_COMM_WORLD);
 
 	MPI_Finalize();
 }
@@ -321,11 +304,13 @@ void gaussElimination() {
 					        my_rank+1, p, norm+1,remote_row_a,remote_row_b,number_of_rows_r) ;*/
 
 		    	/* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
-		    	if ( number_of_rows_r > 0  && remote_row_a < N) {
+		    	if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
 
-		    		//MPI_Send( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
-		    		//MPI_Send( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
-		    	}
+		    	/* Avoid repeated calculations */
+		    	if ( previous_remote_row_a == remote_row_a && previous_remote_row_b == remote_row_b ) continue;
+
+	    		MPI_Send( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+	    		MPI_Send( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
 	    	}
     	}
     	/* Receiver side */
@@ -333,8 +318,8 @@ void gaussElimination() {
 
     		if ( number_of_rows > 0  && local_row_a < N) {
 
-	    		//MPI_Recv( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
-	    		//MPI_Recv( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+	    		MPI_Recv( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+	    		MPI_Recv( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
 	    	}
     	}
 
@@ -373,12 +358,11 @@ void gaussElimination() {
     	if ( my_rank != SOURCE ) {
 
 
+			printf("\nProcess %d iteration %d OUT a=%d, b=%d and n=%d\n",
+				my_rank, norm,local_row_a,local_row_b,number_of_rows) ;
 
     		if ( number_of_rows > 0  && local_row_a < N) {
-
-				printf("\nProcess %d iteration %d OUT from=%d  size=%d\n",
-					my_rank, norm,local_row_a * N,N * number_of_rows) ;
-
+    			MPI_Send( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
     			//MPI_Send( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
 	    		//MPI_Send( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
     		}
@@ -399,22 +383,24 @@ void gaussElimination() {
 		    	remote_row_b = norm + 1 + floor( step * (i+1) );
 		    	number_of_rows_r = remote_row_b - remote_row_a +1;
 
+		    	printf("\nProcess %d iteration %d IN  a=%d, b=%d and n=%d\n",
+					        my_rank, norm,remote_row_a,remote_row_b,number_of_rows_r) ;
+
 		    	/* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
-		    	if ( number_of_rows_r > 0  && remote_row_a < N) {
+		    	if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
 
-			    	printf("\nProcess %d iteration %d IN from=%d  size=%d\n",
-						my_rank, norm,remote_row_a * N,N * number_of_rows_r) ;
+		    	/* Avoid repeated calculations */
+		    	if ( previous_remote_row_a == remote_row_a && previous_remote_row_b == remote_row_b ) continue;
 
-		    		//MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
-		    		//MPI_Recv( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
-			    }
+		    	MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
+	    		//MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
+	    		//MPI_Recv( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
 	    	}
 
 	    	/* Trace to see the progress of the algorithm iteration after iteration */
 			/*printf("\nIteration number %d of %d\n",
 			        norm+1, N-1);
 	    	print_A();*/
-		
     	}
 
     }
