@@ -153,14 +153,26 @@ void initialize_inputs() {
 
   int row, col;
 
-  printf("\nInitializing...\n");
-  for (row = 0; row < N; row++) {
-    for (col = 0; col < N; col++) {
-      A[col+N*row] = (float)rand() / DIVFACTOR;
-    }
-    B[row] = (float)rand() / DIVFACTOR;
-    X[row] = 0.0;
-  }
+	if ( my_rank == SOURCE ) {
+		printf("\nInitializing...\n");
+		for (row = 0; row < N; row++) {
+			for (col = 0; col < N; col++) {
+				A[col+N*row] = (float)rand() / DIVFACTOR;
+			}
+			B[row] = (float)rand() / DIVFACTOR;
+			X[row] = 0.0;
+		}
+	}
+	else {
+		for (row = 0; row < N; row++) {
+			for (col = 0; col < N; col++) {
+				A[col+N*row] = 0;
+			}
+			B[row] = 0;
+			X[row] = 0;
+		}
+	}
+
 
 }
 
@@ -183,10 +195,11 @@ int main(int argc, char **argv) {
     /* Every process must allocate memory for the arrays */
     allocate_memory();
 
-    if ( my_rank == SOURCE ) {
-	    /* Initialize A and B */
-		initialize_inputs();
+    /* Initialize A and B */
+	initialize_inputs();
 
+    if ( my_rank == SOURCE ) {
+	    
 		/* Print input matrices */
 		print_inputs();
 	}
@@ -306,7 +319,7 @@ void gaussElimination() {
 		    	/* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
 		    	if ( number_of_rows_r > 0  && remote_row_a < N) {
 
-		    		//MPI_Send( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+		    		MPI_Send( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
 		    		MPI_Send( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
 		    	}
 	    	}
@@ -316,7 +329,7 @@ void gaussElimination() {
 
     		if ( number_of_rows > 0  && local_row_a < N) {
 
-	    		//MPI_Recv( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+	    		MPI_Recv( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
 	    		MPI_Recv( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
 	    	}
     	}
