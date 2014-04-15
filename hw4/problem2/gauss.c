@@ -373,6 +373,7 @@ void gaussElimination() {
 			        norm+1, N-1);
 	    	print_A();*/
     	}
+    	MPI_Barrier(MPI_COMM_WORLD);
     }
 }
 
