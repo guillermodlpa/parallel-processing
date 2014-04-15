@@ -226,6 +226,10 @@ int main(int argc, char **argv) {
 
     sleep(1);
 
+    
+
+    free_memory();
+
     A[0] = 0; B[0] = 0; X[0] = 0;
 
     if ( my_rank == SOURCE ) {
@@ -235,8 +239,6 @@ int main(int argc, char **argv) {
 		print_B();
 		print_X();
 	}
-
-    free_memory();
 
 	MPI_Finalize();
 }
