@@ -175,14 +175,14 @@ int main(int argc, char **argv) {
     MPI_Comm_size(MPI_COMM_WORLD, &p);
 
     /* Every process reads the parameters to prepare dimension */
-    parameters(argc, argv);
+    //parameters(argc, argv);
 
     /* Every process must allocate memory for the arrays */
     //allocate_memory();
 
     if ( my_rank == SOURCE ) {
       printf("\nInitializing...\n");
-      
+
         /* Initialize A and B */
         //initialize_inputs();
 
