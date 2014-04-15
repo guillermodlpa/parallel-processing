@@ -306,7 +306,8 @@ void gaussElimination() {
 
 	    		// If the message size doesn't surpass the threshold
 	    		// we just send one
-	    		if ( N * number_of_rows_r < max_message_size )
+	    		MPI_Send( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+	    		/*if ( N * number_of_rows_r < max_message_size )
 	    			MPI_Send( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
 	    		// Otherwise, we chunk it
 	    		else {
@@ -317,7 +318,7 @@ void gaussElimination() {
 	    				messages++; remaining -= max_message_size;
 	    			}
 	    			MPI_Send( &A[remote_row_a * N + messages*max_message_size], remaining, MPI_FLOAT, i,0, MPI_COMM_WORLD );
-	    		}
+	    		}*/
 	    	}
     	}
     	/* Receiver side */
@@ -329,7 +330,8 @@ void gaussElimination() {
 
 				// If the message size doesn't surpass the threshold
 	    		// we just receive one
-	    		if ( N * number_of_rows < max_message_size )
+	    		MPI_Recv( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+	    		/*if ( N * number_of_rows < max_message_size )
 	    			MPI_Recv( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
 	    		// Otherwise, we chunk it
 	    		else {
@@ -340,7 +342,7 @@ void gaussElimination() {
 	    				messages++; remaining -= max_message_size;
 	    			}
 	    			MPI_Recv( &A[local_row_a * N + messages*max_message_size], remaining, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &status );
-	    		}
+	    		}*/
 	    	}
     	}
 
