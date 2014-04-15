@@ -279,8 +279,8 @@ void gaussElimination() {
     	int local_row_b = norm + 1 + floor( step * (my_rank+1) );
     	int number_of_rows = local_row_b - local_row_a +1;
 
-		/*printf("\nProcess number %d of %d says in iteration %d that a=%d, b=%d and n=%d\n",
-					        my_rank+1, p, norm+1,local_row_a,local_row_b,number_of_rows) ;*/
+		printf("\nProcess number %d of %d says in iteration %d that LOCALS a=%d, b=%d and n=%d\n",
+					        my_rank+1, p, norm+1,local_row_a,local_row_b,number_of_rows) ;
 
 
 
@@ -301,6 +301,9 @@ void gaussElimination() {
     			remote_row_a = norm + 1 + ceil( step * i );
 		    	remote_row_b = norm + 1 + floor( step * (i+1) );
 		    	number_of_rows_r = remote_row_b - remote_row_a +1;
+
+		    	printf("\nProcess number %d of %d says in iteration %d that STAGE1 REMOTE a=%d, b=%d and n=%d\n",
+					        my_rank+1, p, norm+1,remote_row_a,remote_row_b,number_of_rows_r) ;
 
 		    	/* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
 		    	if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
@@ -376,6 +379,9 @@ void gaussElimination() {
     			remote_row_a = norm + 1 + ceil( step * i );
 		    	remote_row_b = norm + 1 + floor( step * (i+1) );
 		    	number_of_rows_r = remote_row_b - remote_row_a +1;
+
+		    	printf("\nProcess number %d of %d says in iteration %d that STAGE2 REMOTE a=%d, b=%d and n=%d\n",
+					        my_rank+1, p, norm+1,remote_row_a,remote_row_b,number_of_rows_r) ;
 
 		    	/* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
 		    	if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
