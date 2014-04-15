@@ -178,18 +178,20 @@ int main(int argc, char **argv) {
     parameters(argc, argv);
 
     /* Every process must allocate memory for the arrays */
-    allocate_memory();
+    //allocate_memory();
 
     if ( my_rank == SOURCE ) {
+      printf("\nInitializing...\n");
+      
         /* Initialize A and B */
-        initialize_inputs();
+        //initialize_inputs();
 
         /* Print input matrices */
-        print_inputs();
+        //print_inputs();
     }
 
     /* Free memory used for the arrays that we allocated previously */
-    free_memory();
+    //free_memory();
 
     /* The barrier prevents any process to reach the finalize before the others have finished their communications */
     MPI_Barrier(MPI_COMM_WORLD);
