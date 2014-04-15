@@ -194,9 +194,6 @@ int main(int argc, char **argv) {
     /*printf("\nProcess number %d of %d says hi\n",
             my_rank+1, p);*/
 
-	MPI_Finalize();
-	exit(0);
-
 	gauss();
 
     if ( my_rank == SOURCE ) {
