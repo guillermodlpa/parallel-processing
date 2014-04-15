@@ -205,11 +205,7 @@ int main(int argc, char **argv) {
 	}
 
 
-    /* The barrier prevents any process to reach the finalize before the others have finished their communications */
-    MPI_Barrier(MPI_COMM_WORLD);
 
-	/* Free memory used for the arrays that we allocated previously */
-    
 
 	MPI_Finalize();
 }
