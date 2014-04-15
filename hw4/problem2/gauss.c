@@ -377,9 +377,8 @@ void gaussElimination() {
 				printf("\nProcess %d iteration %d OUT from=%d  size=%d\n",
 					my_rank, norm,local_row_a * N,N * number_of_rows) ;
 
-    			MPI_Send( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
     			//MPI_Send( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
-	    		//MPI_Send( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
+	    		MPI_Send( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
     		}
     	}
     	/* Receiver side */
@@ -404,9 +403,8 @@ void gaussElimination() {
 			    	printf("\nProcess %d iteration %d IN from=%d  size=%d\n",
 						my_rank, norm,remote_row_a * N,N * number_of_rows_r) ;
 
-			    	MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
 		    		//MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
-		    		//MPI_Recv( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
+		    		MPI_Recv( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
 			    }
 	    	}
 
