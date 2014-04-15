@@ -306,9 +306,6 @@ void gaussElimination() {
 		    	/* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
 		    	if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
 
-		    	/* Avoid repeated calculations */
-		    	if ( previous_remote_row_a == remote_row_a && previous_remote_row_b == remote_row_b ) continue;
-
 	    		MPI_Send( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
 	    		MPI_Send( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
 	    	}
@@ -360,10 +357,10 @@ void gaussElimination() {
 
 
     		if ( number_of_rows > 0  && local_row_a < N) {
-    			
+
 				printf("\nProcess %d iteration %d OUT a=%d, b=%d and n=%d\n",
 					my_rank, norm,local_row_a,local_row_b,number_of_rows) ;
-    			
+
     			MPI_Send( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
     			//MPI_Send( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
 	    		//MPI_Send( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
@@ -387,9 +384,6 @@ void gaussElimination() {
 
 		    	/* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
 		    	if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
-
-		    	/* Avoid repeated calculations */
-		    	if ( previous_remote_row_a == remote_row_a && previous_remote_row_b == remote_row_b ) continue;
 
 		    	printf("\nProcess %d iteration %d IN  a=%d, b=%d and n=%d\n",
 					        my_rank, norm,remote_row_a,remote_row_b,number_of_rows_r) ;
