@@ -369,9 +369,9 @@ void gaussElimination() {
 	    	}
 
 	    	/* Trace to see the progress of the algorithm iteration after iteration */
-			printf("\nIteration number %d of %d\n",
+			/*printf("\nIteration number %d of %d\n",
 			        norm+1, N-1);
-	    	print_A();
+	    	print_A();*/
     	}
     }
 }
