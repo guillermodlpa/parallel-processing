@@ -70,10 +70,9 @@ void parameters(int argc, char **argv) {
     }
   }
   else {
-    N = 9;
     if ( my_rank == SOURCE ) printf("Usage: %s <matrix_dimension> [random seed]\n",
            argv[0]);    
-    //exit(0);
+    exit(0);
   }
 
   /* Print parameters */
@@ -348,7 +347,7 @@ void gaussElimination() {
     	/* Sender side */
     	if ( my_rank != SOURCE ) {
     		if ( number_of_rows > 0  && local_row_a < N) {
-    			MPI_Send( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
+    			//MPI_Send( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
 	    		MPI_Send( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
     		}
     	}
@@ -365,7 +364,7 @@ void gaussElimination() {
 		    	/* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
 		    	if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
 
-	    		MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
+	    		//MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
 	    		MPI_Recv( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
 	    	}
 
