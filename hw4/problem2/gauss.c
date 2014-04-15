@@ -209,7 +209,7 @@ int main(int argc, char **argv) {
     MPI_Barrier(MPI_COMM_WORLD);
 
 	/* Free memory used for the arrays that we allocated previously */
-    free_memory();
+    //free_memory();
 
 	MPI_Finalize();
 }
@@ -373,7 +373,7 @@ void gaussElimination() {
 			        norm+1, N-1);
 	    	print_A();*/
     	}
-    	MPI_Barrier(MPI_COMM_WORLD);
+
     }
 }
 
