@@ -258,8 +258,8 @@ void gaussElimination() {
     int row, col, i, norm;
     float multiplier;
 
-    int * rows_a = (int*) alloc ( p * sizeof(int) );
-    int * ns_of_rows = (int*) alloc ( p * sizeof(int) );
+    int * rows_a = (int*) malloc ( p * sizeof(int) );
+    int * ns_of_rows = (int*) malloc ( p * sizeof(int) );
 
     /* Main loop. After every iteration, a new column will have all 0 values down the [norm] index */
     for (norm = 0; norm < N-1; norm++) {
