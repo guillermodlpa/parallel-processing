@@ -314,7 +314,7 @@ void gaussElimination() {
 
                 if ( local_row_a >= N ) { number_of_rows_r = 0; local_row_a = N-1; };
 
-                rows_a[i] = remote_row_a;
+                rows_a[i] = remote_row_a * N;
                 ns_of_rows[i] = number_of_rows_r;
 
                 //MPI_Isend( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &request);
