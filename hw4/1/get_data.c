@@ -11,6 +11,17 @@
 /* TA Eduardo Berrocal                               */
 /* Illinois Institute of Technology                  */
 
+/* Compile instructions                              */
+/* 
+/*   $ mpicc -c get_data.c; mpicc -o get_data get_data.o
+/*
+/* Execute instructions                              */
+/*
+/*   $ qsub -pe mpich 2 -P cs546_s14_project run_get_data.bash
+/*
+/*                                                   */
+
+
 
 /* get_data.c -- Parallel Trapezoidal Rule, uses basic Get_data function for 
 

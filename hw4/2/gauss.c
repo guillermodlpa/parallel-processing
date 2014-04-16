@@ -32,7 +32,7 @@ Much better than version 1. Still slower than the sequential algorithm
 
 #include <mpi.h>
 
-#define MAXN 4000 /* Max value of N */
+#define MAXN 8000 /* Max value of N */
 int N; /* Matrix size */
 #define DIVFACTOR 32768.0f
 
