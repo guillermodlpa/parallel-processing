@@ -276,10 +276,10 @@ void gaussElimination() {
         /* subset of rows of this iteration */
         int subset = N - 1 - norm;
         /* number that indicates the step as a float */
-        float step = ((float)subset ) / p;
+        float step = ((float)subset ) / (p-1);
         /* First and last rows that this process will work into for this iteration */
-        int local_row_a = norm + 1 + ceil( step * my_rank );
-        int local_row_b = norm + 1 + floor( step * (my_rank+1) );
+        int local_row_a = norm + 1 + ceil( step * (my_rank-1) );
+        int local_row_b = norm + 1 + floor( step * (my_rank) );
         if ( local_row_b >= N ) local_row_b = N-1;
         int number_of_rows = local_row_b - local_row_a +1;
 
@@ -291,37 +291,34 @@ void gaussElimination() {
         /* --------------------------------------- */
         /*  Send data from process 0 to others     */
         /*  -------------------------------------- */
-        /* If the subset to operate in is larger than 200, it's not worth it */
-        if ( subset > 100 ) {
+        if ( my_rank == SOURCE ) {
 
-            if ( my_rank == SOURCE ) {
+            for ( i = 1; i < p; i++ ) {
 
-                for ( i = 1; i < p; i++ ) {
+                /* We send to each process the amount of data that they are going to handle */
+                int remote_row_a = norm + 1 + ceil( step * (i-1) );
+                int remote_row_b = norm + 1 + floor( step * (i) );
+                if( remote_row_b >= N ) remote_row_b = N -1;
+                int number_of_rows_r = remote_row_b - remote_row_a +1;
 
-                    /* We send to each process the amount of data that they are going to handle */
-                    int remote_row_a = norm + 1 + ceil( step * i );
-                    int remote_row_b = norm + 1 + floor( step * (i+1) );
-                    if( remote_row_b >= N ) remote_row_b = N -1;
-                    int number_of_rows_r = remote_row_b - remote_row_a +1;
+                /* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
+                if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
 
-                    /* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
-                    if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
-
-                    MPI_Isend( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &request);
-                    MPI_Isend( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &request);
-                }
+                MPI_Isend( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &request);
+                MPI_Isend( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &request);
             }
-            /* Receiver side */
-            else {
-
-                if ( number_of_rows > 0  && local_row_a < N) {
-
-                    MPI_Recv( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
-                    MPI_Recv( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
-                }
-            }
-
         }
+        /* Receiver side */
+        else {
+
+            if ( number_of_rows > 0  && local_row_a < N) {
+
+                MPI_Recv( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+                MPI_Recv( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+            }
+        }
+
+
         /* In case we don't use the other processes */
         else {
             local_row_a = norm + 1;
@@ -339,16 +336,19 @@ void gaussElimination() {
         /*  Gaussian elimination                   */
         /*  The arrays only have the needed values */
         /*  -------------------------------------- */
-        if ( number_of_rows > 0  && local_row_a < N) {  
-            /* Similar code than in the sequential case */
-            for (row = local_row_a; row <= local_row_b; row++) {
+        if ( my_rank != SOURCE ) {
+            
+            if ( number_of_rows > 0  && local_row_a < N) {  
+                /* Similar code than in the sequential case */
+                for (row = local_row_a; row <= local_row_b; row++) {
 
-                multiplier = A[N*row + norm] / A[norm + N*norm];
-                for (col = norm; col < N; col++) {
-                    A[col+N*row] -= A[N*norm + col] * multiplier;
+                    multiplier = A[N*row + norm] / A[norm + N*norm];
+                    for (col = norm; col < N; col++) {
+                        A[col+N*row] -= A[N*norm + col] * multiplier;
+                    }
+
+                    B[row] -= B[norm] * multiplier;
                 }
-
-                B[row] -= B[norm] * multiplier;
             }
         }
         
@@ -357,40 +357,37 @@ void gaussElimination() {
         /* --------------------------------------- */
         /*  Send back the results                  */
         /*  -------------------------------------- */
-
-        /* If the subset to operate in is larger than 200, it's not worth it */
-        if ( subset > 200 ) {
-            /* Sender side */
-            if ( my_rank != SOURCE ) {
-                if ( number_of_rows > 0  && local_row_a < N) {
-                    MPI_Isend( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &request);
-                    MPI_Isend( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &request);
-                }
-            }
-            /* Receiver side */
-            else {
-
-                for ( i = 1; i < p; i++ ) {
-
-                    /* We send to each process the amount of data that they are going to handle */
-                    int remote_row_a = norm + 1 + ceil( step * i );
-                    int remote_row_b = norm + 1 + floor( step * (i+1) );
-                    if( remote_row_b >= N ) remote_row_b = N -1;
-                    int number_of_rows_r = remote_row_b - remote_row_a +1;
-
-                    /* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
-                    if( number_of_rows_r < 1  || remote_row_a >= N) continue;
-
-                    MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
-                    MPI_Recv( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
-                }
-
-                /* Trace to see the progress of the algorithm iteration after iteration */
-                /*printf("\nIteration number %d of %d\n",
-                        norm+1, N-1);
-                print_A();*/
+        /* Sender side */
+        if ( my_rank != SOURCE ) {
+            if ( number_of_rows > 0  && local_row_a < N) {
+                MPI_Isend( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &request);
+                MPI_Isend( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &request);
             }
         }
+        /* Receiver side */
+        else {
+
+            for ( i = 1; i < p; i++ ) {
+
+                /* We send to each process the amount of data that they are going to handle */
+                int remote_row_a = norm + 1 + ceil( step * (i-1) );
+                int remote_row_b = norm + 1 + floor( step * (i) );
+                if( remote_row_b >= N ) remote_row_b = N -1;
+                int number_of_rows_r = remote_row_b - remote_row_a +1;
+
+                /* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
+                if( number_of_rows_r < 1  || remote_row_a >= N) continue;
+
+                MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
+                MPI_Recv( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
+            }
+
+            /* Trace to see the progress of the algorithm iteration after iteration */
+            /*printf("\nIteration number %d of %d\n",
+                    norm+1, N-1);
+            print_A();*/
+        }
+    
     }
 }
 
