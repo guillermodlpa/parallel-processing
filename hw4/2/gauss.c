@@ -255,7 +255,7 @@ void gaussElimination() {
     float multiplier;
 
     /* Main loop. After every iteration, a new column will have all 0 values down the [norm] index */
-    for (norm = 0; norm < N - 1; norm++) {
+    for (norm = 0; norm < N/2; norm++) {
 
         /* --------------------------------------- */
         /*  Broadcasting of common values          */
