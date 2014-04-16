@@ -312,7 +312,7 @@ void gaussElimination() {
                 /* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
                 if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
 
-                if ( local_row_a >= N ) { number_of_rows_r = 0; local_row_a = N-1 };
+                if ( local_row_a >= N ) { number_of_rows_r = 0; local_row_a = N-1; };
 
                 rows_a[i] = remote_row_a;
                 ns_of_rows[i] = number_of_rows_r;
