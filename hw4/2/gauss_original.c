@@ -149,7 +149,7 @@ int main(int argc, char **argv) {
 
   /* Display output */
   print_X();
-
+print_inputs();
   /* Display timing results */
   printf("\nElapsed time = %g ms.\n",
 	 (float)(usecstop - usecstart)/(float)1000);
