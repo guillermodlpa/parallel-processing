@@ -187,8 +187,8 @@ void gauss() {
   printf("Computing Serially.\n");
 
   /* Gaussian elimination */
-  //for (norm = 0; norm < N - 1; norm++) {
-  for (norm = 0; norm < N/2; norm++) {
+  for (norm = 0; norm < N - 1; norm++) {
+  //for (norm = 0; norm < N/2; norm++) {
     for (row = norm + 1; row < N; row++) {
       multiplier = A[row][norm] / A[norm][norm];
       for (col = norm; col < N; col++) {
