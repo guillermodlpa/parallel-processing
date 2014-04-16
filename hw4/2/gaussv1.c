@@ -12,6 +12,15 @@
 /* Illinois Institute of Technology                  */
 
 
+/*
+
+This algorithm WORKS, int he sense that it produces the expected results
+
+However, the performance is aprox 1.5 times worse than in the sequential case
+
+*/
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -258,9 +267,6 @@ void gaussElimination() {
     int row, col, i, norm;
     float multiplier;
 
-    int * rows_a = (int*) alloc ( p * sizeof(int) );
-    int * ns_of_rows = (int*) alloc ( p * sizeof(int) );
-
     /* Main loop. After every iteration, a new column will have all 0 values down the [norm] index */
     for (norm = 0; norm < N-1; norm++) {
 
@@ -307,16 +313,9 @@ void gaussElimination() {
                 /* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
                 if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
 
-                rows_a[i] = remote_row_a;
-                ns_of_rows[i] = number_of_rows_r;
-
                 MPI_Isend( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &request);
                 MPI_Isend( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &request);
-
-            }   
-
-                
-            
+            }
         }
         /* Receiver side */
         else {
