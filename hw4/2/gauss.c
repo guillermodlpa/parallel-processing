@@ -294,12 +294,11 @@ void gaussElimination() {
                 /* We send to each process the amount of data that they are going to handle */
                 int remote_row_a = norm + 1 + ceil( step * i );
                 int remote_row_b = norm + 1 + floor( step * (i+1) );
+                if( remote_row_b >= N ) remote_row_b = N -1;
                 int number_of_rows_r = remote_row_b - remote_row_a +1;
 
                 /* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
                 if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
-
-                if( remote_row_b >= N ) remote_row_b = N -1;
 
                 MPI_Send( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
                 MPI_Send( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
@@ -361,12 +360,11 @@ void gaussElimination() {
                 /* We send to each process the amount of data that they are going to handle */
                 int remote_row_a = norm + 1 + ceil( step * i );
                 int remote_row_b = norm + 1 + floor( step * (i+1) );
+                if( remote_row_b >= N ) remote_row_b = N -1;
                 int number_of_rows_r = remote_row_b - remote_row_a +1;
 
                 /* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
                 if( number_of_rows_r < 1  || remote_row_a >= N) continue;
-
-                if( remote_row_b >= N ) remote_row_b = N -1;
 
                 MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
                 MPI_Recv( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
