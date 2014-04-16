@@ -12,13 +12,22 @@
 /* Illinois Institute of Technology                  */
 
 
-/*
+/*  The MPI gaussian elimination algorithm is as follows: 
 
-Version 2
+Supposing we have A and B where A*X = B, for every iteration:
 
-Much better than version 1. Still slower than the sequential algorithm 
+1) Broadcast the row that we are focusing in this iteration ( A[norm] ) and also the value in the array B
+2) Divide the workload among processes. Every process will handle a few rows because there are no dependencies between the operations
+3) Scatter the data, diving it between processes. Every process can calculate how many rows is going to receive.
+4) Perform the sequential algorithm only in the assigned rows.
+5) Process #0 now collects the data using Recv, while the other processes send the data using Isend. This is faster than using Gatherv
+6) Data is directly put in the array A
+7) Go to the next iteration
 
-*/
+Go to the function gaussElimination() for more details
+
+ */
+
 
 
 #include <stdio.h>
