@@ -314,9 +314,9 @@ void gaussElimination() {
                 int number_of_rows_rmte = last_row_rmte - first_row_rmte +1;
 
                 /* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
-                if( number_of_rows_rmte < 1 || first_row_rmte >= N ) continue;
+                //if( number_of_rows_rmte < 1 || first_row_rmte >= N ) continue;
 
-                if ( first_row >= N ) { number_of_rows_rmte = 0; first_row = N-1; };
+                if ( first_row_rmte >= N ) { number_of_rows_rmte = 0; first_row_rmte = N-1; };
 
                 first_row_A_array[i] = first_row_rmte * N;
                 first_row_B_array[i] = first_row_rmte;
@@ -399,7 +399,7 @@ void gaussElimination() {
             }
         }*/
         /* Receiver side */
-        else {
+        /*else {
 
             for ( i = 1; i < p; i++ ) {
 
@@ -412,16 +412,16 @@ void gaussElimination() {
                 // In case this process isn't assigned any task, continue. This happens when there are more processors than rows 
                 if( number_of_rows_rmte < 1  || first_row_rmte >= N) continue;
 
-                MPI_Recv( &A[first_row_rmte * N], N * number_of_rows_rmte, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
-                MPI_Recv( &B[first_row_rmte],         number_of_rows_rmte, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
+                //MPI_Recv( &A[first_row_rmte * N], N * number_of_rows_rmte, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
+                //MPI_Recv( &B[first_row_rmte],         number_of_rows_rmte, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
             }
 
             /* Trace to see the progress of the algorithm iteration after iteration */
             /*printf("\nIteration number %d of %d\n",
                     norm+1, N-1);
             print_A();*/
-        }
-
+        /*}
+        */
         MPI_Gatherv(
             &A[first_row * N],       // send buffer
             N * number_of_rows,      // number of elements to send
