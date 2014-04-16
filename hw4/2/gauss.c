@@ -393,14 +393,14 @@ void gaussElimination() {
         /*  Send back the results                  */
         /*  -------------------------------------- */
         /* Sender side */
-        /*if ( my_rank != SOURCE ) {
+        if ( my_rank != SOURCE ) {
             if ( number_of_rows > 0  && first_row < N) {
                 MPI_Isend( &A[first_row * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &request);
                 MPI_Isend( &B[first_row],         number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &request);
             }
-        }*/
+        }
         /* Receiver side */
-        /*else {
+        else {
 
             for ( i = 1; i < p; i++ ) {
 
@@ -413,16 +413,16 @@ void gaussElimination() {
                 // In case this process isn't assigned any task, continue. This happens when there are more processors than rows 
                 if( number_of_rows_rmte < 1  || first_row_rmte >= N) continue;
 
-                //MPI_Recv( &A[first_row_rmte * N], N * number_of_rows_rmte, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
-                //MPI_Recv( &B[first_row_rmte],         number_of_rows_rmte, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
+                MPI_Recv( &A[first_row_rmte * N], N * number_of_rows_rmte, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
+                MPI_Recv( &B[first_row_rmte],         number_of_rows_rmte, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
             }
 
             /* Trace to see the progress of the algorithm iteration after iteration */
             /*printf("\nIteration number %d of %d\n",
                     norm+1, N-1);
             print_A();*/
-        /*}
-        */
+        }
+        /*
         MPI_Gatherv(
             &A[first_row * N],       // send buffer
             N * number_of_rows,      // number of elements to send
@@ -446,7 +446,7 @@ void gaussElimination() {
             SOURCE,
             MPI_COMM_WORLD
         );
-    
+    */
     }
 }
 
