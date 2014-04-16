@@ -393,6 +393,7 @@ void gaussElimination() {
         /*  Send back the results                  */
         /*  -------------------------------------- */
         /* Sender side */
+        
         if ( my_rank != SOURCE ) {
             if ( number_of_rows > 0  && first_row < N) {
                 MPI_Isend( &A[first_row * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &request);
@@ -403,12 +404,6 @@ void gaussElimination() {
         else {
 
             for ( i = 1; i < p; i++ ) {
-
-                // We send to each process the amount of data that they are going to handle 
-                /*int first_row_rmte = norm + 1 + ceil( step * (i) );
-                int last_row_rmte = norm + 1 + floor( step * (i+1) );
-                if( last_row_rmte >= N ) last_row_rmte = N -1;
-                int number_of_rows_rmte = last_row_rmte - first_row_rmte +1;*/
 
                 // In case this process isn't assigned any task, continue. This happens when there are more processors than rows 
                 if( n_of_rows_B_array[i] < 1  || first_row_B_array[i] >= N) continue;
