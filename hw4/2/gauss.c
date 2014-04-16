@@ -405,16 +405,16 @@ void gaussElimination() {
             for ( i = 1; i < p; i++ ) {
 
                 // We send to each process the amount of data that they are going to handle 
-                int first_row_rmte = norm + 1 + ceil( step * (i) );
+                /*int first_row_rmte = norm + 1 + ceil( step * (i) );
                 int last_row_rmte = norm + 1 + floor( step * (i+1) );
                 if( last_row_rmte >= N ) last_row_rmte = N -1;
                 int number_of_rows_rmte = last_row_rmte - first_row_rmte +1;
 
                 // In case this process isn't assigned any task, continue. This happens when there are more processors than rows 
-                if( number_of_rows_rmte < 1  || first_row_rmte >= N) continue;
+                if( number_of_rows_rmte < 1  || first_row_rmte >= N) continue;*/
 
-                MPI_Recv( &A[first_row_rmte * N], N * number_of_rows_rmte, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
-                MPI_Recv( &B[first_row_rmte],         number_of_rows_rmte, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
+                MPI_Recv( &A[ first_row_A_array[i] ], n_of_rows_A_array[i] , MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
+                MPI_Recv( &B[ first_row_B_array ]   , n_of_rows_B_array[i] , MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
             }
 
             /* Trace to see the progress of the algorithm iteration after iteration */
