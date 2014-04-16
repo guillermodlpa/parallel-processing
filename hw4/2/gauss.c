@@ -293,7 +293,7 @@ void gaussElimination() {
         /*  -------------------------------------- */
         if ( my_rank == SOURCE ) {
 
-            for ( i = p-1; i >= 1; i++ ) {
+            for ( i = 1; i < p; i++ ) {
 
                 /* We send to each process the amount of data that they are going to handle */
                 int remote_row_a = norm + 1 + ceil( step * (i-1) );
@@ -318,13 +318,6 @@ void gaussElimination() {
             }
         }
 
-
-        /* In case we don't use the other processes */
-        else {
-            local_row_a = norm + 1;
-            local_row_b = N-1;
-            int number_of_rows = local_row_b - local_row_a +1;
-        }
         
         /*printf("\nProcess %d: Iteration number %d of %d\n",
                     my_rank, norm+1, N-1);
@@ -367,7 +360,7 @@ void gaussElimination() {
         /* Receiver side */
         else {
 
-            for ( i = p-1; i >= 1; i++ ) {
+            for ( i = 1; i < p; i++ ) {
 
                 /* We send to each process the amount of data that they are going to handle */
                 int remote_row_a = norm + 1 + ceil( step * (i-1) );
