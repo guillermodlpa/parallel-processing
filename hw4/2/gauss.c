@@ -254,6 +254,7 @@ void gauss() {
 void gaussElimination() {
 
     MPI_Status status;
+    MPI_Request request;
     int row, col, i, norm;
     float multiplier;
 
@@ -303,8 +304,8 @@ void gaussElimination() {
                 /* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
                 if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
 
-                MPI_Send( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
-                MPI_Send( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
+                MPI_Isend( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &request);
+                MPI_Isend( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &request);
             }
         }
         /* Receiver side */
@@ -351,8 +352,8 @@ void gaussElimination() {
         /* Sender side */
         if ( my_rank != SOURCE ) {
             if ( number_of_rows > 0  && local_row_a < N) {
-                MPI_Send( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
-                MPI_Send( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD );
+                MPI_Isend( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &request);
+                MPI_Isend( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &request);
             }
         }
         /* Receiver side */
