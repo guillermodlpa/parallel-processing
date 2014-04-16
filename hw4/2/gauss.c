@@ -316,6 +316,7 @@ void gaussElimination() {
                 /* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
                 //if( number_of_rows_rmte < 1 || first_row_rmte >= N ) continue;
 
+                if ( number_of_rows_rmte < 0 ) number_of_rows_rmte = 0;
                 if ( first_row_rmte >= N ) { number_of_rows_rmte = 0; first_row_rmte = N-1; };
 
                 first_row_A_array[i] = first_row_rmte * N;
