@@ -414,7 +414,7 @@ void gaussElimination() {
                 if( number_of_rows_rmte < 1  || first_row_rmte >= N) continue;*/
 
                 MPI_Recv( &A[ first_row_A_array[i] ], n_of_rows_A_array[i] , MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
-                MPI_Recv( &B[ first_row_B_array ]   , n_of_rows_B_array[i] , MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
+                MPI_Recv( &B[ first_row_B_array[i] ], n_of_rows_B_array[i] , MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
             }
 
             /* Trace to see the progress of the algorithm iteration after iteration */
