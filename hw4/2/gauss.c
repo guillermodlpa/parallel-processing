@@ -292,7 +292,7 @@ void gaussElimination() {
         /*  Send data from process 0 to others     */
         /*  -------------------------------------- */
         /* If the subset to operate in is larger than 200, it's not worth it */
-        if ( subset > 200 ) {
+        if ( subset > 100 ) {
 
             if ( my_rank == SOURCE ) {
 
