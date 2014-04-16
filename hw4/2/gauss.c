@@ -25,7 +25,7 @@
 
 #define MAXN 4000 /* Max value of N */
 int N; /* Matrix size */
-#define DIVFACTOR 327680000.0f
+#define DIVFACTOR 32768.0f
 
 #define SOURCE 0
 
