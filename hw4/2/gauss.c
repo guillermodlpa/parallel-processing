@@ -329,22 +329,19 @@ void gaussElimination() {
         /*  Gaussian elimination                   */
         /*  The arrays only have the needed values */
         /*  -------------------------------------- */
-        if ( my_rank != SOURCE ) {
 
-            if ( number_of_rows > 0  && local_row_a < N) {  
-                /* Similar code than in the sequential case */
-                for (row = local_row_a; row <= local_row_b; row++) {
+        if ( number_of_rows > 0  && local_row_a < N) {  
+            /* Similar code than in the sequential case */
+            for (row = local_row_a; row <= local_row_b; row++) {
 
-                    multiplier = A[N*row + norm] / A[norm + N*norm];
-                    for (col = norm; col < N; col++) {
-                        A[col+N*row] -= A[N*norm + col] * multiplier;
-                    }
-
-                    B[row] -= B[norm] * multiplier;
+                multiplier = A[N*row + norm] / A[norm + N*norm];
+                for (col = norm; col < N; col++) {
+                    A[col+N*row] -= A[N*norm + col] * multiplier;
                 }
+
+                B[row] -= B[norm] * multiplier;
             }
         }
-        
 
 
         /* --------------------------------------- */
