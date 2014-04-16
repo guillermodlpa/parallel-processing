@@ -204,11 +204,11 @@ int main(int argc, char **argv) {
         print_X();
     }
 
-    /* Free memory used for the arrays that we allocated previously */
-    //free_memory();
-
     /* The barrier prevents any process to reach the finalize before the others have finished their communications */
     MPI_Barrier(MPI_COMM_WORLD);
+
+    /* Free memory used for the arrays that we allocated previously */
+    free_memory();
 
     MPI_Finalize();
 }
@@ -276,6 +276,7 @@ void gaussElimination() {
         /* First and last rows that this process will work into for this iteration */
         int local_row_a = norm + 1 + ceil( step * my_rank );
         int local_row_b = norm + 1 + floor( step * (my_rank+1) );
+        if ( local_row_b >= N ) local_row_b = N-1;
         int number_of_rows = local_row_b - local_row_a +1;
 
         /*printf("\nProcess number %d of %d says in iteration %d that a=%d, b=%d and n=%d\n",
@@ -297,6 +298,8 @@ void gaussElimination() {
 
                 /* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
                 if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
+
+                if( remote_row_b >= N ) remote_row_b = N -1;
 
                 MPI_Send( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
                 MPI_Send( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD );
@@ -362,6 +365,8 @@ void gaussElimination() {
 
                 /* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
                 if( number_of_rows_r < 1  || remote_row_a >= N) continue;
+
+                if( remote_row_b >= N ) remote_row_b = N -1;
 
                 MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
                 MPI_Recv( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
