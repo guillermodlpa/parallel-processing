@@ -259,11 +259,15 @@ void gaussElimination() {
     float multiplier;
 
     /* Array with the row size and number of rows that each processor will handle */
-    int * rows_a = (int*) malloc ( p * sizeof(int) );
-    int * ns_of_rows = (int*) malloc ( p * sizeof(int) );
+    int * rows_a_A = (int*) malloc ( p * sizeof(int) );
+    int * ns_of_rows_A = (int*) malloc ( p * sizeof(int) );
+    int * rows_a_B = (int*) malloc ( p * sizeof(int) );
+    int * ns_of_rows_B = (int*) malloc ( p * sizeof(int) );
     for ( i = 0; i < p; i++ ) {
-        rows_a[i] = 0;
-        ns_of_rows[i] = 0;
+        rows_a_A[i] = 0;
+        ns_of_rows_A[i] = 0;
+        rows_a_B[i] = 0;
+        ns_of_rows_B[i] = 0;
     }
 
     /* Main loop. After every iteration, a new column will have all 0 values down the [norm] index */
@@ -314,8 +318,10 @@ void gaussElimination() {
 
                 if ( local_row_a >= N ) { number_of_rows_r = 0; local_row_a = N-1; };
 
-                rows_a[i] = remote_row_a * N;
-                ns_of_rows[i] = number_of_rows_r * N;
+                rows_a_A[i] = remote_row_a * N;
+                rows_a_B[i] = remote_row_a;
+                ns_of_rows_A[i] = number_of_rows_r * N;
+                ns_of_rows_B[i] = number_of_rows_r ;
 
                 //MPI_Isend( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &request);
                 //MPI_Isend( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &request);
@@ -337,11 +343,22 @@ void gaussElimination() {
 
         MPI_Scatterv(
             &A[0],
-            ns_of_rows,
-            rows_a,
+            ns_of_rows_A,
+            rows_a_A,
             MPI_FLOAT,
             &A[local_row_a * N],
             N * number_of_rows,
+            MPI_FLOAT,
+            SOURCE,
+            MPI_COMM_WORLD
+        );
+        MPI_Scatterv(
+            &B[0],
+            ns_of_rows_B,
+            rows_a_B,
+            MPI_FLOAT,
+            &B[local_row_a * N],
+            number_of_rows,
             MPI_FLOAT,
             SOURCE,
             MPI_COMM_WORLD
