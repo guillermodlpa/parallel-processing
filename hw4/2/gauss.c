@@ -204,6 +204,8 @@ int main(int argc, char **argv) {
         print_X();
     }
 
+    sleep(2);
+
     /* Free memory used for the arrays that we allocated previously */
     free_memory();
 
