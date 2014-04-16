@@ -258,8 +258,13 @@ void gaussElimination() {
     int row, col, i, norm;
     float multiplier;
 
+    /* Array with the row size and number of rows that each processor will handle */
     int * rows_a = (int*) malloc ( p * sizeof(int) );
     int * ns_of_rows = (int*) malloc ( p * sizeof(int) );
+    for ( i = 0; i < p; i++ ) {
+        rows_a[i] = 0;
+        ns_of_rows[i] = 0;
+    }
 
     /* Main loop. After every iteration, a new column will have all 0 values down the [norm] index */
     for (norm = 0; norm < N-1; norm++) {
@@ -307,11 +312,13 @@ void gaussElimination() {
                 /* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
                 if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
 
+                if ( local_row_a >= N ) { number_of_rows_r = 0; local_row_a = N-1 };
+
                 rows_a[i] = remote_row_a;
                 ns_of_rows[i] = number_of_rows_r;
 
-                MPI_Isend( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &request);
-                MPI_Isend( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &request);
+                //MPI_Isend( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &request);
+                //MPI_Isend( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &request);
 
             }   
 
@@ -323,15 +330,27 @@ void gaussElimination() {
 
             if ( number_of_rows > 0  && local_row_a < N) {
 
-                MPI_Recv( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
-                MPI_Recv( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+                //MPI_Recv( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+                //MPI_Recv( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
             }
         }
 
+        MPI_Scatterv(
+            &A[0],
+            ns_of_rows,
+            rows_a,
+            MPI_FLOAT,
+            &A[local_row_a * N],
+            N * number_of_rows,
+            MPI_FLOAT,
+            SOURCE,
+            MPI_COMM_WORLD
+        );   
+
         
-        /*printf("\nProcess %d: Iteration number %d of %d\n",
+        printf("\nProcess %d: Iteration number %d of %d\n",
                     my_rank, norm+1, N-1);
-        print_A();*/
+        print_A();
 
 
 
