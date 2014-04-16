@@ -276,10 +276,10 @@ void gaussElimination() {
         /* subset of rows of this iteration */
         int subset = N - 1 - norm;
         /* number that indicates the step as a float */
-        float step = ((float)subset ) / (p-1);
+        float step = ((float)subset ) / (p);
         /* First and last rows that this process will work into for this iteration */
-        int local_row_a = norm + 1 + ceil( step * (my_rank-1) );
-        int local_row_b = norm + 1 + floor( step * (my_rank) );
+        int local_row_a = norm + 1 + ceil( step * (my_rank) );
+        int local_row_b = norm + 1 + floor( step * (my_rank+1) );
         if ( local_row_b >= N ) local_row_b = N-1;
         int number_of_rows = local_row_b - local_row_a +1;
 
@@ -296,8 +296,8 @@ void gaussElimination() {
             for ( i = 1; i < p; i++ ) {
 
                 /* We send to each process the amount of data that they are going to handle */
-                int remote_row_a = norm + 1 + ceil( step * (i-1) );
-                int remote_row_b = norm + 1 + floor( step * (i) );
+                int remote_row_a = norm + 1 + ceil( step * (i) );
+                int remote_row_b = norm + 1 + floor( step * (i+1) );
                 if( remote_row_b >= N ) remote_row_b = N -1;
                 int number_of_rows_r = remote_row_b - remote_row_a +1;
 
@@ -363,8 +363,8 @@ void gaussElimination() {
             for ( i = 1; i < p; i++ ) {
 
                 /* We send to each process the amount of data that they are going to handle */
-                int remote_row_a = norm + 1 + ceil( step * (i-1) );
-                int remote_row_b = norm + 1 + floor( step * (i) );
+                int remote_row_a = norm + 1 + ceil( step * (i) );
+                int remote_row_b = norm + 1 + floor( step * (i+1) );
                 if( remote_row_b >= N ) remote_row_b = N -1;
                 int number_of_rows_r = remote_row_b - remote_row_a +1;
 
