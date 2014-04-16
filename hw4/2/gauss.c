@@ -12,6 +12,15 @@
 /* Illinois Institute of Technology                  */
 
 
+/*
+
+Version 2
+
+Much better than version 1. Still slower than the sequential algorithm 
+
+*/
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -280,8 +289,6 @@ void gaussElimination() {
         MPI_Bcast( &A[ N*norm ], N, MPI_FLOAT, SOURCE, MPI_COMM_WORLD );
         MPI_Bcast( &B[norm], 1, MPI_FLOAT, SOURCE, MPI_COMM_WORLD );
 
-
-
         /* ---------------------------------------   */
         /*  Calculation of number of rows to operate */
         /*  --------------------------------------   */
@@ -394,14 +401,14 @@ void gaussElimination() {
         /*  -------------------------------------- */
         /* Sender side */
 
-       /* if ( my_rank != SOURCE ) {
+        if ( my_rank != SOURCE ) {
             if ( number_of_rows > 0  && first_row < N) {
                 MPI_Isend( &A[first_row * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &request);
                 MPI_Isend( &B[first_row],         number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &request);
             }
-        }*/
+        }
         /* Receiver side */
-        /*else {
+        else {
 
             for ( i = 1; i < p; i++ ) {
 
@@ -413,8 +420,8 @@ void gaussElimination() {
             }
 
             
-        }*/
-        
+        }
+        /*
         MPI_Gatherv(
             &A[first_row * N],       // send buffer
             N * number_of_rows,      // number of elements to send
@@ -438,7 +445,7 @@ void gaussElimination() {
             SOURCE,
             MPI_COMM_WORLD
         );
-    
+    */
     }
 }
 
