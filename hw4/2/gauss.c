@@ -352,7 +352,7 @@ void gaussElimination() {
             SOURCE,
             MPI_COMM_WORLD
         );
-        MPI_Scatterv(
+        /*MPI_Scatterv(
             &B[0],
             ns_of_rows_B,
             rows_a_B,
@@ -362,7 +362,7 @@ void gaussElimination() {
             MPI_FLOAT,
             SOURCE,
             MPI_COMM_WORLD
-        );   
+        );  */ 
 
         
         printf("\nProcess %d: Iteration number %d of %d\n",
