@@ -363,9 +363,9 @@ void gaussElimination() {
         );   
 
         
-        printf("\nProcess %d: Iteration number %d of %d\n",
+        /*printf("\nProcess %d: Iteration number %d of %d\n",
                     my_rank, norm+1, N-1);
-        print_A();
+        print_A();*/
 
 
 
