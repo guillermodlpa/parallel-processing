@@ -259,15 +259,15 @@ void gaussElimination() {
     float multiplier;
 
     /* Array with the row size and number of rows that each processor will handle */
-    int * rows_a_A = (int*) malloc ( p * sizeof(int) );
-    int * ns_of_rows_A = (int*) malloc ( p * sizeof(int) );
-    int * rows_a_B = (int*) malloc ( p * sizeof(int) );
-    int * ns_of_rows_B = (int*) malloc ( p * sizeof(int) );
+    int * first_row_A_array = (int*) malloc ( p * sizeof(int) );
+    int * n_of_rows_A_array = (int*) malloc ( p * sizeof(int) );
+    int * first_row_B_array = (int*) malloc ( p * sizeof(int) );
+    int * n_of_rows_B_array = (int*) malloc ( p * sizeof(int) );
     for ( i = 0; i < p; i++ ) {
-        rows_a_A[i] = 0;
-        ns_of_rows_A[i] = 0;
-        rows_a_B[i] = 0;
-        ns_of_rows_B[i] = 0;
+        first_row_A_array[i] = 0;
+        n_of_rows_A_array[i] = 0;
+        first_row_B_array[i] = 0;
+        n_of_rows_B_array[i] = 0;
     }
 
     /* Main loop. After every iteration, a new column will have all 0 values down the [norm] index */
@@ -290,13 +290,13 @@ void gaussElimination() {
         /* number that indicates the step as a float */
         float step = ((float)subset ) / (p);
         /* First and last rows that this process will work into for this iteration */
-        int local_row_a = norm + 1 + ceil( step * (my_rank) );
-        int local_row_b = norm + 1 + floor( step * (my_rank+1) );
-        if ( local_row_b >= N ) local_row_b = N-1;
-        int number_of_rows = local_row_b - local_row_a +1;
+        int first_row = norm + 1 + ceil( step * (my_rank) );
+        int last_row = norm + 1 + floor( step * (my_rank+1) );
+        if ( last_row >= N ) last_row = N-1;
+        int number_of_rows = last_row - first_row +1;
 
         /*printf("\nProcess number %d of %d says in iteration %d that a=%d, b=%d and n=%d\n",
-                            my_rank+1, p, norm+1,local_row_a,local_row_b,number_of_rows) ;*/
+                            my_rank+1, p, norm+1,first_row,last_row,number_of_rows) ;*/
 
 
 
@@ -308,45 +308,43 @@ void gaussElimination() {
             for ( i = 1; i < p; i++ ) {
 
                 /* We send to each process the amount of data that they are going to handle */
-                int remote_row_a = norm + 1 + ceil( step * (i) );
-                int remote_row_b = norm + 1 + floor( step * (i+1) );
-                if( remote_row_b >= N ) remote_row_b = N -1;
-                int number_of_rows_r = remote_row_b - remote_row_a +1;
+                int first_row_rmte = norm + 1 + ceil( step * (i) );
+                int last_row_rmte = norm + 1 + floor( step * (i+1) );
+                if( last_row_rmte >= N ) last_row_rmte = N -1;
+                int number_of_rows_rmte = last_row_rmte - first_row_rmte +1;
 
                 /* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
-                if( number_of_rows_r < 1 || remote_row_a >= N ) continue;
+                if( number_of_rows_rmte < 1 || first_row_rmte >= N ) continue;
 
-                if ( local_row_a >= N ) { number_of_rows_r = 0; local_row_a = N-1; };
+                if ( first_row >= N ) { number_of_rows_rmte = 0; first_row = N-1; };
 
-                rows_a_A[i] = remote_row_a * N;
-                rows_a_B[i] = remote_row_a;
-                ns_of_rows_A[i] = number_of_rows_r * N;
-                ns_of_rows_B[i] = number_of_rows_r ;
+                first_row_A_array[i] = first_row_rmte * N;
+                first_row_B_array[i] = first_row_rmte;
+                n_of_rows_A_array[i] = number_of_rows_rmte * N;
+                n_of_rows_B_array[i] = number_of_rows_rmte ;
 
-                //MPI_Isend( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &request);
-                //MPI_Isend( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &request);
+                //MPI_Isend( &A[first_row_rmte * N], N * number_of_rows_rmte, MPI_FLOAT, i,0, MPI_COMM_WORLD, &request);
+                //MPI_Isend( &B[first_row_rmte],         number_of_rows_rmte, MPI_FLOAT, i,0, MPI_COMM_WORLD, &request);
 
-            }   
-
-                
+            }
             
         }
         /* Receiver side */
-        else {
+       /* else {
 
-            if ( number_of_rows > 0  && local_row_a < N) {
+            if ( number_of_rows > 0  && first_row < N) {
 
-                //MPI_Recv( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
-                //MPI_Recv( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+                //MPI_Recv( &A[first_row * N], N * number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
+                //MPI_Recv( &B[first_row],         number_of_rows, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status);
             }
-        }
+        }*/
 
         MPI_Scatterv(
             &A[0],
-            ns_of_rows_A,
-            rows_a_A,
+            n_of_rows_A_array,
+            first_row_A_array,
             MPI_FLOAT,
-            &A[local_row_a * N],
+            &A[first_row * N],
             N * number_of_rows,
             MPI_FLOAT,
             SOURCE,
@@ -354,10 +352,10 @@ void gaussElimination() {
         );
         MPI_Scatterv(
             &B[0],
-            ns_of_rows_B,
-            rows_a_B,
+            n_of_rows_B_array,
+            first_row_B_array,
             MPI_FLOAT,
-            &B[local_row_a],
+            &B[first_row],
             number_of_rows,
             MPI_FLOAT,
             SOURCE,
@@ -376,9 +374,9 @@ void gaussElimination() {
         /*  The arrays only have the needed values */
         /*  -------------------------------------- */
 
-        if ( number_of_rows > 0  && local_row_a < N) {  
+        if ( number_of_rows > 0  && first_row < N) {  
             /* Similar code than in the sequential case */
-            for (row = local_row_a; row <= local_row_b; row++) {
+            for (row = first_row; row <= last_row; row++) {
 
                 multiplier = A[N*row + norm] / A[norm + N*norm];
                 for (col = norm; col < N; col++) {
@@ -395,9 +393,9 @@ void gaussElimination() {
         /*  -------------------------------------- */
         /* Sender side */
         if ( my_rank != SOURCE ) {
-            if ( number_of_rows > 0  && local_row_a < N) {
-                MPI_Isend( &A[local_row_a * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &request);
-                MPI_Isend( &B[local_row_a],         number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &request);
+            if ( number_of_rows > 0  && first_row < N) {
+                MPI_Isend( &A[first_row * N], N * number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &request);
+                MPI_Isend( &B[first_row],         number_of_rows, MPI_FLOAT, SOURCE,0, MPI_COMM_WORLD, &request);
             }
         }
         /* Receiver side */
@@ -406,16 +404,16 @@ void gaussElimination() {
             for ( i = 1; i < p; i++ ) {
 
                 /* We send to each process the amount of data that they are going to handle */
-                int remote_row_a = norm + 1 + ceil( step * (i) );
-                int remote_row_b = norm + 1 + floor( step * (i+1) );
-                if( remote_row_b >= N ) remote_row_b = N -1;
-                int number_of_rows_r = remote_row_b - remote_row_a +1;
+                int first_row_rmte = norm + 1 + ceil( step * (i) );
+                int last_row_rmte = norm + 1 + floor( step * (i+1) );
+                if( last_row_rmte >= N ) last_row_rmte = N -1;
+                int number_of_rows_rmte = last_row_rmte - first_row_rmte +1;
 
                 /* In case this process isn't assigned any task, continue. This happens when there are more processors than rows */
-                if( number_of_rows_r < 1  || remote_row_a >= N) continue;
+                if( number_of_rows_rmte < 1  || first_row_rmte >= N) continue;
 
-                MPI_Recv( &A[remote_row_a * N], N * number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
-                MPI_Recv( &B[remote_row_a],         number_of_rows_r, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
+                MPI_Recv( &A[first_row_rmte * N], N * number_of_rows_rmte, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
+                MPI_Recv( &B[first_row_rmte],         number_of_rows_rmte, MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
             }
 
             /* Trace to see the progress of the algorithm iteration after iteration */
