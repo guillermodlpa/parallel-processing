@@ -408,10 +408,10 @@ void gaussElimination() {
                 /*int first_row_rmte = norm + 1 + ceil( step * (i) );
                 int last_row_rmte = norm + 1 + floor( step * (i+1) );
                 if( last_row_rmte >= N ) last_row_rmte = N -1;
-                int number_of_rows_rmte = last_row_rmte - first_row_rmte +1;
+                int number_of_rows_rmte = last_row_rmte - first_row_rmte +1;*/
 
                 // In case this process isn't assigned any task, continue. This happens when there are more processors than rows 
-                if( number_of_rows_rmte < 1  || first_row_rmte >= N) continue;*/
+                if( n_of_rows_B_array[i] < 1  || first_row_B_array[i] >= N) continue;
 
                 MPI_Recv( &A[ first_row_A_array[i] ], n_of_rows_A_array[i] , MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
                 MPI_Recv( &B[ first_row_B_array[i] ], n_of_rows_B_array[i] , MPI_FLOAT, i,0, MPI_COMM_WORLD, &status );
