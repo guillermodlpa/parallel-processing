@@ -7,8 +7,9 @@ program problem1
 	n = 5
 	m = 5
 
+ 	! Forall parallel loop from HPF
 	forall ( i=1:n,j=1:n )
-		a(i,j) = 1
+		a(i,j) = i
 		b(i,j) = i
 		c(i,j) = 2
 	end forall
@@ -26,16 +27,16 @@ program problem1
 	!	a(i,j)=b(i-1,j-1)+c(i+1,j)
 	!end forall
 	!a=cshift(b,dim=1,shift=3)
+	a=eoshift(b,dim=1,shift=1, boundary=d)
 	!a=spread(d,dim=1,ncopies=5)
 	!d=sum(a,dim=2)
 
-	! Problem 2 tests
+	!forall(i=1:n,j=1:m, i.gt.j) a(i,j)=0
 
-	forall(i=1:n,j=1:m, i.gt.j) a(i,j)=0
-
-
+	d=sum(a, dim=2)
 
 	write (*,*) "Array A"
+	! do loop from Fortran 77
 	do 20 i=1,n
 		write (*,*) "A - Row",i
 	    do 10 j=1,n
