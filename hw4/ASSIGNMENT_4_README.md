@@ -28,4 +28,4 @@ The output will appear in /home/<user>/
 
 PROBLEM 2
 
-
+Same but with the gauss.c file
