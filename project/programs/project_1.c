@@ -10,9 +10,11 @@ To indicate other inputs:
 
 The output file is saved as "output_matrix" in the working directory
 
-Task Parallelism:
+Parallelism with arrays A and B:
    When calculating the FFTs, if we have 8 processors, 4 will take care of matrix A and 4 of matrix B.
    This parallelism is necessary to avoid doubling the number of messages in the system
+   This paralellism is only used when it's worth it, that is before the first tranpose and after the last one
+   In the middle step isn't worth it because we can calculate C directly without any message passing if we don't use this parallelism
 
 */
 #include <stdio.h>
@@ -52,11 +54,11 @@ int main (int argc, char **argv) {
    int read_matrix ( const char* filename, complex matrix[N][N] );
    int write_matrix ( const char* filename, complex matrix[N][N] );
    void c_fft1d(complex *r, int n, int isign);
-   void print_matrix ( complex matrix[N][N], const char* matrixname, int rank=0 );
+   void print_matrix ( complex matrix[N][N], const char* matrixname );
 
 
    /* Variable init */
-   int chunk = 2 * N / p; /* number of rows for each process */
+   int chunk = N / p; /* number of rows for each process */
    complex A[N][N], B[N][N], C[N][N];
    int i, j;
    complex tmp;
@@ -89,34 +91,32 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Send A and B to the other processes. We supose N is divisible by p */
+   /* The chunks are double sized because of how we separate the arrays */
    if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
 
          /* Half the processes will do A, half will do B */
-         /* Task parallelism. Explained at the top */
+         /* Parallelism with arrays. Explained at the top */
          if ( i < p/2 )
-            MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
+            MPI_Send( &A[2*chunk*i][0], 2*chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
          else
-            MPI_Send( &B[chunk*(i-p/2)][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
+            MPI_Send( &B[2*chunk*(i-p/2)][0], 2*chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
       }
    }
    else {
-      /* Task parallelism. Explained at the top */
+      /* Parallelism with arrays. Explained at the top */
       if ( my_rank < p/2 )
-         MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+         MPI_Recv( &A[2*chunk*my_rank][0], 2*chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
       else
-         MPI_Recv( &B[chunk*(my_rank-p/2)][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+         MPI_Recv( &B[2*chunk*(my_rank-p/2)][0], 2*chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
 
 
 /*-------------------------------------------------------------------------------------------------------*/
-
-   print_matrix(A, "Matrix A before fft");
-
-
    /* Apply 1D FFT in all rows of A and B */
-   for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
+   /* The chunks are double sized because of how we separate the arrays */
+   for (i= 2*chunk*my_rank ;i< 2*chunk*(my_rank+1);i++) {
 
       if ( my_rank < p/2 )
          c_fft1d(A[i], N, -1);
@@ -124,30 +124,29 @@ int main (int argc, char **argv) {
          c_fft1d(B[i], N, -1);
    }
 
-   print_matrix(A, "Matrix A after fft");
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Recover A and B to the source processor */
+   /* The chunks are double sized because of how we separate the arrays */
    if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; /* Source process doesn't receive from itself */
 
          /* Half the processes will do A, half will do B */
-         /* Task parallelism. Explained at the top */
+         /* Parallelism with arrays. Explained at the top */
          if ( i < p/2 )
-            MPI_Recv( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
+            MPI_Recv( &A[2*chunk*i][0], 2*chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
          else
-            MPI_Recv( &B[chunk*(i-p/2)][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
+            MPI_Recv( &B[2*chunk*(i-p/2)][0], 2*chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
       }
    }
    else {
-      /* Task parallelism. Explained at the top */
+      /* Parallelism with arrays. Explained at the top */
       if ( my_rank < p/2 )
-         MPI_Send( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
+         MPI_Send( &A[2*chunk*my_rank][0], 2*chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
       else
-         MPI_Send( &B[chunk*(my_rank-p/2)][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
+         MPI_Send( &B[2*chunk*(my_rank-p/2)][0], 2*chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
    }
-
 
    print_matrix(A, "Matrix A after recv");
    print_matrix(B, "Matrix B after recv");
@@ -168,10 +167,26 @@ int main (int argc, char **argv) {
 
 
 /*-------------------------------------------------------------------------------------------------------*/
-   /* Apply 1D FFT in all rows of transposed A and transposed B */
-   for (i=0;i<N;i++) {
-      c_fft1d(A[i], N, -1);
-      c_fft1d(B[i], N, -1);
+   /* Send A and B to the other processes. We supose N is divisible by p */
+   if ( my_rank == SOURCE ){
+      for ( i=0; i<p; i++ ) {
+         if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
+
+         MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
+         MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
+      }
+   }
+   else {
+      MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+      MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+   }
+
+
+/*-------------------------------------------------------------------------------------------------------*/
+   /* Apply 1D FFT in all rows of A and B */
+   for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
+         c_fft1d(A[i], N, -1);
+         c_fft1d(B[i], N, -1);
    }
 
    /* Transpose matrixes */
@@ -273,8 +288,8 @@ int write_matrix ( const char* filename, complex matrix[N][N] ) {
 
 /* Print the matrix if its size is no more than 32x32 */
 /* Rank is the processor that should print this */
-void print_matrix ( complex matrix[N][N], const char* matrixname , int rank=0 ) {
-   if ( my_rank == rank ) {
+void print_matrix ( complex matrix[N][N], const char* matrixname ) {
+   if ( my_rank == SOURCE ) {
       if ( N<33 ) {
          int i, j;
          printf("%s\n",matrixname);
