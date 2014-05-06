@@ -109,29 +109,47 @@ int main (int argc, char **argv) {
          MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
 
-   /*
+   
    if ( N<33 && my_rank == 1) {
-      printf("This is process 1 matrix A\n");
+      printf("This is process 1 matrix A after send\n");
       for (i=0;i<N;i++){
          for (j=0;j<N;j++) {
            printf("(%.1f,%.1f) ", A[i][j].r,A[i][j].i);
         }printf("\n");
       }printf("\n");
-   }*/
+   }
 
-
-/*-------------------------------------------------------------------------------------------------------*/
-
-   //print_matrix(A, "Matrix A before fft");
-
-   if ( N<33 && my_rank == 3) {
-      printf("This is process 3 matrix B before fft\n");
+   if ( N<33 && my_rank == 2) {
+      printf("This is process 2 matrix B after send\n");
       for (i=0;i<N;i++){
          for (j=0;j<N;j++) {
            printf("(%.1f,%.1f) ", B[i][j].r,B[i][j].i);
         }printf("\n");
       }printf("\n");
    }
+
+   if ( N<33 && my_rank == 3) {
+      printf("This is process 3 matrix B after send\n");
+      for (i=0;i<N;i++){
+         for (j=0;j<N;j++) {
+           printf("(%.1f,%.1f) ", B[i][j].r,B[i][j].i);
+        }printf("\n");
+      }printf("\n");
+   }
+
+
+/*-------------------------------------------------------------------------------------------------------*/
+
+   //print_matrix(A, "Matrix A before fft");
+
+   /*if ( N<33 && my_rank == 3) {
+      printf("This is process 3 matrix B before fft\n");
+      for (i=0;i<N;i++){
+         for (j=0;j<N;j++) {
+           printf("(%.1f,%.1f) ", B[i][j].r,B[i][j].i);
+        }printf("\n");
+      }printf("\n");
+   }*/
 
    /* Apply 1D FFT in all rows of A and B */
    for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
@@ -144,14 +162,14 @@ int main (int argc, char **argv) {
 
    //print_matrix(A, "Matrix A after fft");
 
-   if ( N<33 && my_rank == 3) {
+   /*if ( N<33 && my_rank == 3) {
       printf("This is process 3 matrix B after fft\n");
       for (i=0;i<N;i++){
          for (j=0;j<N;j++) {
            printf("(%.1f,%.1f) ", B[i][j].r,B[i][j].i);
         }printf("\n");
       }printf("\n");
-   }
+   }*/
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Recover A and B to the source processor */
@@ -176,8 +194,8 @@ int main (int argc, char **argv) {
    }
 
 
-   print_matrix(A, "Matrix A after recv");
-   print_matrix(B, "Matrix B after recv");
+   //print_matrix(A, "Matrix A after recv");
+  // print_matrix(B, "Matrix B after recv");
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Transpose matrixes */
