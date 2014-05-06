@@ -136,7 +136,7 @@ int main (int argc, char **argv) {
    write_matrix("output_matrix", C);
 
    if ( my_rank==0) printf("CS 546 Project: done\n");
-   if ( my_rank==0) printf("CS 546 Project: time spent is %f ms\n", (t2-t1) * 1000 );
+   if ( my_rank==0) printf("CS 546 Project: time spent is %f ms\n", (time2-time1) * 1000 );
 
    MPI_Finalize();
 }
