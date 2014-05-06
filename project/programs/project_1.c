@@ -283,8 +283,8 @@ int main (int argc, char **argv) {
       time2 = MPI_Wtime();
 
    print_matrix(C, "Matrix C");
-   if ( my_rank==0) pritf("C[0][0].r     = %e", C[0][0].r);
-   if ( my_rank==0) pritf("C[N-1][N-1].r = %e", C[N-1][N-1].r);
+   if ( my_rank==0) printf("C[0][0].r     = %e", C[0][0].r);
+   if ( my_rank==0) printf("C[N-1][N-1].r = %e", C[N-1][N-1].r);
 
    /* Write output file */
    write_matrix("output_matrix", C);
