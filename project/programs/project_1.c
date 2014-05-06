@@ -119,6 +119,16 @@ int main (int argc, char **argv) {
 
 
 /*-------------------------------------------------------------------------------------------------------*/
+
+   if ( N<33 && my_rank == 0) {
+      printf("This is process 0 matrix A before FFT\n");
+      for (i=0;i<N;i++){
+         for (j=0;j<N;j++) {
+           printf("(%.1f,%.1f) ", A[i][j].r,A[i][j].i);
+        }printf("\n");
+      }printf("\n");
+   }
+
    /* Apply 1D FFT in all rows of A and B */
    for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
 
@@ -126,6 +136,15 @@ int main (int argc, char **argv) {
          c_fft1d(A[i], N, -1);
       else
          c_fft1d(B[i], N, -1);
+   }
+
+   if ( N<33 && my_rank == 0) {
+      printf("This is process 0 matrix A after fft\n");
+      for (i=0;i<N;i++){
+         for (j=0;j<N;j++) {
+           printf("(%.1f,%.1f) ", A[i][j].r,A[i][j].i);
+        }printf("\n");
+      }printf("\n");
    }
 
 /*-------------------------------------------------------------------------------------------------------*/
@@ -152,7 +171,7 @@ int main (int argc, char **argv) {
 
 
    if ( N<33 && my_rank == 0) {
-      printf("This is process 0 matrix A\n");
+      printf("This is process 0 matrix A after RECV\n");
       for (i=0;i<N;i++){
          for (j=0;j<N;j++) {
            printf("(%.1f,%.1f) ", A[i][j].r,A[i][j].i);
