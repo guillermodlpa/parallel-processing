@@ -102,9 +102,9 @@ int main (int argc, char **argv) {
    else {
       /* Task parallelism. Explained at the top */
       if ( my_rank < p/2 ) {
-         MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );printf("I am process %d and I have received A ");}
+         MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );printf("I am process %d and I have received A ",my_rank);}
       else{
-         MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );printf("I am process %d and I have received B ");}
+         MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );printf("I am process %d and I have received B ",my_rank);}
 
       
    }
