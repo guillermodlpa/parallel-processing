@@ -85,6 +85,7 @@ int main (int argc, char **argv) {
 
         
 
+/*-------------------------------------------------------------------------------------------------------*/
    /* Send A and B to the other processes. We supose N is divisible by p */
    if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
@@ -116,6 +117,8 @@ int main (int argc, char **argv) {
       }printf("\n");
    }*/
 
+
+/*-------------------------------------------------------------------------------------------------------*/
    /* Apply 1D FFT in all rows of A and B */
    for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
 
@@ -125,6 +128,30 @@ int main (int argc, char **argv) {
          c_fft1d(B[i], N, -1);
    }
 
+/*-------------------------------------------------------------------------------------------------------*/
+   /* Recover A and B to the source processor */
+   if ( my_rank == SOURCE ){
+      for ( i=0; i<p; i++ ) {
+         if ( i==SOURCE ) continue; /* Source process doesn't receive from itself */
+
+         /* Half the processes will do A, half will do B */
+         /* Task parallelism. Explained at the top */
+         if ( i < p/2 )
+            MPI_Recv( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
+         else
+            MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
+      }
+   }
+   else {
+      /* Task parallelism. Explained at the top */
+      if ( my_rank < p/2 )
+         MPI_Send( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
+      else
+         MPI_Send( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
+   }
+
+
+/*-------------------------------------------------------------------------------------------------------*/
    /* Transpose matrixes */
    for (i=0;i<N;i++) {
       for (j=i;j<N;j++) {
@@ -138,6 +165,8 @@ int main (int argc, char **argv) {
       }
    }
 
+
+/*-------------------------------------------------------------------------------------------------------*/
    /* Apply 1D FFT in all rows of transposed A and transposed B */
    for (i=0;i<N;i++) {
       c_fft1d(A[i], N, -1);
@@ -147,7 +176,7 @@ int main (int argc, char **argv) {
    /* Transpose matrixes */
    /* Not necessary if we remove a later traspose */
 
-
+/*-------------------------------------------------------------------------------------------------------*/
    /* Point to point multiplication */
    for (i=0;i<N;i++) {
       for (j=0;j<N;j++) {
@@ -156,11 +185,15 @@ int main (int argc, char **argv) {
       }
    }
 
+
+/*-------------------------------------------------------------------------------------------------------*/
    /* Inverse 1D FFT in all rows of C */
    for (i=0;i<N;i++) {
       c_fft1d(C[i], N, 1);
    }
 
+
+/*-------------------------------------------------------------------------------------------------------*/
    /* Transpose C */
    for (i=0;i<N;i++) {
       for (j=i;j<N;j++) {
@@ -170,6 +203,8 @@ int main (int argc, char **argv) {
       }
    }
 
+
+/*-------------------------------------------------------------------------------------------------------*/
    /* Inverse 1D FFT in all columns of C */
    for (i=0;i<N;i++) {
       c_fft1d(C[i], N, 1);
@@ -178,6 +213,8 @@ int main (int argc, char **argv) {
    /* Transpose C */
    /* It is not necessary if we remove the other traspose */
 
+
+/*-------------------------------------------------------------------------------------------------------*/
    /* Final time */
    if ( my_rank == SOURCE )
       time2 = MPI_Wtime();
