@@ -71,8 +71,11 @@ int main (int argc, char **argv) {
 
    if ( my_rank != SOURCE )
    for (i=0;i<N;i++)
-      for (j=0;j<N;j++)
+      for (j=0;j<N;j++) {
            A[i][j].r = 0;
+           A[i][j].i = -1;
+        }
+
         
 
    /* Send A and B to the other processes. We supose N is divisible by p */
