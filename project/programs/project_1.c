@@ -14,11 +14,19 @@ static complex ctmp;
 #define C_SWAP(a,b) {ctmp=(a);(a)=(b);(b)=ctmp;}
 
 
+/* Size of matrix (NxN) */
 const int N = 512;
+
+
+int p, my_rank;
 
 int main (int argc, char **argv) {
 
-   printf("CS 546 Project: MPI with Send + Recv\n");
+   MPI_Init(&argc, &argv);
+   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+   MPI_Comm_size(MPI_COMM_WORLD, &p);
+
+   if ( my_rank==0) printf("CS 546 Project: MPI with Send + Recv\n");
 
    /* Input files */
    const char* filename1 = argc == 3 ? argv[1] : "sample/1_im1";
@@ -104,7 +112,7 @@ int main (int argc, char **argv) {
 
    print_matrix(C, "Matrix C");
 
-   printf("CS 546 Project: done\n");
+   if ( my_rank==0) printf("CS 546 Project: done\n");
 }
 
 
