@@ -226,10 +226,9 @@ int main (int argc, char **argv) {
          MPI_Recv( &C[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
       }
    }
-   else {
-      
+   else
       MPI_Send( &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
-   }
+   
 
    //print_matrix(C, "Matrix C after recv");
 
@@ -252,8 +251,7 @@ int main (int argc, char **argv) {
          MPI_Send( &C[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
       }
    }
-   else {
-      
+   else
       MPI_Recv( &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
 
 
@@ -276,10 +274,8 @@ int main (int argc, char **argv) {
          MPI_Recv( &C[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
       }
    }
-   else {
-      
+   else
       MPI_Send( &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
-   }
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Final time */
