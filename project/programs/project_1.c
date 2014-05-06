@@ -35,6 +35,7 @@ int main (int argc, char **argv) {
 
    /* Prototype functions */
    int read_matrix ( const char* filename, complex matrix[N][N] );
+   int write_matrix ( const char* filename, complex matrix[N][N] );
    void c_fft1d(complex *r, int n, int isign);
    void print_matrix ( complex matrix[N][N], const char* matrixname );
 
@@ -113,7 +114,12 @@ int main (int argc, char **argv) {
 
    print_matrix(C, "Matrix C");
 
+   /* Write output file */
+   write_matrix("output_matrix", C);
+
    if ( my_rank==0) printf("CS 546 Project: done\n");
+
+   MPI_Finalize();
 }
 
 
@@ -138,6 +144,19 @@ int read_matrix ( const char* filename, complex matrix[N][N] ) {
    fclose(fp);
 }
 
+/* Write the real part of the result matrix */
+int write_matrix ( const char* filename, complex matrix[N][N] ) {
+   int i, j;
+   FILE *fp = fopen(filename,"w");
+
+   for (i=0;i<N;i++) {
+      for (j=0;j<N;j++)
+         fprintf(fp,"   %e",matrix[i][j].r);
+      fprintf(fp,"\n");
+   };
+
+   fclose(fp);
+}
 
 /* Print the matrix if its size is no more than 32x32 */
 void print_matrix ( complex matrix[N][N], const char* matrixname ) {
