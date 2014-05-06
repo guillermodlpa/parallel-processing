@@ -75,12 +75,12 @@ int main (int argc, char **argv) {
 
 
    /* Temporary to put zeros everywhere */
-   if ( my_rank != SOURCE )
+   /*if ( my_rank != SOURCE )
    for (i=0;i<N;i++)
       for (j=0;j<N;j++) {
            A[i][j].r = 0;
            A[i][j].i = 0;
-        }
+        }*/
 
         
 
@@ -105,7 +105,7 @@ int main (int argc, char **argv) {
          MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
 
-   
+   /*
    if ( N<33 && my_rank == 1) {
       printf("This is process 1 matrix A\n");
       for (i=0;i<N;i++){
@@ -113,12 +113,15 @@ int main (int argc, char **argv) {
            printf("(%.1f,%.1f) ", A[i][j].r,A[i][j].i);
         }printf("\n");
       }printf("\n");
-   }
+   }*/
 
    /* Apply 1D FFT in all rows of A and B */
    for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
-      c_fft1d(A[i], N, -1);
-      c_fft1d(B[i], N, -1);
+
+      if ( my_rank < p/2 )
+         c_fft1d(A[i], N, -1);
+      else
+         c_fft1d(B[i], N, -1);
    }
 
    /* Transpose matrixes */
