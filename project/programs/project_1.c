@@ -52,8 +52,7 @@ int main (int argc, char **argv) {
    int read_matrix ( const char* filename, complex matrix[N][N] );
    int write_matrix ( const char* filename, complex matrix[N][N] );
    void c_fft1d(complex *r, int n, int isign);
-   void print_matrix ( complex matrix[N][N], const char* matrixname );
-   void print_matrix ( complex matrix[N][N], const char* matrixname, int rank );
+   void print_matrix ( complex matrix[N][N], const char* matrixname, int rank=0 );
 
 
    /* Variable init */
@@ -274,7 +273,7 @@ int write_matrix ( const char* filename, complex matrix[N][N] ) {
 
 /* Print the matrix if its size is no more than 32x32 */
 /* Rank is the processor that should print this */
-void print_matrix ( complex matrix[N][N], const char* matrixname , int rank ) {
+void print_matrix ( complex matrix[N][N], const char* matrixname , int rank=0 ) {
    if ( my_rank == rank ) {
       if ( N<33 ) {
          int i, j;
@@ -286,9 +285,6 @@ void print_matrix ( complex matrix[N][N], const char* matrixname , int rank ) {
          }printf("\n");
       }
    }
-}
-void print_matrix ( complex matrix[N][N], const char* matrixname  ) {
-   print_matrix(matrix, matrixname, 0);
 }
 
 
