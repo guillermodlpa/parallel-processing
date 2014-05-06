@@ -82,11 +82,10 @@ int main (int argc, char **argv) {
 
 
    if ( N<33 && my_rank == 1) {
-      int i, j;
-      printf("%s\n",matrixname);
+      printf("This is process 1 matrix A\n");
       for (i=0;i<N;i++){
          for (j=0;j<N;j++) {
-           printf("%f ", matrix[i][j].r);
+           printf("%f ", A[i][j].r);
         }printf("\n");
       }printf("\n");
    }
