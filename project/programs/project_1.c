@@ -98,7 +98,7 @@ int main (int argc, char **argv) {
          if ( i < p/2 )
             MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
          else
-            MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
+            MPI_Send( &B[chunk*(i-p/2)][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
       }
    }
    else {
@@ -106,7 +106,7 @@ int main (int argc, char **argv) {
       if ( my_rank < p/2 )
          MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
       else
-         MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+         MPI_Recv( &B[chunk*(my_rank-p/2)][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
 
    
@@ -182,7 +182,7 @@ int main (int argc, char **argv) {
          if ( i < p/2 )
             MPI_Recv( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
          else
-            MPI_Recv( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
+            MPI_Recv( &B[chunk*(i-p/2)][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
       }
    }
    else {
@@ -190,7 +190,7 @@ int main (int argc, char **argv) {
       if ( my_rank < p/2 )
          MPI_Send( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
       else
-         MPI_Send( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
+         MPI_Send( &B[chunk*(my_rank-p/2)][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
    }
 
 
