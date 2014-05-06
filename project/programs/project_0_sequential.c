@@ -2,6 +2,13 @@
 
 This program is the sequential algorithm
 
+The default input is sample/1_im1 and sample/1_im2
+To indicate other inputs:
+
+   $ ./a.out [image1] [image2]
+
+The output file is saved as "output_matrix" in the working directory
+
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,11 +25,12 @@ const int N = 512;
 
 int main (int argc, char **argv) {
 
-   printf("CS 546 Project: sequential algorithm\n");
-
    /* Input files */
    const char* filename1 = argc == 3 ? argv[1] : "sample/1_im1";
    const char* filename2 = argc == 3 ? argv[2] : "sample/1_im2";
+
+   printf("CS 546 Project: sequential algorithm\n");
+   printf("CS 546 Project: using images %s, %s\n",filename1, filename2);
 
    /* Prototype functions */
    int read_matrix ( const char* filename, complex matrix[N][N] );
