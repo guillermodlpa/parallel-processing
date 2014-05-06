@@ -1,7 +1,6 @@
 /*
 
-This program is the parallel algorithm using MPI Send and Recv
-We suppost that N is always going to be divisible between the number of processes
+This program is the sequential algorithm using MPI to meassure times
 
 The default input is sample/1_im1 and sample/1_im2
 To indicate other inputs:
@@ -51,12 +50,10 @@ int main (int argc, char **argv) {
 
 
    /* Variable init */
-   int chunk = N / p; /* number of rows for each process */
    complex A[N][N], B[N][N], C[N][N];
    int i, j;
    complex tmp;
    double time1, time2;
-   MPI_Status status;
 
    /* Read files */
    read_matrix (filename1, A);
@@ -69,27 +66,6 @@ int main (int argc, char **argv) {
    if ( my_rank == SOURCE )
       time1 = MPI_Wtime();
 
-   /* Send A and B to the other processes. We supose N is divisible by p */
-   if ( my_rank == SOURCE ){
-      for ( i=0; i<p; i++ ) {
-         if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
-         MPI_Send( &A[chunk*i][0], chunk*N, MPI_FLOAT, i, 0, MPI_COMM_WORLD );
-      }
-   }
-   else {
-      MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status );
-   }
-
-
-   if ( N<33 && my_rank == 1) {
-      int i, j;
-      printf("%s\n",matrixname);
-      for (i=0;i<N;i++){
-         for (j=0;j<N;j++) {
-           printf("%f ", matrix[i][j].r);
-        }printf("\n");
-      }printf("\n");
-   }
 
    /* Apply 1D FFT in all rows of A and B */
    for (i=0;i<N;i++) {
@@ -171,52 +147,46 @@ int main (int argc, char **argv) {
 /* Reads the matrix from tha file and inserts the values in the real part */
 /* The complex part is left to 0 */
 int read_matrix ( const char* filename, complex matrix[N][N] ) {
-   if ( my_rank == SOURCE ) {
-      int i, j;
-      FILE *fp = fopen(filename,"r");
+   int i, j;
+   FILE *fp = fopen(filename,"r");
 
-      if ( !fp ) {
-         printf("Error. This file couldn't be read because it doesn't exist: %s\n", filename);
-         exit(1);
-      }
-
-      for (i=0;i<N;i++)
-         for (j=0;j<N;j++) {
-            fscanf(fp,"%g",&matrix[i][j].r);
-            matrix[i][j].i = 0;
-         }
-      fclose(fp);
+   if ( !fp ) {
+      printf("Error. This file couldn't be read because it doesn't exist: %s\n", filename);
+      exit(1);
    }
+
+   for (i=0;i<N;i++)
+      for (j=0;j<N;j++) {
+         fscanf(fp,"%g",&matrix[i][j].r);
+         matrix[i][j].i = 0;
+      }
+   fclose(fp);
 }
 
 /* Write the real part of the result matrix */
 int write_matrix ( const char* filename, complex matrix[N][N] ) {
-   if ( my_rank == SOURCE ) {
-      int i, j;
-      FILE *fp = fopen(filename,"w");
+   int i, j;
+   FILE *fp = fopen(filename,"w");
 
-      for (i=0;i<N;i++) {
-         for (j=0;j<N;j++)
-            fprintf(fp,"   %e",matrix[i][j].r);
-         fprintf(fp,"\n");
-      };
+   for (i=0;i<N;i++) {
+      for (j=0;j<N;j++)
+         fprintf(fp,"   %e",matrix[i][j].r);
+      fprintf(fp,"\n");
+   };
 
-      fclose(fp);
-   }
+   fclose(fp);
 }
 
 /* Print the matrix if its size is no more than 32x32 */
 void print_matrix ( complex matrix[N][N], const char* matrixname ) {
-   if ( my_rank == SOURCE ) {
-      if ( N<33 ) {
-         int i, j;
-         printf("%s\n",matrixname);
-         for (i=0;i<N;i++){
-            for (j=0;j<N;j++) {
-              printf("%f ", matrix[i][j].r);
-           }printf("\n");
-         }printf("\n");
-      }
+   if ( N<33 ) {
+      int i, j;
+      printf("%s\n",matrixname);
+      for (i=0;i<N;i++){
+         for (j=0;j<N;j++) {
+           printf("%f ", matrix[i][j].r);
+        }printf("\n");
+      }printf("\n");
    }
 }
 
