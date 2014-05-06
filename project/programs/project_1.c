@@ -157,6 +157,7 @@ int main (int argc, char **argv) {
 
 
    print_matrix(A, "Matrix A after recv");
+   print_matrix(B, "Matrix A after recv");
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Transpose matrixes */
