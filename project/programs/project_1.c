@@ -148,8 +148,8 @@ int main (int argc, char **argv) {
          MPI_Send( &B[2*chunk*(my_rank-p/2)][0], 2*chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
    }
 
-   print_matrix(A, "Matrix A after recv");
-   print_matrix(B, "Matrix B after recv");
+   //print_matrix(A, "Matrix A after recv");
+   //print_matrix(B, "Matrix B after recv");
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Transpose matrixes */
@@ -188,6 +188,9 @@ int main (int argc, char **argv) {
          c_fft1d(A[i], N, -1);
          c_fft1d(B[i], N, -1);
    }
+
+   print_matrix(A, "Matrix A after col fft");
+   print_matrix(B, "Matrix B after col fft");
 
    /* Transpose matrixes */
    /* Not necessary if we remove a later traspose */
