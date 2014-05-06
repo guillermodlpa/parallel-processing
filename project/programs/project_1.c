@@ -211,7 +211,7 @@ int main (int argc, char **argv) {
       }
    }
 
-   //print_matrix(C, "Matrix C after mult");
+   print_matrix(C, "Matrix C after mult");
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Inverse 1D FFT in all rows of C */
