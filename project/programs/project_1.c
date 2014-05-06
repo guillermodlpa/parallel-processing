@@ -70,7 +70,7 @@ int main (int argc, char **argv) {
       time1 = MPI_Wtime();
 
    for (i=0;i<N;i++)
-         for (j=0;j<N;j++)
+      for (j=0;j<N;j++)
            A[i][j].r = 0;
         
 
@@ -78,11 +78,11 @@ int main (int argc, char **argv) {
    if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
-         MPI_Send( &A[chunk*i][0], chunk*N, MPI_FLOAT, i, 0, MPI_COMM_WORLD );
+         MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
       }
    }
    else {
-      MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status );
+      MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
 
 
