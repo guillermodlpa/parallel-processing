@@ -213,9 +213,26 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Inverse 1D FFT in all rows of C */
-   for (i=0;i<N;i++) {
+   for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
       c_fft1d(C[i], N, 1);
    }
+
+
+/*-------------------------------------------------------------------------------------------------------*/
+   /* Send the fragments of C to the source processor */
+   if ( my_rank == SOURCE ){
+      for ( i=0; i<p; i++ ) {
+         if ( i==SOURCE ) continue; /* Source process doesn't receive from itself */
+
+         MPI_Recv( &C[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
+      }
+   }
+   else {
+      
+      MPI_Send( &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
+   }
+
+   print_matrix(C, "Matrix C after recv");
 
 
 /*-------------------------------------------------------------------------------------------------------*/
