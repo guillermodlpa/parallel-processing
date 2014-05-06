@@ -7,6 +7,7 @@ This program is the sequential algorithm
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
+#include <mpi.h>
 
 /* Given with the fft function in the assignment */
 typedef struct {float r; float i;} complex;
