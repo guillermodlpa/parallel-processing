@@ -45,6 +45,7 @@ int main (int argc, char **argv) {
    const char* filename2 = argc == 3 ? argv[2] : "sample/1_im2";
 
    if ( my_rank==0) printf("CS 546 Project: MPI with Send + Recv\n");
+   if ( my_rank==0) printf("CS 546 Project: Number of processors = %d\n",my_rank);
    if ( my_rank==0) printf("CS 546 Project: using images %s, %s\n",filename1, filename2);
 
    /* Prototype functions */
