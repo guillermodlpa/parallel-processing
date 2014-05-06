@@ -201,7 +201,7 @@ int main (int argc, char **argv) {
    print_matrix(C, "Matrix C pre mult");
 
    /* Point to point multiplication */
-   for (i=0;i<N;i++) {
+   for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
       for (j=0;j<N;j++) {
          C[i][j].r = A[i][j].r*B[i][j].r - A[i][j].i*B[i][j].i;
          C[i][j].i = A[i][j].r*B[i][j].i + A[i][j].i*B[i][j].r;
@@ -216,7 +216,7 @@ int main (int argc, char **argv) {
    for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
       c_fft1d(C[i], N, 1);
    }
-
+   print_matrix(C, "Matrix C after fft");
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Send the fragments of C to the source processor */
