@@ -90,7 +90,7 @@ int main (int argc, char **argv) {
       printf("This is process 1 matrix A\n");
       for (i=0;i<N;i++){
          for (j=0;j<N;j++) {
-           printf("%f ", A[i][j].r);
+           printf("(%.1f,%.1f) ", A[i][j].r,A[i][j].i);
         }printf("\n");
       }printf("\n");
    }
@@ -217,7 +217,7 @@ void print_matrix ( complex matrix[N][N], const char* matrixname ) {
          printf("%s\n",matrixname);
          for (i=0;i<N;i++){
             for (j=0;j<N;j++) {
-              printf("%.1f ", matrix[i][j].r);
+              printf("(%.1f,%.1f) ", matrix[i][j].r,matrix[i][j].i);
            }printf("\n");
          }printf("\n");
       }
