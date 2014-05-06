@@ -273,7 +273,7 @@ int write_matrix ( const char* filename, complex matrix[N][N] ) {
 
 /* Print the matrix if its size is no more than 32x32 */
 /* Rank is the processor that should print this */
-void print_matrix ( complex matrix[N][N], const char* matrixname , int rank = SOURCE ) {
+void print_matrix ( complex matrix[N][N], const char* matrixname , int rank=SOURCE ) {
    if ( my_rank == rank ) {
       if ( N<33 ) {
          int i, j;
