@@ -76,12 +76,14 @@ int main (int argc, char **argv) {
 
 
    /* Temporary to put zeros everywhere */
-   /*if ( my_rank != SOURCE )
+   if ( my_rank != SOURCE )
    for (i=0;i<N;i++)
       for (j=0;j<N;j++) {
            A[i][j].r = 0;
            A[i][j].i = 0;
-        }*/
+           B[i][j].r = 0;
+           B[i][j].i = 0;
+        }
 
         
 
@@ -120,7 +122,16 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
 
-   print_matrix(A, "Matrix A before fft");
+   //print_matrix(A, "Matrix A before fft");
+
+   if ( N<33 && my_rank == 3) {
+      printf("This is process 3 matrix B before fft\n");
+      for (i=0;i<N;i++){
+         for (j=0;j<N;j++) {
+           printf("(%.1f,%.1f) ", B[i][j].r,B[i][j].i);
+        }printf("\n");
+      }printf("\n");
+   }
 
    /* Apply 1D FFT in all rows of A and B */
    for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
@@ -131,7 +142,7 @@ int main (int argc, char **argv) {
          c_fft1d(B[i], N, -1);
    }
 
-   print_matrix(A, "Matrix A after fft");
+   //print_matrix(A, "Matrix A after fft");
 
    if ( N<33 && my_rank == 3) {
       printf("This is process 3 matrix B after fft\n");
