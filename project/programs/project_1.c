@@ -27,7 +27,7 @@ const int N = 512;
 
 
 int p, my_rank;
-#define SOURCE = 0
+#define SOURCE 0
 
 int main (int argc, char **argv) {
 
