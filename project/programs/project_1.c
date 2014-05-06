@@ -151,8 +151,8 @@ int main (int argc, char **argv) {
          MPI_Send( &B[2*chunk*(my_rank-p/2)][0], 2*chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
    }
 
-   //print_matrix(A, "Matrix A after recv");
-   //print_matrix(B, "Matrix B after recv");
+   print_matrix(A, "Matrix A after recv");
+   print_matrix(B, "Matrix B after recv");
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Transpose matrixes sequentially */
@@ -167,6 +167,10 @@ int main (int argc, char **argv) {
          B[j][i] = tmp;
       }
    }
+
+   print_matrix(A, "Matrix A after traspose");
+   print_matrix(B, "Matrix B after traspose");
+
 
 
 /*-------------------------------------------------------------------------------------------------------*/
@@ -184,6 +188,8 @@ int main (int argc, char **argv) {
       MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
 
+   print_matrix(A, "Matrix A after nothing");
+   print_matrix(B, "Matrix B after nothing");
 
 /*-------------------------------------------------------------------------------------------------------*/
 
