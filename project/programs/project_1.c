@@ -101,12 +101,10 @@ int main (int argc, char **argv) {
    }
    else {
       /* Task parallelism. Explained at the top */
-      if ( my_rank < p/2 ) {
-         MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );printf("I am process %d and I have received A ",my_rank);}
-      else{
-         MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );printf("I am process %d and I have received B ",my_rank);}
-
-      
+      if ( my_rank < p/2 )
+         MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+      else
+         MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
 
    /*
@@ -134,6 +132,15 @@ int main (int argc, char **argv) {
    }
 
    print_matrix(A, "Matrix A after fft");
+
+   if ( N<33 && my_rank == 3) {
+      printf("This is process 3 matrix B after fft\n");
+      for (i=0;i<N;i++){
+         for (j=0;j<N;j++) {
+           printf("(%.1f,%.1f) ", B[i][j].r,B[i][j].i);
+        }printf("\n");
+      }printf("\n");
+   }
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Recover A and B to the source processor */
