@@ -43,8 +43,8 @@ int main (int argc, char **argv) {
    MPI_Comm_size(MPI_COMM_WORLD, &p);
 
    /* Input files */
-   const char* filename1 = argc == 3 ? argv[1] : "sample/2_im1";
-   const char* filename2 = argc == 3 ? argv[2] : "sample/2_im2";
+   const char* filename1 = argc == 3 ? argv[1] : "sample/1_im1";
+   const char* filename2 = argc == 3 ? argv[2] : "sample/1_im2";
 
    if ( my_rank==0) printf("CS 546 Project: MPI with Send + Recv\n");
    if ( my_rank==0) printf("CS 546 Project: Number of processors = %d\n",p);
@@ -148,8 +148,8 @@ int main (int argc, char **argv) {
          MPI_Send( &B[2*chunk*(my_rank-p/2)][0], 2*chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
    }
 
-   print_matrix(A, "Matrix A after recv");
-   print_matrix(B, "Matrix B after recv");
+   //print_matrix(A, "Matrix A after recv");
+   //print_matrix(B, "Matrix B after recv");
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Transpose matrixes */
@@ -183,6 +183,10 @@ int main (int argc, char **argv) {
 
 
 /*-------------------------------------------------------------------------------------------------------*/
+
+   print_matrix(A, "Matrix A pre col fft");
+   print_matrix(B, "Matrix B pre col fft");
+
    /* Apply 1D FFT in all rows of A and B */
    for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
          c_fft1d(A[i], N, -1);
