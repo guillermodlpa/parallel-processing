@@ -90,7 +90,7 @@ int main (int argc, char **argv) {
         
 
 /*-------------------------------------------------------------------------------------------------------*/
-   /* Send A and B to the other processes. We supose N is divisible by p */
+   /* Scatter A and B to the other processes. We supose N is divisible by p */
    /* The chunks are double sized because of how we separate the arrays */
    if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
@@ -126,7 +126,7 @@ int main (int argc, char **argv) {
 
 
 /*-------------------------------------------------------------------------------------------------------*/
-   /* Recover A and B to the source processor */
+   /* Gather A and B to the source processor */
    /* The chunks are double sized because of how we separate the arrays */
    if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
@@ -152,7 +152,7 @@ int main (int argc, char **argv) {
    //print_matrix(B, "Matrix B after recv");
 
 /*-------------------------------------------------------------------------------------------------------*/
-   /* Transpose matrixes */
+   /* Transpose matrixes sequentially */
    for (i=0;i<N;i++) {
       for (j=i;j<N;j++) {
          tmp = A[i][j];
@@ -167,7 +167,7 @@ int main (int argc, char **argv) {
 
 
 /*-------------------------------------------------------------------------------------------------------*/
-   /* Send A and B to the other processes. We supose N is divisible by p */
+   /* Scatter A and B to the other processes. We supose N is divisible by p */
    if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
@@ -198,7 +198,7 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
 
-   print_matrix(C, "Matrix C pre mult");
+   //print_matrix(C, "Matrix C pre mult");
 
    /* Point to point multiplication */
    for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
@@ -208,18 +208,17 @@ int main (int argc, char **argv) {
       }
    }
 
-   print_matrix(C, "Matrix C after mult");
-
+   //print_matrix(C, "Matrix C after mult");
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Inverse 1D FFT in all rows of C */
    for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
       c_fft1d(C[i], N, 1);
    }
-   print_matrix(C, "Matrix C after fft");
+   //print_matrix(C, "Matrix C after fft");
 
 /*-------------------------------------------------------------------------------------------------------*/
-   /* Send the fragments of C to the source processor */
+   /* Gather the fragments of C to the source processor */
    if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; /* Source process doesn't receive from itself */
@@ -232,11 +231,10 @@ int main (int argc, char **argv) {
       MPI_Send( &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
    }
 
-   print_matrix(C, "Matrix C after recv");
-
+   //print_matrix(C, "Matrix C after recv");
 
 /*-------------------------------------------------------------------------------------------------------*/
-   /* Transpose C */
+   /* Transpose C sequentially */
    for (i=0;i<N;i++) {
       for (j=i;j<N;j++) {
          tmp = C[i][j];
@@ -245,16 +243,43 @@ int main (int argc, char **argv) {
       }
    }
 
+/*-------------------------------------------------------------------------------------------------------*/
+   /* Scatter C to the other processes */
+   if ( my_rank == SOURCE ){
+      for ( i=0; i<p; i++ ) {
+         if ( i==SOURCE ) continue; /* Source process doesn't receive from itself */
+
+         MPI_Send( &C[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
+      }
+   }
+   else {
+      
+      MPI_Recv( &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Inverse 1D FFT in all columns of C */
-   for (i=0;i<N;i++) {
+   for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
       c_fft1d(C[i], N, 1);
    }
 
    /* Transpose C */
    /* It is not necessary if we remove the other traspose */
 
+
+/*-------------------------------------------------------------------------------------------------------*/
+   /* Gather the fragments of C to the source processor */
+   if ( my_rank == SOURCE ){
+      for ( i=0; i<p; i++ ) {
+         if ( i==SOURCE ) continue; /* Source process doesn't receive from itself */
+
+         MPI_Recv( &C[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
+      }
+   }
+   else {
+      
+      MPI_Send( &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
+   }
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Final time */
