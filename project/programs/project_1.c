@@ -10,6 +10,10 @@ To indicate other inputs:
 
 The output file is saved as "output_matrix" in the working directory
 
+Task Parallelism:
+   When calculating the FFTs, if we have 8 processors, 4 will take care of matrix A and 4 of matrix B.
+   This parallelism is necessary to avoid doubling the number of messages in the system
+
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,7 +55,7 @@ int main (int argc, char **argv) {
 
 
    /* Variable init */
-   int chunk = N / p; /* number of rows for each process */
+   int chunk = 2 * N / p; /* number of rows for each process */
    complex A[N][N], B[N][N], C[N][N];
    int i, j;
    complex tmp;
@@ -69,12 +73,14 @@ int main (int argc, char **argv) {
    if ( my_rank == SOURCE )
       time1 = MPI_Wtime();
 
-   if ( my_rank != SOURCE )
+
+   /* Temporary to put zeros everywhere */
+   /*if ( my_rank != SOURCE )
    for (i=0;i<N;i++)
       for (j=0;j<N;j++) {
            A[i][j].r = 0;
-           A[i][j].i = -1;
-        }
+           A[i][j].i = 0;
+        }*/
 
         
 
@@ -82,14 +88,24 @@ int main (int argc, char **argv) {
    if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
-         MPI_Send( &A[chunk*i][0], chunk*N, MPI_FLOAT, i, 0, MPI_COMM_WORLD );
+
+         /* Half the processes will do A, half will do B */
+         /* Task parallelism. Explained at the top */
+         if ( i < p/2 )
+            MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
+         else
+            MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
       }
    }
    else {
-      MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_FLOAT, SOURCE, 0, MPI_COMM_WORLD, &status );
+      /* Task parallelism. Explained at the top */
+      if ( my_rank < p/2 )
+         MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+      else
+         MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
 
-
+   /*
    if ( N<33 && my_rank == 1) {
       printf("This is process 1 matrix A\n");
       for (i=0;i<N;i++){
@@ -97,10 +113,10 @@ int main (int argc, char **argv) {
            printf("(%.1f,%.1f) ", A[i][j].r,A[i][j].i);
         }printf("\n");
       }printf("\n");
-   }
+   }*/
 
    /* Apply 1D FFT in all rows of A and B */
-   for (i=0;i<N;i++) {
+   for (i= chuck*my_rank ;i< chuck*(my_rank+1);i++) {
       c_fft1d(A[i], N, -1);
       c_fft1d(B[i], N, -1);
    }
