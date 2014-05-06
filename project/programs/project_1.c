@@ -217,7 +217,7 @@ void print_matrix ( complex matrix[N][N], const char* matrixname ) {
          printf("%s\n",matrixname);
          for (i=0;i<N;i++){
             for (j=0;j<N;j++) {
-              printf("%d ", matrix[i][j].r);
+              printf("%.1f ", matrix[i][j].r);
            }printf("\n");
          }printf("\n");
       }
