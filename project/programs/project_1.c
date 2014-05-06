@@ -116,11 +116,11 @@ int main (int argc, char **argv) {
 /*-------------------------------------------------------------------------------------------------------*/
    /* Apply 1D FFT in all rows of A and B */
    /* The chunks are double sized because of how we separate the arrays */
-   for (i= 2*chunk*my_rank ;i< 2*chunk*(my_rank+1);i++) {
-
-      if ( my_rank < p/2 )
+   if ( my_rank < p/2 )
+      for ( i = 2*chunk*my_rank; i <2*chunk*(my_rank+1); i++ )
          c_fft1d(A[i], N, -1);
-      else
+   else
+      for ( i = 2*chunk*(my_rank-p/2); i <2*chunk*(my_rank-p/2+1); i++ )
          c_fft1d(B[i], N, -1);
    }
 
