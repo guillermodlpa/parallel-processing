@@ -16,6 +16,8 @@ Parallelism with arrays A and B:
    This paralellism is only used when it's worth it, that is before the first tranpose and after the last one
    In the middle step isn't worth it because we can calculate C directly without any message passing if we don't use this parallelism
 
+This algorithm is better explained in the document that goes with this project
+
 */
 #include <stdio.h>
 #include <stdlib.h>
