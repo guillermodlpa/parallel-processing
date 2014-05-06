@@ -43,8 +43,8 @@ int main (int argc, char **argv) {
    MPI_Comm_size(MPI_COMM_WORLD, &p);
 
    /* Input files */
-   const char* filename1 = argc == 3 ? argv[1] : "sample/2_im1";
-   const char* filename2 = argc == 3 ? argv[2] : "sample/2_im2";
+   const char* filename1 = argc == 3 ? argv[1] : "sample/1_im1";
+   const char* filename2 = argc == 3 ? argv[2] : "sample/1_im2";
 
    if ( my_rank==0) printf("CS 546 Project: MPI with Send + Recv\n");
    if ( my_rank==0) printf("CS 546 Project: Number of processors = %d\n",p);
@@ -184,22 +184,22 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
 
-   print_matrix(A, "Matrix A pre col fft");
-   print_matrix(B, "Matrix B pre col fft");
-
    /* Apply 1D FFT in all rows of A and B */
    for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
          c_fft1d(A[i], N, -1);
          c_fft1d(B[i], N, -1);
    }
 
-   print_matrix(A, "Matrix A after col fft");
-   print_matrix(B, "Matrix B after col fft");
+   //print_matrix(A, "Matrix A after col fft");
+   //print_matrix(B, "Matrix B after col fft");
 
    /* Transpose matrixes */
    /* Not necessary if we remove a later traspose */
 
 /*-------------------------------------------------------------------------------------------------------*/
+
+   print_matrix(C, "Matrix C pre mult");
+
    /* Point to point multiplication */
    for (i=0;i<N;i++) {
       for (j=0;j<N;j++) {
@@ -207,6 +207,8 @@ int main (int argc, char **argv) {
          C[i][j].i = A[i][j].r*B[i][j].i + A[i][j].i*B[i][j].r;
       }
    }
+
+   print_matrix(C, "Matrix C after mult");
 
 
 /*-------------------------------------------------------------------------------------------------------*/
@@ -254,7 +256,7 @@ int main (int argc, char **argv) {
 }
 
 
-
+/*-------------------------------------------------------------------------------------------------------*/
 
 /* Reads the matrix from tha file and inserts the values in the real part */
 /* The complex part is left to 0 */
