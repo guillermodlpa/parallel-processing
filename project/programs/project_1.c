@@ -69,9 +69,7 @@ int main (int argc, char **argv) {
    if ( my_rank == SOURCE )
       time1 = MPI_Wtime();
 
-   for (i=0;i<N;i++)
-      for (j=0;j<N;j++)
-           A[i][j].r = 0;
+
         
 
    /* Send A and B to the other processes. We supose N is divisible by p */
