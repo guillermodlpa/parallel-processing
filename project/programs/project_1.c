@@ -151,6 +151,15 @@ int main (int argc, char **argv) {
    }
 
 
+   if ( N<33 && my_rank == 0) {
+      printf("This is process 0 matrix A\n");
+      for (i=0;i<N;i++){
+         for (j=0;j<N;j++) {
+           printf("(%.1f,%.1f) ", A[i][j].r,A[i][j].i);
+        }printf("\n");
+      }printf("\n");
+   }
+
 /*-------------------------------------------------------------------------------------------------------*/
    /* Transpose matrixes */
    for (i=0;i<N;i++) {
