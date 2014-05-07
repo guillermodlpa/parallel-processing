@@ -63,7 +63,7 @@ int main (int argc, char **argv) {
 
    /* Variable init */
    int chunk = N / p; /* number of rows for each process */
-   complex A[N][N], B[N][N], C[N][N], D[N][N];
+   complex A[N][N], B[N][N], C[N][N];
    int i, j;
    complex tmp;
    double time_init, time_end, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10;
@@ -99,9 +99,13 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Apply 1D FFT in all rows of A and B */
-   for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
-         c_fft1d(A[i], N, -1);
-         c_fft1d(B[i], N, -1);
+   #pragma omp parallel num_threads(NUM_THREADS)
+   {
+      #pragma omp for
+      for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
+            c_fft1d(A[i], N, -1);
+            c_fft1d(B[i], N, -1);
+      }
    }
    if ( my_rank == SOURCE ) t2 = MPI_Wtime();
 
@@ -120,10 +124,10 @@ int main (int argc, char **argv) {
    /* Transpose matrixes using threads */
 
    if ( my_rank == SOURCE ) {
-      #pragma omp parallel num_threads(NUM_THREADS)
+      //#pragma omp parallel num_threads(NUM_THREADS)
       {
 
-         #pragma omp for private (i,j,tmp)
+         //#pragma omp for private (i,j,tmp)
          for (i=0;i<N;i++) {
             for (j=i;j<N;j++) {
                tmp = A[i][j];
@@ -204,16 +208,15 @@ int main (int argc, char **argv) {
    /* Transpose C using threads */
    if ( my_rank == SOURCE ) {
 
-      #pragma omp parallel num_threads(NUM_THREADS)
+      //#pragma omp parallel num_threads(NUM_THREADS)
       {
 
-         #pragma omp for private (i,j,tmp)
+         //#pragma omp for private (i,j,tmp)
          for (i=0;i<N;i++) {
-            for (j=0;j<N;j++) {
-               /*tmp = C[i][j];
+            for (j=i;j<N;j++) {
+               tmp = C[i][j];
                C[i][j] = C[j][i];
-               C[j][i] = tmp;*/
-               D[i][j] = C[j][i];
+               C[j][i] = tmp;
             }
          }
       }
