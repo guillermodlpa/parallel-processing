@@ -90,7 +90,7 @@ int main (int argc, char **argv) {
    
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter A and B to the other processes. We supose N is divisible by p */
-   MPI_Scatter( &A[0][0], chunk*N, MPI_COMPLEX, &A[chunk*i][], chunk*N, MPI_COMPLEX, SOURCE, MPI_COMM_WORLD );
+   MPI_Scatter( &A[0][0], chunk*N, MPI_COMPLEX, &A[chunk*i][0], chunk*N, MPI_COMPLEX, SOURCE, MPI_COMM_WORLD );
 /*
    if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
