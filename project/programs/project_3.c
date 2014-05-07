@@ -120,10 +120,10 @@ int main (int argc, char **argv) {
    /* Transpose matrixes using threads */
 
    if ( my_rank == SOURCE ) {
-      #pragma omp parallel num_threads(NUM_THREADS) shared (A,B)
+      //#pragma omp parallel num_threads(NUM_THREADS) shared (A,B)
       {
 
-         #pragma omp for private (i,j,tmp)
+         //#pragma omp for private (i,j,tmp)
          for (i=0;i<N;i++) {
             for (j=i;j<N;j++) {
                tmp = A[i][j];
@@ -204,10 +204,10 @@ int main (int argc, char **argv) {
    /* Transpose C using threads */
    if ( my_rank == SOURCE ) {
 
-      #pragma omp parallel num_threads(NUM_THREADS) shared (C)
+      //#pragma omp parallel num_threads(NUM_THREADS) shared (C)
       {
 
-         #pragma omp for private (i,j,tmp)
+         //#pragma omp for private (i,j,tmp)
          for (i=0;i<N;i++) {
             for (j=i;j<N;j++) {
                tmp = C[i][j];
