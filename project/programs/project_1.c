@@ -94,27 +94,37 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter A and B to the other processes. We supose N is divisible by p */
+   /* The chunks are double sized because of how we separate the arrays */
    if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
 
-         MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
-         MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
+         /* Half the processes will do A, half will do B */
+         /* Parallelism with arrays. Explained at the top */
+         if ( i < p/2 )
+            MPI_Send( &A[2*chunk*i][0], 2*chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
+         else
+            MPI_Send( &B[2*chunk*(i-p/2)][0], 2*chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
       }
    }
    else {
-      MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
-      MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+      /* Parallelism with arrays. Explained at the top */
+      if ( my_rank < p/2 )
+         MPI_Recv( &A[2*chunk*my_rank][0], 2*chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+      else
+         MPI_Recv( &B[2*chunk*(my_rank-p/2)][0], 2*chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
 
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Apply 1D FFT in all rows of A and B */
    /* The chunks are double sized because of how we separate the arrays */
-   for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
+   if ( my_rank < p/2 )
+      for ( i = 2*chunk*my_rank; i <2*chunk*(my_rank+1); i++ )
          c_fft1d(A[i], N, -1);
+   else
+      for ( i = 2*chunk*(my_rank-p/2); i <2*chunk*(my_rank-p/2+1); i++ )
          c_fft1d(B[i], N, -1);
-   }
    
 
 
@@ -123,15 +133,22 @@ int main (int argc, char **argv) {
    /* The chunks are double sized because of how we separate the arrays */
    if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
-         if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
+         if ( i==SOURCE ) continue; /* Source process doesn't receive from itself */
 
-         MPI_Recv( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
-         MPI_Recv( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
+         /* Half the processes will do A, half will do B */
+         /* Parallelism with arrays. Explained at the top */
+         if ( i < p/2 )
+            MPI_Recv( &A[2*chunk*i][0], 2*chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
+         else
+            MPI_Recv( &B[2*chunk*(i-p/2)][0], 2*chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
       }
    }
    else {
-      MPI_Send( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
-      MPI_Send( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
+      /* Parallelism with arrays. Explained at the top */
+      if ( my_rank < p/2 )
+         MPI_Send( &A[2*chunk*my_rank][0], 2*chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
+      else 
+         MPI_Send( &B[2*chunk*(my_rank-p/2)][0], 2*chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
    }
 
    print_matrix(A, "Matrix A after recv");
