@@ -1,6 +1,6 @@
 /*
 
-This program is the parallel algorithm using MPI Send and Recv
+This program is the parallel algorithm using MPI collective communication when possible and also shared memory through OpenMP
 We suppost that N is always going to be divisible between the number of processes
 
 The default input is sample/1_im1 and sample/1_im2
@@ -9,13 +9,6 @@ To indicate other inputs:
    $ ./a.out [image1] [image2]
 
 The output file is saved as "output_matrix" in the working directory
-
-Option considered: Parallelism with arrays A and B:
-   When calculating the FFTs, if we have 8 processors, 4 will take care of matrix A and 4 of matrix B.
-   This parallelism avoids doubling the number of messages in the system
-   This paralellism would be only used when worth it, that is before the first tranpose and after the last one
-   However, the decision to finally not use this method is because to support the case of p=1, the code grew in complexity
-   The speedup was minimum, so it wasn't worth it
 
 This algorithm is better explained in the document that goes with this project
 
@@ -33,11 +26,13 @@ static complex ctmp;
 
 
 /* Size of matrix (NxN) */
-const int N = 512;
+const int N = 16;
 
 
 int p, my_rank;
 #define SOURCE 0
+
+#define NUM_THREADS 8
 
 int main (int argc, char **argv) {
 
@@ -46,8 +41,8 @@ int main (int argc, char **argv) {
    MPI_Comm_size(MPI_COMM_WORLD, &p);
 
    /* Input files */
-   const char* filename1 = argc == 3 ? argv[1] : "sample/2_im1";
-   const char* filename2 = argc == 3 ? argv[2] : "sample/2_im2";
+   const char* filename1 = argc == 3 ? argv[1] : "sample/1_im1";
+   const char* filename2 = argc == 3 ? argv[2] : "sample/1_im2";
 
    if ( my_rank==0) printf("\nCS 546 Project: MPI with Send + Recv\n");
    if ( my_rank==0) printf("CS 546 Project: Number of processors = %d\n",p);
@@ -91,18 +86,9 @@ int main (int argc, char **argv) {
    
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter A and B to the other processes. We supose N is divisible by p */
-   if ( my_rank == SOURCE ){
-      for ( i=0; i<p; i++ ) {
-         if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
+   MPI_Scatter( &A[0][0], chunk*N, MPI_COMPLEX, &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, MPI_COMM_WORLD );
+   MPI_Scatter( &B[0][0], chunk*N, MPI_COMPLEX, &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, MPI_COMM_WORLD );
 
-         MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
-         MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
-      }
-   }
-   else {
-      MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
-      MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
-   }
    if ( my_rank == SOURCE ) t1 = MPI_Wtime();
 
 /*-------------------------------------------------------------------------------------------------------*/
@@ -116,18 +102,9 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Gather A and B to the source processor */
-   if ( my_rank == SOURCE ){
-      for ( i=0; i<p; i++ ) {
-         if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
+   MPI_Gather( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, &A[0][0], chunk*N, MPI_COMPLEX, SOURCE, MPI_COMM_WORLD );
+   MPI_Gather( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, &B[0][0], chunk*N, MPI_COMPLEX, SOURCE, MPI_COMM_WORLD );
 
-         MPI_Recv( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
-         MPI_Recv( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
-      }
-   }
-   else {
-      MPI_Send( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
-      MPI_Send( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
-   }
    if ( my_rank == SOURCE ) t3 = MPI_Wtime();
 
    //print_matrix(A, "Matrix A after recv");
@@ -135,38 +112,35 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Transpose matrixes sequentially */
-   for (i=0;i<N;i++) {
-      for (j=i;j<N;j++) {
-         tmp = A[i][j];
-         A[i][j] = A[j][i];
-         A[j][i] = tmp;
+   #pragma omp parallel num_threads(numWorkers) shared (A,B)
+   {
 
-         tmp = B[i][j];
-         B[i][j] = B[j][i];
-         B[j][i] = tmp;
+      #pragma omp for schedule(guided) private (i,j,tmp)
+      for (i=0;i<N;i++) {
+         for (j=i;j<N;j++) {
+            tmp = A[i][j];
+            A[i][j] = A[j][i];
+            A[j][i] = tmp;
+
+            tmp = B[i][j];
+            B[i][j] = B[j][i];
+            B[j][i] = tmp;
+         }
       }
    }
+
    if ( my_rank == SOURCE ) t4 = MPI_Wtime();
 
-   //print_matrix(A, "Matrix A after traspose");
-   //print_matrix(B, "Matrix B after traspose");
+   print_matrix(A, "Matrix A after traspose");
+   print_matrix(B, "Matrix B after traspose");
 
 
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter A and B to the other processes. We supose N is divisible by p */
-   if ( my_rank == SOURCE ){
-      for ( i=0; i<p; i++ ) {
-         if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
+   MPI_Scatter( &A[0][0], chunk*N, MPI_COMPLEX, &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, MPI_COMM_WORLD );
+   MPI_Scatter( &B[0][0], chunk*N, MPI_COMPLEX, &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, MPI_COMM_WORLD );
 
-         MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
-         MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
-      }
-   }
-   else {
-      MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
-      MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
-   }
    if ( my_rank == SOURCE ) t5 = MPI_Wtime();
 
    //print_matrix(A, "Matrix A after nothing");
@@ -211,15 +185,8 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Gather the fragments of C to the source processor */
-   if ( my_rank == SOURCE ){
-      for ( i=0; i<p; i++ ) {
-         if ( i==SOURCE ) continue; /* Source process doesn't receive from itself */
+   MPI_Gather( &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, &C[0][0], chunk*N, MPI_COMPLEX, SOURCE, MPI_COMM_WORLD );
 
-         MPI_Recv( &C[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
-      }
-   }
-   else
-      MPI_Send( &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
    if ( my_rank == SOURCE ) t7 = MPI_Wtime();
 
    //print_matrix(C, "Matrix C after recv");
@@ -237,15 +204,8 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter C to the other processes */
-   if ( my_rank == SOURCE ){
-      for ( i=0; i<p; i++ ) {
-         if ( i==SOURCE ) continue; /* Source process doesn't receive from itself */
+   MPI_Scatter( &C[0][0], chunk*N, MPI_COMPLEX, &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, MPI_COMM_WORLD );
 
-         MPI_Send( &C[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
-      }
-   }
-   else
-      MPI_Recv( &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    if ( my_rank == SOURCE ) t9 = MPI_Wtime();
 
 /*-------------------------------------------------------------------------------------------------------*/
@@ -261,15 +221,7 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Gather the fragments of C to the source processor */
-   if ( my_rank == SOURCE ){
-      for ( i=0; i<p; i++ ) {
-         if ( i==SOURCE ) continue; /* Source process doesn't receive from itself */
-
-         MPI_Recv( &C[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
-      }
-   }
-   else
-      MPI_Send( &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
+   MPI_Gather( &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, &C[0][0], chunk*N, MPI_COMPLEX, SOURCE, MPI_COMM_WORLD );
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Final time */
