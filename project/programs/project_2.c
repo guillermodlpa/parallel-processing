@@ -123,8 +123,8 @@ int main (int argc, char **argv) {
    }
    if ( my_rank == SOURCE ) t4 = MPI_Wtime();
 
-   print_matrix(A, "Matrix A after traspose");
-   print_matrix(B, "Matrix B after traspose");
+   //print_matrix(A, "Matrix A after traspose");
+   //print_matrix(B, "Matrix B after traspose");
 
 
 
