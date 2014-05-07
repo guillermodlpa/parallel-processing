@@ -32,7 +32,7 @@ static complex ctmp;
 
 
 /* Size of matrix (NxN) */
-const int N = 512;
+const int N = 16;
 
 
 int p, my_rank;
