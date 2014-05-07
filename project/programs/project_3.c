@@ -1,6 +1,12 @@
 /*
 
 This program is the parallel algorithm using MPI collective communication when possible and also shared memory through OpenMP
+
+Because we are using OpenMP, this program must be compiled using -fopenmp:
+
+   $ mpicc -c project_3.c -fopenmp
+   $ mpicc -o project_3 project_3.o -fopenmp
+
 We suppost that N is always going to be divisible between the number of processes
 
 The default input is sample/1_im1 and sample/1_im2
@@ -112,24 +118,27 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Transpose matrixes sequentially */
-   #pragma omp parallel num_threads(NUM_THREADS) shared (A,B)
-   {
 
-      #pragma omp for schedule(guided) private (i,j,tmp)
-      for (i=0;i<N;i++) {
-         for (j=i;j<N;j++) {
-            tmp = A[i][j];
-            A[i][j] = A[j][i];
-            A[j][i] = tmp;
+   if ( my_rank == SOURCE ) {
+      #pragma omp parallel num_threads(NUM_THREADS) shared (A,B)
+      {
 
-            tmp = B[i][j];
-            B[i][j] = B[j][i];
-            B[j][i] = tmp;
+         #pragma omp for schedule(guided) private (i,j,tmp)
+         for (i=0;i<N;i++) {
+            for (j=i;j<N;j++) {
+               tmp = A[i][j];
+               A[i][j] = A[j][i];
+               A[j][i] = tmp;
+
+               tmp = B[i][j];
+               B[i][j] = B[j][i];
+               B[j][i] = tmp;
+            }
          }
       }
-   }
 
-   if ( my_rank == SOURCE ) t4 = MPI_Wtime();
+      t4 = MPI_Wtime();
+   }
 
    //print_matrix(A, "Matrix A after traspose");
    //print_matrix(B, "Matrix B after traspose");
@@ -193,25 +202,23 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Transpose C sequentially */
-   #pragma omp parallel num_threads(NUM_THREADS) shared (C)
-   {
+   if ( my_rank == SOURCE ) {
 
-      #pragma omp for schedule(guided) private (i,j,tmp)
-      for (i=0;i<N;i++) {
-         for (j=i;j<N;j++) {
-            tmp = C[i][j];
-            C[i][j] = C[j][i];
-            C[j][i] = tmp;
+      #pragma omp parallel num_threads(NUM_THREADS) shared (C)
+      {
+
+         #pragma omp for schedule(guided) private (i,j,tmp)
+         for (i=0;i<N;i++) {
+            for (j=i;j<N;j++) {
+               tmp = C[i][j];
+               C[i][j] = C[j][i];
+               C[j][i] = tmp;
+            }
          }
       }
 
-      #pragma omp master 
-      {
-         printf("I am the master and my rank=%d\n",my_rank);
-      }
-      printf("I am not the master and my rank=%d\n",my_rank);
+      t8 = MPI_Wtime();
    }
-   if ( my_rank == SOURCE ) t8 = MPI_Wtime();
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter C to the other processes */
