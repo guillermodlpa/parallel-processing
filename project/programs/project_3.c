@@ -99,9 +99,9 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Apply 1D FFT in all rows of A and B */
-   #pragma omp parallel num_threads(NUM_THREADS) shared(A,B)
+   //#pragma omp parallel num_threads(NUM_THREADS) shared(A,B)
    {
-      #pragma omp for private(i)
+      //#pragma omp for private(i)
       for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
             c_fft1d(A[i], N, -1);
             c_fft1d(B[i], N, -1);
