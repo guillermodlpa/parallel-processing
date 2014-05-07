@@ -26,7 +26,7 @@ static complex ctmp;
 
 
 /* Size of matrix (NxN) */
-const int N = 16;
+const int N = 512;
 
 
 int p, my_rank;
@@ -112,7 +112,7 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Transpose matrixes sequentially */
-   #pragma omp parallel num_threads(numWorkers) shared (A,B)
+   #pragma omp parallel num_threads(NUM_THREADS) shared (A,B)
    {
 
       #pragma omp for schedule(guided) private (i,j,tmp)
@@ -131,8 +131,8 @@ int main (int argc, char **argv) {
 
    if ( my_rank == SOURCE ) t4 = MPI_Wtime();
 
-   print_matrix(A, "Matrix A after traspose");
-   print_matrix(B, "Matrix B after traspose");
+   //print_matrix(A, "Matrix A after traspose");
+   //print_matrix(B, "Matrix B after traspose");
 
 
 
@@ -193,11 +193,16 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Transpose C sequentially */
-   for (i=0;i<N;i++) {
-      for (j=i;j<N;j++) {
-         tmp = C[i][j];
-         C[i][j] = C[j][i];
-         C[j][i] = tmp;
+   #pragma omp parallel num_threads(NUM_THREADS) shared (C)
+   {
+
+      #pragma omp for schedule(guided) private (i,j,tmp)
+      for (i=0;i<N;i++) {
+         for (j=i;j<N;j++) {
+            tmp = C[i][j];
+            C[i][j] = C[j][i];
+            C[j][i] = tmp;
+         }
       }
    }
    if ( my_rank == SOURCE ) t8 = MPI_Wtime();
