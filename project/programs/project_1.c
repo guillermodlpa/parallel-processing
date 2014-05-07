@@ -135,19 +135,20 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Transpose matrixes sequentially */
-   for (i=0;i<N;i++) {
-      for (j=i;j<N;j++) {
-         tmp = A[i][j];
-         A[i][j] = A[j][i];
-         A[j][i] = tmp;
+   if ( my_rank == SOURCE ) {
+      for (i=0;i<N;i++) {
+         for (j=i;j<N;j++) {
+            tmp = A[i][j];
+            A[i][j] = A[j][i];
+            A[j][i] = tmp;
 
-         tmp = B[i][j];
-         B[i][j] = B[j][i];
-         B[j][i] = tmp;
+            tmp = B[i][j];
+            B[i][j] = B[j][i];
+            B[j][i] = tmp;
+         }
       }
+      t4 = MPI_Wtime();
    }
-   if ( my_rank == SOURCE ) t4 = MPI_Wtime();
-
    //print_matrix(A, "Matrix A after traspose");
    //print_matrix(B, "Matrix B after traspose");
 
@@ -226,14 +227,16 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Transpose C sequentially */
-   for (i=0;i<N;i++) {
-      for (j=i;j<N;j++) {
-         tmp = C[i][j];
-         C[i][j] = C[j][i];
-         C[j][i] = tmp;
+   if ( my_rank == SOURCE ) {
+      for (i=0;i<N;i++) {
+         for (j=i;j<N;j++) {
+            tmp = C[i][j];
+            C[i][j] = C[j][i];
+            C[j][i] = tmp;
+         }
       }
+      t8 = MPI_Wtime();
    }
-   if ( my_rank == SOURCE ) t8 = MPI_Wtime();
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter C to the other processes */
