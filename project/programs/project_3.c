@@ -204,6 +204,11 @@ int main (int argc, char **argv) {
             C[j][i] = tmp;
          }
       }
+
+      #pragma omp master 
+      {
+         printf("I am the master");
+      }
    }
    if ( my_rank == SOURCE ) t8 = MPI_Wtime();
 
