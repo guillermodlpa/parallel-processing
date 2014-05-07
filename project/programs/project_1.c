@@ -65,9 +65,9 @@ int main (int argc, char **argv) {
    complex A[N][N], B[N][N], C[N][N];
    int i, j;
    complex tmp;
-   double time1, time2;
+   double time_init, time_end, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10;
    MPI_Status status;
-   
+
 
    /* Read files */
    read_matrix (filename1, A);
@@ -78,7 +78,7 @@ int main (int argc, char **argv) {
 
    /* Initial time */
    if ( my_rank == SOURCE )
-      time1 = MPI_Wtime();
+      time_init = MPI_Wtime();
 
 
    /* Temporary to put zeros everywhere */
@@ -94,6 +94,7 @@ int main (int argc, char **argv) {
    */
         
 
+   
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter A and B to the other processes. We supose N is divisible by p */
    if ( my_rank == SOURCE ){
@@ -108,7 +109,7 @@ int main (int argc, char **argv) {
       MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
       MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
-
+   if ( my_rank == SOURCE ) t1 = MPI_Wtime();
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Apply 1D FFT in all rows of A and B */
@@ -117,7 +118,7 @@ int main (int argc, char **argv) {
          c_fft1d(A[i], N, -1);
          c_fft1d(B[i], N, -1);
    }
-   
+   if ( my_rank == SOURCE ) t2 = MPI_Wtime();
 
 
 /*-------------------------------------------------------------------------------------------------------*/
@@ -135,6 +136,7 @@ int main (int argc, char **argv) {
       MPI_Send( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
       MPI_Send( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
    }
+   if ( my_rank == SOURCE ) t3 = MPI_Wtime();
 
    //print_matrix(A, "Matrix A after recv");
    //print_matrix(B, "Matrix B after recv");
@@ -152,6 +154,7 @@ int main (int argc, char **argv) {
          B[j][i] = tmp;
       }
    }
+   if ( my_rank == SOURCE ) t4 = MPI_Wtime();
 
    //print_matrix(A, "Matrix A after traspose");
    //print_matrix(B, "Matrix B after traspose");
@@ -172,6 +175,7 @@ int main (int argc, char **argv) {
       MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
       MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
+   if ( my_rank == SOURCE ) t5 = MPI_Wtime();
 
    //print_matrix(A, "Matrix A after nothing");
    //print_matrix(B, "Matrix B after nothing");
@@ -209,6 +213,8 @@ int main (int argc, char **argv) {
    for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
       c_fft1d(C[i], N, 1);
    }
+   if ( my_rank == SOURCE ) t6 = MPI_Wtime();
+
    //print_matrix(C, "Matrix C after fft");
 
 /*-------------------------------------------------------------------------------------------------------*/
@@ -222,7 +228,7 @@ int main (int argc, char **argv) {
    }
    else
       MPI_Send( &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
-   
+   if ( my_rank == SOURCE ) t7 = MPI_Wtime();
 
    //print_matrix(C, "Matrix C after recv");
 
@@ -235,6 +241,7 @@ int main (int argc, char **argv) {
          C[j][i] = tmp;
       }
    }
+   if ( my_rank == SOURCE ) t8 = MPI_Wtime();
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter C to the other processes */
@@ -247,13 +254,14 @@ int main (int argc, char **argv) {
    }
    else
       MPI_Recv( &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
-
+   if ( my_rank == SOURCE ) t9 = MPI_Wtime();
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Inverse 1D FFT in all columns of C */
    for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
       c_fft1d(C[i], N, 1);
    }
+   if ( my_rank == SOURCE ) t10 = MPI_Wtime();
 
    /* Transpose C */
    /* It is not necessary if we remove the other traspose */
@@ -274,7 +282,7 @@ int main (int argc, char **argv) {
 /*-------------------------------------------------------------------------------------------------------*/
    /* Final time */
    if ( my_rank == SOURCE )
-      time2 = MPI_Wtime();
+      time_end = MPI_Wtime();
 
    print_matrix(C, "Matrix C");
    if ( my_rank==0) printf("C[0][0].r     = %e\n", C[0][0].r);
@@ -284,7 +292,15 @@ int main (int argc, char **argv) {
    write_matrix("output_matrix", C);
 
    if ( my_rank==0) printf("\nCS 546 Project: done\n");
-   if ( my_rank==0) printf("CS 546 Project: time spent is %f ms\n", (time2-time1) * 1000 );
+   if ( my_rank==0) {
+
+      double tcomputation = (t2-t1) + (t4-t3) + (t6-t5) + (t8-t7) + (t10-t9);
+      double tcommunication = (t1-time_init) + (t3-t2) + (t5-t4) + (t7-t6) + (t9-t8) + (time_end-t10);
+
+      printf("CS 546 Project: total time spent is %f ms\n", (time_end-time_init) * 1000 );
+      printf("CS 546 Project: time computation is  %f ms\n", tcomputation * 1000 );
+      printf("CS 546 Project: time communication is  %f ms\n", tcommunication * 1000 );
+   }
 
    MPI_Finalize();
 }
