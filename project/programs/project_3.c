@@ -120,7 +120,7 @@ int main (int argc, char **argv) {
    /* Transpose matrixes using threads */
 
    if ( my_rank == SOURCE ) {
-      #pragma omp parallel num_threads(NUM_THREADS) shared (A,B)
+      #pragma omp parallel num_threads(NUM_THREADS)
       {
 
          #pragma omp for private (i,j,tmp)
@@ -136,7 +136,6 @@ int main (int argc, char **argv) {
             }
          }
       }
-      #pragma end parallel
 
       t4 = MPI_Wtime();
    }
@@ -205,7 +204,7 @@ int main (int argc, char **argv) {
    /* Transpose C using threads */
    if ( my_rank == SOURCE ) {
 
-      #pragma omp parallel num_threads(NUM_THREADS) shared (C)
+      #pragma omp parallel num_threads(NUM_THREADS)
       {
 
          #pragma omp for private (i,j,tmp)
@@ -217,7 +216,6 @@ int main (int argc, char **argv) {
             }
          }
       }
-      #pragma end parallel
 
       t8 = MPI_Wtime();
    }
