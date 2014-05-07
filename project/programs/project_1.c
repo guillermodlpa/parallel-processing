@@ -49,9 +49,9 @@ int main (int argc, char **argv) {
    const char* filename1 = argc == 3 ? argv[1] : "sample/2_im1";
    const char* filename2 = argc == 3 ? argv[2] : "sample/2_im2";
 
-   if ( my_rank==0) printf("CS 546 Project: MPI with Send + Recv\n");
+   if ( my_rank==0) printf("\nCS 546 Project: MPI with Send + Recv\n");
    if ( my_rank==0) printf("CS 546 Project: Number of processors = %d\n",p);
-   if ( my_rank==0) printf("CS 546 Project: using images %s, %s\n",filename1, filename2);
+   if ( my_rank==0) printf("CS 546 Project: using images %s, %s\n\n",filename1, filename2);
 
    /* Prototype functions */
    int read_matrix ( const char* filename, complex matrix[N][N] );
@@ -67,6 +67,7 @@ int main (int argc, char **argv) {
    complex tmp;
    double time1, time2;
    MPI_Status status;
+   
 
    /* Read files */
    read_matrix (filename1, A);
