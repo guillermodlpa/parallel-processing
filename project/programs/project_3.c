@@ -136,6 +136,7 @@ int main (int argc, char **argv) {
             }
          }
       }
+      #pragma end parallel
 
       t4 = MPI_Wtime();
    }
@@ -216,6 +217,7 @@ int main (int argc, char **argv) {
             }
          }
       }
+      #pragma end parallel
 
       t8 = MPI_Wtime();
    }
