@@ -7,4 +7,4 @@
 	echo "Working directory is:"
 	pwd
 
-mpirun -npernode 1 ./project_1
+mpirun -npernode 2 ./project_1
