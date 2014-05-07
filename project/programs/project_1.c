@@ -135,8 +135,8 @@ int main (int argc, char **argv) {
       MPI_Send( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
    }
 
-   print_matrix(A, "Matrix A after recv");
-   print_matrix(B, "Matrix B after recv");
+   //print_matrix(A, "Matrix A after recv");
+   //print_matrix(B, "Matrix B after recv");
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Transpose matrixes sequentially */
@@ -152,8 +152,8 @@ int main (int argc, char **argv) {
       }
    }
 
-   print_matrix(A, "Matrix A after traspose");
-   print_matrix(B, "Matrix B after traspose");
+   //print_matrix(A, "Matrix A after traspose");
+   //print_matrix(B, "Matrix B after traspose");
 
 
 
@@ -172,8 +172,8 @@ int main (int argc, char **argv) {
       MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
 
-   print_matrix(A, "Matrix A after nothing");
-   print_matrix(B, "Matrix B after nothing");
+   //print_matrix(A, "Matrix A after nothing");
+   //print_matrix(B, "Matrix B after nothing");
 
 /*-------------------------------------------------------------------------------------------------------*/
 
@@ -183,8 +183,8 @@ int main (int argc, char **argv) {
          c_fft1d(B[i], N, -1);
    }
 
-   print_matrix(A, "Matrix A after col fft");
-   print_matrix(B, "Matrix B after col fft");
+   //print_matrix(A, "Matrix A after col fft");
+   //print_matrix(B, "Matrix B after col fft");
 
    /* Transpose matrixes */
    /* Not necessary if we remove a later traspose */
@@ -201,7 +201,7 @@ int main (int argc, char **argv) {
       }
    }
 
-   print_matrix(C, "Matrix C after mult");
+   //print_matrix(C, "Matrix C after mult");
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Inverse 1D FFT in all rows of C */
@@ -282,7 +282,7 @@ int main (int argc, char **argv) {
    /* Write output file */
    write_matrix("output_matrix", C);
 
-   if ( my_rank==0) printf("CS 546 Project: done\n");
+   if ( my_rank==0) printf("\nCS 546 Project: done\n");
    if ( my_rank==0) printf("CS 546 Project: time spent is %f ms\n", (time2-time1) * 1000 );
 
    MPI_Finalize();
