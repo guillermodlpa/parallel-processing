@@ -207,8 +207,9 @@ int main (int argc, char **argv) {
 
       #pragma omp master 
       {
-         printf("I am the master");
+         printf("I am the master and my rank=%d\n",my_rank);
       }
+      printf("I am not the master and my rank=%d\n",my_rank);
    }
    if ( my_rank == SOURCE ) t8 = MPI_Wtime();
 
