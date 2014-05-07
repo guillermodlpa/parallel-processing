@@ -50,7 +50,7 @@ int main (int argc, char **argv) {
    const char* filename1 = argc == 3 ? argv[1] : "sample/2_im1";
    const char* filename2 = argc == 3 ? argv[2] : "sample/2_im2";
 
-   if ( my_rank==0) printf("\nCS 546 Project: MPI with Send + Recv\n");
+   if ( my_rank==0) printf("\nCS 546 Project: MPI and OpenMPI\n");
    if ( my_rank==0) printf("CS 546 Project: Number of processors = %d\n",p);
    if ( my_rank==0) printf("CS 546 Project: using images %s, %s\n\n",filename1, filename2);
 
@@ -117,13 +117,13 @@ int main (int argc, char **argv) {
    //print_matrix(B, "Matrix B after recv");
 
 /*-------------------------------------------------------------------------------------------------------*/
-   /* Transpose matrixes sequentially */
+   /* Transpose matrixes using threads */
 
    if ( my_rank == SOURCE ) {
       #pragma omp parallel num_threads(NUM_THREADS) shared (A,B)
       {
 
-         #pragma omp for schedule(static) private (i,j,tmp)
+         #pragma omp for private (i,j,tmp)
          for (i=0;i<N;i++) {
             for (j=i;j<N;j++) {
                tmp = A[i][j];
@@ -201,13 +201,13 @@ int main (int argc, char **argv) {
    //print_matrix(C, "Matrix C after recv");
 
 /*-------------------------------------------------------------------------------------------------------*/
-   /* Transpose C sequentially */
+   /* Transpose C using threads */
    if ( my_rank == SOURCE ) {
 
       #pragma omp parallel num_threads(NUM_THREADS) shared (C)
       {
 
-         #pragma omp for schedule(static) private (i,j,tmp)
+         #pragma omp for private (i,j,tmp)
          for (i=0;i<N;i++) {
             for (j=i;j<N;j++) {
                tmp = C[i][j];
