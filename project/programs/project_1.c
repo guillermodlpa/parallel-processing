@@ -113,7 +113,6 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Apply 1D FFT in all rows of A and B */
-   /* The chunks are double sized because of how we separate the arrays */
    for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
          c_fft1d(A[i], N, -1);
          c_fft1d(B[i], N, -1);
@@ -123,7 +122,6 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Gather A and B to the source processor */
-   /* The chunks are double sized because of how we separate the arrays */
    if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
