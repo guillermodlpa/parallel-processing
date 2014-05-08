@@ -1,7 +1,9 @@
 /*
 
-This program is the parallel algorithm using MPI Send and Recv
+This program is the parallel algorithm using MPI Send and Recv and Task Parallelism
 We suppost that N is always going to be divisible between the number of processes
+
+We suppose that the number of processors is divisible by 4
 
 The default input is sample/1_im1 and sample/1_im2
 To indicate other inputs:
@@ -79,7 +81,16 @@ int main (int argc, char **argv) {
    for (i=0;i<N;i++)
       for (j=0;j<N;j++) { A[i][j].r = 0; A[i][j].i = 0; B[i][j].r = 0; B[i][j].i = 0;}
    */
-        
+
+/*-------------------------------------------------------------------------------------------------------*/
+   /* Divide the processors in 4 groups */ 
+   
+   int group_size = p / 4;
+   int P1[group_size];
+   int P2[group_size];
+   int P3[group_size];
+   int P4[group_size];
+
 
    
 /*-------------------------------------------------------------------------------------------------------*/
