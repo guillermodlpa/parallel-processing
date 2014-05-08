@@ -101,13 +101,13 @@ int main (int argc, char **argv) {
    /* Apply 1D FFT in all rows of A and B */
    #pragma omp parallel num_threads(NUM_THREADS) shared(A,B)
    {
-      #pragma omp for private(i)
-      for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
-            c_fft1d(A[i], N, -1);
-            c_fft1d(B[i], N, -1);
+      #pragma omp for
+      int k;
+      for (k= chunk*my_rank ;k< chunk*(my_rank+1);k++) {
+            c_fft1d(A[k], N, -1);
+            c_fft1d(B[k], N, -1);
       }
    }
-   #pragma end parallel
    if ( my_rank == SOURCE ) t2 = MPI_Wtime();
 
 
