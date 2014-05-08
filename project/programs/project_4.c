@@ -91,6 +91,26 @@ int main (int argc, char **argv) {
    int P3[group_size];
    int P4[group_size];
 
+   for(i=0; i<p; i++) {
+
+      int processor_group = i / group_size;
+      switch(processor_group){
+      case 0:
+         P1[ i%group_size ] = i;
+         break;
+      case 1:
+         P2[ i%group_size ] = i;
+         break;
+      case 2:
+         P3[ i%group_size ] = i;
+         break;
+      case 3:
+         P4[ i%group_size ] = i;
+         break;
+      }
+   }
+
+   printf("El primer elemento de P4 es %d",P4[0]);
 
    
 /*-------------------------------------------------------------------------------------------------------*/
