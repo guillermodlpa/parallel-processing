@@ -107,6 +107,7 @@ int main (int argc, char **argv) {
             c_fft1d(B[i], N, -1);
       }
    }
+   #pragma end parallel
    if ( my_rank == SOURCE ) t2 = MPI_Wtime();
 
 
