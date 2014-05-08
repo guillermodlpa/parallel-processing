@@ -38,7 +38,7 @@ const int N = 512;
 int p, my_rank;
 #define SOURCE 0
 
-#define NUM_THREADS 8
+#define NUM_THREADS 2
 
 int main (int argc, char **argv) {
 
