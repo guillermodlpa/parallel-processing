@@ -91,7 +91,7 @@ int main (int argc, char **argv) {
    MPI_Comm P3;
    MPI_Comm P4;
 
-   MPI_Comm_create ( MPI_COMM_WORLD, (my_rank/4), my_rank, &P1 );
+   MPI_Comm_create ( MPI_COMM_WORLD, color=(my_rank/4), my_rank, &P1 );
 
    int my_rank2;
    MPI_Comm_rank(P1, &my_rank2);
