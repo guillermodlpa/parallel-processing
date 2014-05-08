@@ -84,6 +84,19 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Divide the processors in 4 groups */ 
+   /* Each Px will contain all the processor ids of the processors in that group */
+
+   MPI_Comm P1;
+   MPI_Comm P2;
+   MPI_Comm P3;
+   MPI_Comm P4;
+
+   MPI_Comm_create ( MPI_COMM_WORLD, (my_rank/4), my_id, &P1 );
+
+   int my_rank2;
+   MPI_Comm_rank(P1, &my_rank2);
+
+   printf("My rank used to be %d and now is %d", my_rank, my_rank2);
    
    int group_size = p / 4;
    int P1[group_size];
@@ -110,11 +123,10 @@ int main (int argc, char **argv) {
       }
    }
 
-   printf("El primer elemento de P4 es %d",P4[0]);
-
    
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter A and B to the other processes. We supose N is divisible by p */
+   /* The source processor, that could be any, sends the data to the processes that are going to take care of each task, groups P1 and P2 */
    if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
