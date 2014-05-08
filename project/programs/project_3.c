@@ -101,7 +101,7 @@ int main (int argc, char **argv) {
    /* Apply 1D FFT in all rows of A and B */
    #pragma omp parallel num_threads(NUM_THREADS) shared(A,B)
    {
-      #pragma omp for
+      #pragma omp for private(i)
       for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
             c_fft1d(A[i], N, -1);
             c_fft1d(B[i], N, -1);
@@ -124,7 +124,7 @@ int main (int argc, char **argv) {
    /* Transpose matrixes using threads */
 
    if ( my_rank == SOURCE ) {
-      #pragma omp parallel num_threads(NUM_THREADS)
+      #pragma omp parallel num_threads(NUM_THREADS) shared(A,B)
       {
 
          #pragma omp for private (i,j,tmp)
@@ -162,9 +162,13 @@ int main (int argc, char **argv) {
 /*-------------------------------------------------------------------------------------------------------*/
 
    /* Apply 1D FFT in all rows of A and B */
-   for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
-         c_fft1d(A[i], N, -1);
-         c_fft1d(B[i], N, -1);
+   #pragma omp parallel num_threads(NUM_THREADS) shared(A,B)
+   {
+      #pragma omp for private(i)
+      for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
+            c_fft1d(A[i], N, -1);
+            c_fft1d(B[i], N, -1);
+      }
    }
 
    //print_matrix(A, "Matrix A after col fft");
@@ -178,19 +182,27 @@ int main (int argc, char **argv) {
    //print_matrix(C, "Matrix C pre mult");
 
    /* Point to point multiplication */
-   for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
-      for (j=0;j<N;j++) {
-         C[i][j].r = A[i][j].r*B[i][j].r - A[i][j].i*B[i][j].i;
-         C[i][j].i = A[i][j].r*B[i][j].i + A[i][j].i*B[i][j].r;
+   #pragma omp parallel num_threads(NUM_THREADS) shared(A,B,C)
+   {
+      #pragma omp for private(i)
+      for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
+         for (j=0;j<N;j++) {
+            C[i][j].r = A[i][j].r*B[i][j].r - A[i][j].i*B[i][j].i;
+            C[i][j].i = A[i][j].r*B[i][j].i + A[i][j].i*B[i][j].r;
+         }
       }
-   }
+   } 
 
    //print_matrix(C, "Matrix C after mult");
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Inverse 1D FFT in all rows of C */
-   for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
-      c_fft1d(C[i], N, 1);
+   #pragma omp parallel num_threads(NUM_THREADS) shared(C)
+   {
+      #pragma omp for private(i)
+      for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
+         c_fft1d(C[i], N, 1);
+      }
    }
    if ( my_rank == SOURCE ) t6 = MPI_Wtime();
 
@@ -208,10 +220,10 @@ int main (int argc, char **argv) {
    /* Transpose C using threads */
    if ( my_rank == SOURCE ) {
 
-      //#pragma omp parallel num_threads(NUM_THREADS)
+      #pragma omp parallel num_threads(NUM_THREADS) shared(C)
       {
 
-         //#pragma omp for private (i,j,tmp)
+         #pragma omp for private (i,j,tmp)
          for (i=0;i<N;i++) {
             for (j=i;j<N;j++) {
                tmp = C[i][j];
@@ -232,8 +244,12 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Inverse 1D FFT in all columns of C */
-   for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
-      c_fft1d(C[i], N, 1);
+   #pragma omp parallel num_threads(NUM_THREADS) shared(C)
+   {
+      #pragma omp for private(i)
+      for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
+         c_fft1d(C[i], N, 1);
+      }
    }
    if ( my_rank == SOURCE ) t10 = MPI_Wtime();
 
