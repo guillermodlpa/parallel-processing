@@ -98,7 +98,7 @@ int main (int argc, char **argv) {
    MPI_Comm_rank(P1, &my_rank2);
 
    printf("My rank used to be %d and now is %d", my_rank, my_rank2);
-   
+   /*
    int group_size = p / 4;
    int P1[group_size];
    int P2[group_size];
@@ -122,7 +122,7 @@ int main (int argc, char **argv) {
          P4[ i%group_size ] = i;
          break;
       }
-   }
+   }*/
 
    
 /*-------------------------------------------------------------------------------------------------------*/
