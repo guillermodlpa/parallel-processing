@@ -38,7 +38,7 @@ const int N = 512;
 int p, my_rank;
 #define SOURCE 0
 
-#define NUM_THREADS 1
+#define NUM_THREADS 8
 
 int main (int argc, char **argv) {
 
@@ -124,10 +124,10 @@ int main (int argc, char **argv) {
    /* Transpose matrixes using threads */
 
    if ( my_rank == SOURCE ) {
-      //#pragma omp parallel num_threads(NUM_THREADS)
+      #pragma omp parallel num_threads(NUM_THREADS)
       {
 
-         //#pragma omp for private (i,j,tmp)
+         #pragma omp for private (i,j,tmp)
          for (i=0;i<N;i++) {
             for (j=i;j<N;j++) {
                tmp = A[i][j];
