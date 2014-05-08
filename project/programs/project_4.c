@@ -91,13 +91,13 @@ int main (int argc, char **argv) {
    MPI_Comm P3;
    MPI_Comm P4;
 
-   int color = (my_rank/4);
+   int color = (my_rank/2);
    MPI_Comm_split ( MPI_COMM_WORLD, color, my_rank, &P1 );
 
    int my_rank2;
    MPI_Comm_rank(P1, &my_rank2);
 
-   printf("My rank used to be %d and now is %d", my_rank, my_rank2);
+   printf("My rank used to be %d and now is %d\n", my_rank, my_rank2);
    /*
    int group_size = p / 4;
    int P1[group_size];
