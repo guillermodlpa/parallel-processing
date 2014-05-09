@@ -101,12 +101,13 @@ int main (int argc, char **argv) {
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
 
+            int current_group = i / group_size;
             // If this is the first group, send A
-            if ( i / group_size == 0 )
+            if ( current_group == 0 )
                MPI_Send( &A[chunk*(i%group_size)][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
 
             // If this is the second group, send B
-            else if ( i / group_size == 1 )
+            else if ( current_group == 1 )
                MPI_Send( &B[chunk*(i%group_size)][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
 
             // Otherwise, skip
@@ -143,9 +144,10 @@ int main (int argc, char **argv) {
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
 
-         if ( i / group_size == 0 )
+         int current_group = i / group_size;
+         if ( current_group == 0 )
             MPI_Recv( &A[chunk*(i%group_size)][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
-         else if ( i / group_size == 1 )
+         else if ( current_group == 1 )
             MPI_Recv( &B[chunk*(i%group_size)][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
       }
    }
