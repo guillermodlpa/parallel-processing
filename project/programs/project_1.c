@@ -98,6 +98,19 @@ int main (int argc, char **argv) {
    }
    if ( my_rank == SOURCE ) t1 = MPI_Wtime();
 
+   if ( my_rank == 3 ) {
+      if ( N<33 ) {
+         i, j;
+         printf("MATRIX DE RANK 3\n");
+         for (i=0;i<N;i++){
+            for (j=0;j<N;j++) {
+              printf("(%.1f,%.1f) ", B[i][j].r,B[i][j].i);
+           }printf("\n");
+         }printf("\n");
+      }
+   }
+
+
 /*-------------------------------------------------------------------------------------------------------*/
    /* Apply 1D FFT in all rows of A and B */
    for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
