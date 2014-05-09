@@ -142,7 +142,7 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Gather A and B to the source processor */
-  /* if ( my_rank == SOURCE ){
+   if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue;
 
@@ -159,7 +159,9 @@ int main (int argc, char **argv) {
       else if ( my_group == 1 )
          MPI_Send( &B[chunk*my_rel_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
    }
-   if ( my_rank == SOURCE ) t3 = MPI_Wtime();*/
+   if ( my_rank == SOURCE ) t3 = MPI_Wtime();
+
+   printf("AAAA");
 
    //print_matrix(A, "Matrix A after recv");
    //print_matrix(B, "Matrix B after recv");
