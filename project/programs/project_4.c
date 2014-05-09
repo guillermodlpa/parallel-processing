@@ -58,7 +58,7 @@ int main (int argc, char **argv) {
    complex A[N][N], B[N][N], C[N][N];
    int i, j;
    complex tmp;
-   double time_init, time_end, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13;
+   double time_init, time_end, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16;
    MPI_Status status;
 
 
@@ -404,34 +404,41 @@ int main (int argc, char **argv) {
       
    }
 
-   t8 = MPI_Wtime();
+   if ( my_rank == SOURCE ) t12 = MPI_Wtime();
    
-   print_matrix(C, "Matrix C after trasposing",6);
-   chunk = N / p;
+   //print_matrix(C, "Matrix C after trasposing",6);
 
 /*-------------------------------------------------------------------------------------------------------*/
-   /* Scatter C to the other processes */
-   if ( my_rank == SOURCE ){
-      for ( i=0; i<p; i++ ) {
-         if ( i==SOURCE ) continue; /* Source process doesn't receive from itself */
+   /* Scatter the transposed C in the group P3 */
 
-         MPI_Send( &C[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
+   if ( my_group == 3 ) {
+      if ( my_grp_rank == 0 ) {
+         for ( i=1; i<group_size; i++ ) {
+            MPI_Send( &C[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, P4_comm );
+         }
+         
       }
+      else 
+         MPI_Recv( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, 0, 0, P4_comm, &status );
    }
-   else
-      MPI_Recv( &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
-   if ( my_rank == SOURCE ) t9 = MPI_Wtime();
+
+   if ( my_rank == SOURCE ) t13 = MPI_Wtime();
 
 /*-------------------------------------------------------------------------------------------------------*/
-   /* Inverse 1D FFT in all columns of C */
-   for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
-      c_fft1d(C[i], N, 1);
-   }
-   if ( my_rank == SOURCE ) t10 = MPI_Wtime();
+   /* Inverse 1D FFT in all rows of C, made by P3. Each processor in P3 will do a part */
+
+   if ( my_group == 3 )
+      for ( i=chunk*my_grp_rank; i<chunk*(my_grp_rank+1); i++ )
+         c_fft1d(C[i], N, 1);
+
+   print_matrix(C, "Matrix C after fft",6);
+
+   if ( my_rank == SOURCE ) t14 = MPI_Wtime();
 
    /* Transpose C */
    /* It is not necessary if we remove the other traspose */
 
+   chunk = N / p;
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Gather the fragments of C to the source processor */
