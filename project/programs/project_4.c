@@ -168,7 +168,15 @@ int main (int argc, char **argv) {
 
       printf("MATRIX PRINTER: my_rank is %d and my_grp_rank is %d\n", my_rank, my_grp_rank);
       MPI_Recv( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, P1_P2_inter, &status );
-      print_matrix(B, "Matrix B after recv");
+      
+
+      if ( N<33 ) {
+         for (i=0;i<N;i++){
+            for (j=0;j<N;j++) {
+              printf("(%.1f,%.1f) ", matrix[i][j].r,matrix[i][j].i);
+           }printf("\n");
+         }printf("\n");
+      }
    }
 
 
