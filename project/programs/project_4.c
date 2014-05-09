@@ -113,29 +113,29 @@ int main (int argc, char **argv) {
    MPI_Comm_group(MPI_COMM_WORLD, &world_group); 
 
    /* Create the for groups */
-   int processor_group = my_rank / group_size;
+   int my_group = my_rank / group_size;
 
 
-   if ( processor_group == 0 )      { 
+   if ( my_group == 0 )      { 
       
       MPI_Group_incl(world_group, p/4, P1_array, &P1);
       MPI_Comm_create( MPI_COMM_WORLD, P1, &P1_comm);
       MPI_Group_rank(P1, &my_grp_rank);
       MPI_Intercomm_create(P1_comm, 0, MPI_COMM_WORLD, P2_array[0], 111, &P1_P2_inter);
    } 
-   else if ( processor_group == 1 ) { 
+   else if ( my_group == 1 ) { 
 
       MPI_Group_incl(world_group, p/4, P2_array, &P2); 
       MPI_Comm_create( MPI_COMM_WORLD, P2, &P2_comm);
       MPI_Group_rank(P2, &my_grp_rank);
       MPI_Intercomm_create(P2_comm, 0, MPI_COMM_WORLD, P1_array[0], 111, &P1_P2_inter);
    } 
-   else if ( processor_group == 2 ) { 
+   else if ( my_group == 2 ) { 
       MPI_Group_incl(world_group, p/4, P3_array, &P3); 
       MPI_Comm_create( MPI_COMM_WORLD, P3, &P3_comm);
       MPI_Group_rank(P3, &my_grp_rank);
    } 
-   else if ( processor_group == 3 ) { 
+   else if ( my_group == 3 ) { 
       MPI_Group_incl(world_group, p/4, P4_array, &P4); 
       MPI_Comm_create( MPI_COMM_WORLD, P4, &P4_comm);
       MPI_Group_rank(P4, &my_grp_rank);
@@ -150,10 +150,12 @@ int main (int argc, char **argv) {
 
    if ( my_rank == SOURCE ){
 
+      // Send A to the P1 processors
       for ( i=0; i<group_size; i++ ) {
          if ( P1_array[i]==SOURCE ) continue;
          MPI_Send( &A[chunk2*i][0], chunk2*N, MPI_COMPLEX, P1_array[i], 0, MPI_COMM_WORLD );
       }
+      // Send B to the P2 processors
       for ( i=0; i<group_size; i++ ) {
          if ( P2_array[i]==SOURCE ) continue;
          MPI_Send( &B[chunk2*i][0], chunk2*N, MPI_COMPLEX, P2_array[i], 0, MPI_COMM_WORLD );
@@ -161,37 +163,16 @@ int main (int argc, char **argv) {
    }
    else {
 
-      if ( processor_group == 0 )
+      // Receive A because this is group P1
+      if ( my_group == 0 )
          MPI_Recv( &A[chunk2*my_grp_rank][0], chunk2*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
-      if ( processor_group == 1 )
+      // Receive B because this is group P2
+      if ( my_group == 1 )
          MPI_Recv( &B[chunk2*my_grp_rank][0], chunk2*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
    if ( my_rank == SOURCE ) t1 = MPI_Wtime();
 
-   if ( my_rank == 1 ) {
-      if ( N<33 ) {
-         i, j;
-         printf("MATRIX DE RANK 1\n");
-         for (i=0;i<N;i++){
-            for (j=0;j<N;j++) {
-              printf("(%.1f,%.1f) ", A[i][j].r,A[i][j].i);
-           }printf("\n");
-         }printf("\n");
-      }
-   }
-   if ( my_rank == 0 ) {
-      if ( N<33 ) {
-         i, j;
-         printf("MATRIX DE RANK 0\n");
-         for (i=0;i<N;i++){
-            for (j=0;j<N;j++) {
-              printf("(%.1f,%.1f) ", A[i][j].r,A[i][j].i);
-           }printf("\n");
-         }printf("\n");
-      }
-   }
-
-   printf("I am process %d and I am here!\n",my_rank);
+   
 /*-------------------------------------------------------------------------------------------------------*/
    /* Apply 1D FFT in all rows of A and B */
    for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
