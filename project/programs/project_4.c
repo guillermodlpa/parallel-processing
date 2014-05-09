@@ -174,26 +174,57 @@ int main (int argc, char **argv) {
 
    
 /*-------------------------------------------------------------------------------------------------------*/
-   /* Apply 1D FFT in all rows of A and B */
+   /* Apply 1D FFT in all rows of A, in group P1 */
 
    if ( my_group == 0 )
       for ( i=chunk*my_grp_rank; i<chunk*(my_grp_rank+1); i++ )
          c_fft1d(A[i], N, -1);
+
+/*-------------------------------------------------------------------------------------------------------*/
+   /* Apply 1D FFT in all rows of B, in group P2 */
    
-   else if ( my_group == 1 )
+   if ( my_group == 1 )
       for ( i=chunk*my_grp_rank; i<chunk*(my_grp_rank+1); i++ )
          c_fft1d(B[i], N, -1);
 
-   /*for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
-         c_fft1d(A[i], N, -1);
-         c_fft1d(B[i], N, -1);
-   }*/
-   if ( my_rank == SOURCE ) t2 = MPI_Wtime();
 
+   if ( my_rank == SOURCE ) t2 = MPI_Wtime();
+/*-------------------------------------------------------------------------------------------------------*/
+   /* Gather the row FFTs from A into the first processor of P1 for sequential trasposition */
+
+   if ( my_group == 0 ) {
+      if ( my_grp_rank == P1_array[0] ) {
+         for ( i=1; i<group_size; i++ ) {
+            MPI_Recv( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, P1_comm );
+         }
+         
+      }
+      else 
+         MPI_Send( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, 0, 0, P1_comm );
+   }
+
+/*-------------------------------------------------------------------------------------------------------*/
+   /* Traspose matrix A in P1's main process */
+
+   print_matrix(A, "Matrix A after recv");
+
+   if ( my_group == 0 && my_grp_rank == 0 ) {
+      for (i=0;i<N;i++) {
+         for (j=i;j<N;j++) {
+            tmp = A[i][j];
+            A[i][j] = A[j][i];
+            A[j][i] = tmp;
+         }
+      }
+   }
+
+   print_matrix(A, "Matrix A after traspose");
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Gather A and B into the P3 processor */
+   /* All the processors in P1 and P2 will send it to the first processor in P3 using the global communicator */
 
+/*
    if ( my_group == 0 )
       MPI_Send ( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P3_array[0], 0, MPI_COMM_WORLD );
    else if ( my_group == 1 )
@@ -206,20 +237,7 @@ int main (int argc, char **argv) {
       for ( i=0; i<group_size; i++ )
          MPI_Recv( &B[chunk*i][0], chunk*N, MPI_COMPLEX, P2_array[i], 0, MPI_COMM_WORLD, &status );
    }
-
-
-   if ( my_rank == 4 ) {
-      if ( N<33 ) {
-         int i, j;
-         printf("THIS IS RANK4, P3, PRINTING A after receiving it\n");
-         for (i=0;i<N;i++){
-            for (j=0;j<N;j++) {
-              printf("(%.1f,%.1f) ", B[i][j].r,B[i][j].i);
-           }printf("\n");
-         }printf("\n");
-      }
-   }
-   
+   */
 
    chunk = N / p;
 /*-------------------------------------------------------------------------------------------------------*/
