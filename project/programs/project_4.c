@@ -56,7 +56,7 @@ int main (int argc, char **argv) {
 
 
    /* Variable init */
-   int chunk = N / p; /* number of rows for each process */
+   
    complex A[N][N], B[N][N], C[N][N];
    int i, j;
    complex tmp;
@@ -85,69 +85,55 @@ int main (int argc, char **argv) {
 /*-------------------------------------------------------------------------------------------------------*/
    /* Divide the processors in 4 groups */ 
    /* Each Px will contain all the processor ids of the processors in that group */
-
-   MPI_Comm P1;
-   MPI_Comm P2;
-   MPI_Comm P3;
-   MPI_Comm P4;
-
-   int color = (my_rank/2);
-   MPI_Comm_split ( MPI_COMM_WORLD, color, my_rank, &P1 );
-
-   int my_rank2;
-   MPI_Comm_rank(P1, &my_rank2);
-
-   printf("My rank used to be %d and now is %d\n", my_rank, my_rank2);
-   /*
+   
    int group_size = p / 4;
-   int P1[group_size];
-   int P2[group_size];
-   int P3[group_size];
-   int P4[group_size];
-
-   for(i=0; i<p; i++) {
-
-      int processor_group = i / group_size;
-      switch(processor_group){
-      case 0:
-         P1[ i%group_size ] = i;
-         break;
-      case 1:
-         P2[ i%group_size ] = i;
-         break;
-      case 2:
-         P3[ i%group_size ] = i;
-         break;
-      case 3:
-         P4[ i%group_size ] = i;
-         break;
-      }
-   }*/
+   
+   int my_group = my_rank / group_size;
+   int my_rel_rank = my_rank % group_size;
 
    
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter A and B to the other processes. We supose N is divisible by p */
    /* The source processor, that could be any, sends the data to the processes that are going to take care of each task, groups P1 and P2 */
+   int chunk = N / group_size; /* number of rows for each process */
+
    if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
 
-         MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
-         MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
+            // If this is the first group, send A
+            if ( i / group_size == 0 )
+               MPI_Send( &A[chunk*(i%group_size)][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
+
+            // If this is the second group, send B
+            else if ( i / group_size == 1 )
+               MPI_Send( &B[chunk*(i%group_size)][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
+
+            // Otherwise, skip
       }
    }
    else {
-      MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
-      MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+      if ( my_group == 0 )
+         MPI_Recv( &A[chunk*my_rel_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+      else if ( my_group == 1 )
+         MPI_Recv( &B[chunk*my_rel_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
    if ( my_rank == SOURCE ) t1 = MPI_Wtime();
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Apply 1D FFT in all rows of A and B */
-   for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
+
+   if ( my_group == 0 ) {
+      for (i= chunk*my_rel_rank ;i< chunk*(my_rel_rank+1);i++) {
          c_fft1d(A[i], N, -1);
-         c_fft1d(B[i], N, -1);
+      }
    }
+   else if ( my_group == 1 ) {
+      for (i= chunk*my_rel_rank ;i< chunk*(my_rel_rank+1);i++) {
+         c_fft1d(B[i], N, -1);
+      }
+   }
+
    if ( my_rank == SOURCE ) t2 = MPI_Wtime();
 
 
@@ -157,13 +143,17 @@ int main (int argc, char **argv) {
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
 
-         MPI_Recv( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
-         MPI_Recv( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
+         if ( i / group_size == 0 )
+            MPI_Recv( &A[chunk*(i%group_size)][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
+         else if ( i / group_size == 1 )
+            MPI_Recv( &B[chunk*(i%group_size)][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
       }
    }
    else {
-      MPI_Send( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
-      MPI_Send( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
+      if ( my_group == 0 )
+         MPI_Send( &A[chunk*my_rel_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
+      else if ( my_group == 1 )
+         MPI_Send( &B[chunk*my_rel_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
    }
    if ( my_rank == SOURCE ) t3 = MPI_Wtime();
 
