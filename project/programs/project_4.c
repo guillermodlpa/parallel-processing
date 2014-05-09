@@ -109,6 +109,7 @@ int main (int argc, char **argv) {
    
    MPI_Group world_group, P1, P2, P3, P4; 
    MPI_Comm P1_comm, P2_comm, P3_comm, P4_comm;
+   MPI_Comm P1_P2_inter;
 
    /* Extract the original group handle */ 
    MPI_Comm_group(MPI_COMM_WORLD, &world_group); 
@@ -119,11 +120,13 @@ int main (int argc, char **argv) {
       MPI_Group_incl(world_group, p/4, P1_array, &P1);
       MPI_Comm_create( MPI_COMM_WORLD, P1, &P1_comm);
       MPI_Group_rank(P1, &my_grp_rank);
+      MPI_Intercomm_create(P1, 0, P2, 0, 111, P1_P2_inter);
    } 
    else if ( processor_group == 1 ) { 
       MPI_Group_incl(world_group, p/4, P2_array, &P2); 
       MPI_Comm_create( MPI_COMM_WORLD, P2, &P2_comm);
       MPI_Group_rank(P2, &my_grp_rank);
+      MPI_Intercomm_create(P2, 0, P1, 0, 111, P1_P2_inter);
    } 
    else if ( processor_group == 2 ) { 
       MPI_Group_incl(world_group, p/4, P3_array, &P3); 
