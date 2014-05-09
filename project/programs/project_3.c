@@ -266,12 +266,12 @@ int main (int argc, char **argv) {
    if ( my_rank == SOURCE )
       time_end = MPI_Wtime();
 
-   print_matrix(C, "Matrix C");
+   print_matrix(C, "Matrix C", SOURCE);
    if ( my_rank==0) printf("C[0][0].r     = %e\n", C[0][0].r);
    if ( my_rank==0) printf("C[N-1][N-1].r = %e\n", C[N-1][N-1].r);
 
    /* Write output file */
-   write_matrix("output_matrix", C, SOURCE);
+   write_matrix("output_matrix", C);
 
    if ( my_rank==0) printf("\nCS 546 Project: done\n");
    if ( my_rank==0) {
