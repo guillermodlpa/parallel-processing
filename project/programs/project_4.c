@@ -86,6 +86,7 @@ int main (int argc, char **argv) {
    /* Divide the processors in 4 groups */ 
 
    int group_size = p / 4;
+   int my_grp_rank;
    int P1_array[group_size], P2_array[group_size], P3_array[group_size], P4_array[group_size];
 
    for(i=0; i<p; i++) {
@@ -117,22 +118,23 @@ int main (int argc, char **argv) {
    if ( processor_group == 0 )      { 
       MPI_Group_incl(world_group, p/4, P1_array, &P1);
       MPI_Comm_create( MPI_COMM_WORLD, P1, &P1_comm);
+      MPI_Group_rank(P1, &my_grp_rank);
    } 
    else if ( processor_group == 1 ) { 
       MPI_Group_incl(world_group, p/4, P2_array, &P2); 
       MPI_Comm_create( MPI_COMM_WORLD, P2, &P2_comm);
+      MPI_Group_rank(P2, &my_grp_rank);
    } 
    else if ( processor_group == 2 ) { 
       MPI_Group_incl(world_group, p/4, P3_array, &P3); 
       MPI_Comm_create( MPI_COMM_WORLD, P3, &P3_comm);
+      MPI_Group_rank(P3, &my_grp_rank);
    } 
    else if ( processor_group == 3 ) { 
       MPI_Group_incl(world_group, p/4, P4_array, &P4); 
       MPI_Comm_create( MPI_COMM_WORLD, P4, &P4_comm);
+      MPI_Group_rank(P4, &my_grp_rank);
    } 
-
-   int my_grp_rank;
-   MPI_Group_rank(new_group, &my_grp_rank);
 
    printf("my_rank is %d and my_grp_rank is %d\n", my_rank, my_grp_rank);
 
