@@ -351,12 +351,10 @@ int main (int argc, char **argv) {
    /* Send the result, which is among the processes of P3, to P4 */
 
    if ( my_group == 2 ) {
-      MPI_Send ( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P4_array[my_grp_rank], 0, MPI_COMM_WORLD );
-      MPI_Send ( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P4_array[my_grp_rank], 0, MPI_COMM_WORLD );
+      MPI_Send ( &C[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P4_array[my_grp_rank], 0, MPI_COMM_WORLD );
    }
    else if ( my_group == 3 ) {
-      MPI_Recv( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P3_array[my_grp_rank], 0, MPI_COMM_WORLD, &status );
-      MPI_Recv( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P3_array[my_grp_rank], 0, MPI_COMM_WORLD, &status );
+      MPI_Recv( &C[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P3_array[my_grp_rank], 0, MPI_COMM_WORLD, &status );
    }
    print_matrix(C, "Matrix C received in P4",6);
    print_matrix(C, "Matrix C received in P4",7);
