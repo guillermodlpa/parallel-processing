@@ -351,8 +351,8 @@ int main (int argc, char **argv) {
    /* Send the result, which is among the processes of P3, to P4 */
 
    if ( my_group == 2 ) {
-      MPI_Send ( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P4_array[0], 0, MPI_COMM_WORLD );
-      MPI_Send ( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P4_array[0], 0, MPI_COMM_WORLD );
+      MPI_Send ( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P4_array[my_grp_rank], 0, MPI_COMM_WORLD );
+      MPI_Send ( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P4_array[my_grp_rank], 0, MPI_COMM_WORLD );
    }
    else if ( my_group == 3 ) {
       for ( i=0; i<group_size; i++ )
