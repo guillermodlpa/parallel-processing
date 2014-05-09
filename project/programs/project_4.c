@@ -145,10 +145,21 @@ int main (int argc, char **argv) {
    /* At this moment, it is the process SOURCE the one with the data */
    /* This process must send A to P1 and B to P2 */
 
+   chunk = N / group_size;
    if ( my_rank == SOURCE ){
 
-
-
+      for ( i=0; i < group_size; i++ )
+         MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, P1_comm );
+      for ( i=0; i < group_size; i++ )
+         MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, P2_comm );
+   }
+   else if ( processor_group == 0 )
+      MPI_Recv( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, P1, &status );
+   
+   else if ( processor_group == 1 ) {
+      MPI_Recv( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, P2, &status );
+      printf("MATRIX PRINTER: my_rank is %d and my_grp_rank is %d\n", my_rank, my_grp_rank);
+      print_matrix(B, "Matrix B after recv");
    }
 
 
