@@ -419,7 +419,7 @@ int main (int argc, char **argv) {
          
       }
       else 
-         MPI_Recv( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, 0, 0, P4_comm, &status );
+         MPI_Recv( &C[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, 0, 0, P4_comm, &status );
    }
 
    if ( my_rank == SOURCE ) t13 = MPI_Wtime();
@@ -431,8 +431,8 @@ int main (int argc, char **argv) {
       for ( i=chunk*my_grp_rank; i<chunk*(my_grp_rank+1); i++ )
          c_fft1d(C[i], N, 1);
 
-   print_matrix(C, "Matrix C after fft",6);
-   print_matrix(C, "Matrix C after fft",7);
+   //print_matrix(C, "Matrix C after fft",6);
+   //print_matrix(C, "Matrix C after fft",7);
 
    if ( my_rank == SOURCE ) t14 = MPI_Wtime();
 
