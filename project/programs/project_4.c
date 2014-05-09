@@ -77,7 +77,7 @@ int main (int argc, char **argv) {
    /* Temporary to put zeros everywhere, uUseful when debugging and reading intermediate matrixes */
    if ( my_rank != SOURCE )
    for (i=0;i<N;i++)
-      for (j=0;j<N;j++) { A[i][j].r = 0; A[i][j].i = 0; B[i][j].r = 0; B[i][j].i = 0; C[i][j].r = 0; C[i][j].i = 0}
+      for (j=0;j<N;j++) { A[i][j].r = 0; A[i][j].i = 0; B[i][j].r = 0; B[i][j].i = 0; C[i][j].r = 0; C[i][j].i = 0;}
    
 
 /*-------------------------------------------------------------------------------------------------------*/
