@@ -190,7 +190,13 @@ int main (int argc, char **argv) {
    }*/
    if ( my_rank == SOURCE ) t2 = MPI_Wtime();
 
-   print_matrix(A, "Matrix A after fft");
+
+/*-------------------------------------------------------------------------------------------------------*/
+   /* Gather A and B into the P3 processor */
+
+   int my_comm_rank;
+   MPI_Comm_rank(P1_P2_inter, &my_comm_rank);
+   printf("My rank is %d and my itercomm rank is %d\n", my_rank, my_comm_rank);
 
    chunk = N / p;
 /*-------------------------------------------------------------------------------------------------------*/
