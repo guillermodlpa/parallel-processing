@@ -84,8 +84,23 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Divide the processors in 4 groups */ 
+
+   ranks1[4]={0,1,2,3}, ranks2[4]={4,5,6,7}; 
    
-   
+   MPI_Group orig_group, new_group; 
+
+   /* Extract the original group handle */ 
+
+   MPI_Comm_group(MPI_COMM_WORLD, &orig_group); 
+
+   if (rank < p/2) { MPI_Group_incl(orig_group, p/2, ranks1, &new_group);} 
+   else { MPI_Group_incl(orig_group, p/2, ranks2, &new_group); } 
+
+   int my_grp_rank;
+
+   MPI_Group_rank(new_group, my_grp_rank);
+
+   printf("My rank is %d and my rank_grp is %d\n", my_rank, my_grp_rank);
 
    /*int group_size = p / 4;
    int P1[group_size];
