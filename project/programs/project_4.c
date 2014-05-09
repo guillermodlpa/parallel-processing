@@ -176,6 +176,17 @@ int main (int argc, char **argv) {
          }printf("\n");
       }
    }
+   if ( my_rank == 2 ) {
+      if ( N<33 ) {
+         i, j;
+         printf("MATRIX DE RANK 2\n");
+         for (i=0;i<N;i++){
+            for (j=0;j<N;j++) {
+              printf("(%.1f,%.1f) ", B[i][j].r,B[i][j].i);
+           }printf("\n");
+         }printf("\n");
+      }
+   }
 
    printf("I am process %d and I am here!\n",my_rank);
 /*-------------------------------------------------------------------------------------------------------*/
