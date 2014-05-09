@@ -148,13 +148,13 @@ int main (int argc, char **argv) {
    chunk = N / group_size;
    if ( my_rank == SOURCE ){
 
+      /*for ( i=0; i < group_size; i++ )
+         MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, P1_comm );*/
       for ( i=0; i < group_size; i++ )
-         MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, P1_comm );
-      for ( i=0; i < group_size; i++ )
-         MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, P2_comm );
+         MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, P2[i], 0, MPI_COMM_WORLD );
    }
-   else if ( processor_group == 0 )
-      MPI_Recv( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+   /*else if ( processor_group == 0 )
+      MPI_Recv( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );*/
    
    else if ( processor_group == 1 ) {
       MPI_Recv( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
