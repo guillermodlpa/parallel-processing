@@ -155,7 +155,7 @@ int main (int argc, char **argv) {
       }
       for ( i=P2_array[0]; i<=P2_array[group_size]; i++ ) {
          if ( i==SOURCE ) continue;
-         MPI_Send( &B[chunk2*i][0], chunk2*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
+         MPI_Send( &B[chunk2*i][0], chunk2*N, MPI_COMPLEX, P2_array[i], 0, MPI_COMM_WORLD );
       }
    }
    else {
