@@ -431,7 +431,7 @@ int main (int argc, char **argv) {
       for ( i=chunk*my_grp_rank; i<chunk*(my_grp_rank+1); i++ )
          c_fft1d(C[i], N, 1);
 
-   print_matrix(C, "Matrix C after fft",6);
+   //print_matrix(C, "Matrix C after fft",6);
 
    if ( my_rank == SOURCE ) t14 = MPI_Wtime();
 
@@ -441,18 +441,21 @@ int main (int argc, char **argv) {
    chunk = N / p;
 
 /*-------------------------------------------------------------------------------------------------------*/
-   /* Gather the fragments of C to the source processor */
-   if ( my_rank == SOURCE ){
-      for ( i=0; i<p; i++ ) {
-         if ( i==SOURCE ) continue; /* Source process doesn't receive from itself */
+   /* Gather the fragments of C to the SOURCE process, which will be in charge of computing time and writing file */
 
-         MPI_Recv( &C[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
+   if ( my_rank == SOURCE ){
+
+      for ( i=0; i<group_size; i++ ) {
+         if ( P4_array[i]==SOURCE ) continue; /* Source process doesn't receive from itself */
+
+         MPI_Recv( &C[chunk*i][0], chunk*N, MPI_COMPLEX, P4_array[i], 0, MPI_COMM_WORLD, &status );
       }
    }
-   else
-      MPI_Send( &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
+   else if ( my_group == 3 )
+      MPI_Send( &C[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
 
 /*-------------------------------------------------------------------------------------------------------*/
+
    /* Final time */
    if ( my_rank == SOURCE )
       time_end = MPI_Wtime();
