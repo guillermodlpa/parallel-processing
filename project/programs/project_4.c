@@ -77,7 +77,7 @@ int main (int argc, char **argv) {
    /* Temporary to put zeros everywhere, uUseful when debugging and reading intermediate matrixes */
    if ( my_rank != SOURCE )
    for (i=0;i<N;i++)
-      for (j=0;j<N;j++) { A[i][j].r = 0; A[i][j].i = 0; B[i][j].r = 0; B[i][j].i = 0;}
+      for (j=0;j<N;j++) { A[i][j].r = 0; A[i][j].i = 0; B[i][j].r = 0; B[i][j].i = 0; C[i][j].r = 0; C[i][j].i = 0}
    
 
 /*-------------------------------------------------------------------------------------------------------*/
@@ -330,21 +330,38 @@ int main (int argc, char **argv) {
    /* Not necessary if we remove a later traspose */
 
 /*-------------------------------------------------------------------------------------------------------*/
-
-   //print_matrix(C, "Matrix C pre mult");
-
    /* Point to point multiplication */
-   for (i= chunk*my_grp_rank ;i< chunk*(my_grp_rank+1);i++) {
-      for (j=0;j<N;j++) {
-         C[i][j].r = A[i][j].r*B[i][j].r - A[i][j].i*B[i][j].i;
-         C[i][j].i = A[i][j].r*B[i][j].i + A[i][j].i*B[i][j].r;
+
+   if ( my_group == 2 ) {
+      for (i= chunk*my_grp_rank ;i< chunk*(my_grp_rank+1);i++) {
+         for (j=0;j<N;j++) {
+            C[i][j].r = A[i][j].r*B[i][j].r - A[i][j].i*B[i][j].i;
+            C[i][j].i = A[i][j].r*B[i][j].i + A[i][j].i*B[i][j].r;
+         }
       }
    }
 
-   if ( my_rank == SOURCE ) t8 = MPI_Wtime();
-
    print_matrix(C, "Matrix C after mult",4);
    print_matrix(C, "Matrix C after mult",5);
+
+   if ( my_rank == SOURCE ) t8 = MPI_Wtime();
+
+
+/*-------------------------------------------------------------------------------------------------------*/
+   /* Send the result, which is among the processes of P3, to P4 */
+
+   if ( my_group == 2 ) {
+      MPI_Send ( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P4_array[0], 0, MPI_COMM_WORLD );
+      MPI_Send ( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P4_array[0], 0, MPI_COMM_WORLD );
+   }
+   else if ( my_group == 3 ) {
+      for ( i=0; i<group_size; i++ )
+         MPI_Recv( &A[chunk*i][0], chunk*N, MPI_COMPLEX, P3_array[i], 0, MPI_COMM_WORLD, &status );
+      for ( i=0; i<group_size; i++ )
+         MPI_Recv( &B[chunk*i][0], chunk*N, MPI_COMPLEX, P3_array[i], 0, MPI_COMM_WORLD, &status );
+   }
+   print_matrix(C, "Matrix C received in P4",6);
+   print_matrix(C, "Matrix C received in P4",7);
 
    chunk = N / p;
 
