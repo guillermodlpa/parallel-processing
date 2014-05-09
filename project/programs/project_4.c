@@ -218,6 +218,8 @@ int main (int argc, char **argv) {
          MPI_Send( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, 0, 0, P2_comm );
    }
 
+   if ( my_rank == SOURCE ) t3 = MPI_Wtime();
+
 /*-------------------------------------------------------------------------------------------------------*/
    /* Traspose matrix A in P1's main process */
 
@@ -246,6 +248,7 @@ int main (int argc, char **argv) {
       }
    }
 
+   if ( my_rank == SOURCE ) t4 = MPI_Wtime();
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter the transposed A in the group P1 */
@@ -277,6 +280,8 @@ int main (int argc, char **argv) {
          MPI_Recv( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, 0, 0, P2_comm, &status );
    }
 
+   if ( my_rank == SOURCE ) t5 = MPI_Wtime();
+
 /*-------------------------------------------------------------------------------------------------------*/
    /* Apply 1D FFT in all rows of A, in group P1. This are actually columns of the original A */
 
@@ -297,96 +302,30 @@ int main (int argc, char **argv) {
    //print_matrix(B, "Matrix B after second fft",2);
    //print_matrix(B, "Matrix B after second fft",3);
 
+      if ( my_rank == SOURCE ) t6 = MPI_Wtime();
+
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Gather A and B into the P3 processor */
    /* All the processors in P1 and P2 will send it to the first processor in P3 using the global communicator */
 
    if ( my_group == 0 )
-      MPI_Send ( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P3_array[0], 0, MPI_COMM_WORLD );
+      MPI_Send ( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P3_array[my_grp_rank], 0, MPI_COMM_WORLD );
    else if ( my_group == 1 )
-      MPI_Send ( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P3_array[0], 0, MPI_COMM_WORLD );
+      MPI_Send ( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P3_array[my_grp_rank], 0, MPI_COMM_WORLD );
 
-   else if ( my_group == 2 && my_grp_rank == 0 ) {
-
-      for ( i=0; i<group_size; i++ )
-         MPI_Recv( &A[chunk*i][0], chunk*N, MPI_COMPLEX, P1_array[i], 0, MPI_COMM_WORLD, &status );
-      for ( i=0; i<group_size; i++ )
-         MPI_Recv( &B[chunk*i][0], chunk*N, MPI_COMPLEX, P2_array[i], 0, MPI_COMM_WORLD, &status );
+   else if ( my_group == 2 ) {
+      MPI_Recv( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P1_array[my_grp_rank], 0, MPI_COMM_WORLD, &status );
+      MPI_Recv( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P2_array[my_grp_rank], 0, MPI_COMM_WORLD, &status );
    }
    print_matrix(A, "Matrix A after recv",4);
-   print_matrix(B, "Matrix B after recv",4);
+   print_matrix(B, "Matrix A after recv",5);
+
+   if ( my_rank == SOURCE ) t7 = MPI_Wtime();
 
    chunk = N / p;
-/*-------------------------------------------------------------------------------------------------------*/
-   /* Gather A and B to the source processor */
-   if ( my_rank == SOURCE ){
-      for ( i=0; i<p; i++ ) {
-         if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
-
-         MPI_Recv( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
-         MPI_Recv( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
-      }
-   }
-   else {
-      MPI_Send( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
-      MPI_Send( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
-   }
-   if ( my_rank == SOURCE ) t3 = MPI_Wtime();
-
-   //print_matrix(A, "Matrix A after recv");
-   //print_matrix(B, "Matrix B after recv");
-
-/*-------------------------------------------------------------------------------------------------------*/
-   /* Transpose matrixes sequentially */
-   if ( my_rank == SOURCE ) {
-      for (i=0;i<N;i++) {
-         for (j=i;j<N;j++) {
-            tmp = A[i][j];
-            A[i][j] = A[j][i];
-            A[j][i] = tmp;
-
-            tmp = B[i][j];
-            B[i][j] = B[j][i];
-            B[j][i] = tmp;
-         }
-      }
-      t4 = MPI_Wtime();
-   }
-   //print_matrix(A, "Matrix A after traspose");
-   //print_matrix(B, "Matrix B after traspose");
 
 
-
-/*-------------------------------------------------------------------------------------------------------*/
-   /* Scatter A and B to the other processes. We supose N is divisible by p */
-   if ( my_rank == SOURCE ){
-      for ( i=0; i<p; i++ ) {
-         if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
-
-         MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
-         MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
-      }
-   }
-   else {
-      MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
-      MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
-   }
-   if ( my_rank == SOURCE ) t5 = MPI_Wtime();
-
-   //print_matrix(A, "Matrix A after nothing");
-   //print_matrix(B, "Matrix B after nothing");
-
-/*-------------------------------------------------------------------------------------------------------*/
-
-   /* Apply 1D FFT in all rows of A and B */
-   for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
-         c_fft1d(A[i], N, -1);
-         c_fft1d(B[i], N, -1);
-   }
-
-   //print_matrix(A, "Matrix A after col fft");
-   //print_matrix(B, "Matrix B after col fft");
 
    /* Transpose matrixes */
    /* Not necessary if we remove a later traspose */
