@@ -58,7 +58,7 @@ int main (int argc, char **argv) {
    complex A[N][N], B[N][N], C[N][N];
    int i, j;
    complex tmp;
-   double time_init, time_end, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15, t16;
+   double time_init, time_end, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14;
    MPI_Status status;
 
 
@@ -141,7 +141,6 @@ int main (int argc, char **argv) {
       MPI_Group_rank(P4, &my_grp_rank);
    } 
 
-
    
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter A and B to the other processes. We supose N is divisible by p */
@@ -170,9 +169,11 @@ int main (int argc, char **argv) {
       if ( my_group == 1 )
          MPI_Recv( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
+   
+   MPI_Barrier(MPI_COMM_WORLD);
    if ( my_rank == SOURCE ) t1 = MPI_Wtime();
 
-   
+
 /*-------------------------------------------------------------------------------------------------------*/
    /* Apply 1D FFT in all rows of A, in group P1 */
 
@@ -187,7 +188,7 @@ int main (int argc, char **argv) {
       for ( i=chunk*my_grp_rank; i<chunk*(my_grp_rank+1); i++ )
          c_fft1d(B[i], N, -1);
 
-
+   MPI_Barrier(MPI_COMM_WORLD);
    if ( my_rank == SOURCE ) t2 = MPI_Wtime();
 
 /*-------------------------------------------------------------------------------------------------------*/
@@ -217,7 +218,7 @@ int main (int argc, char **argv) {
       else 
          MPI_Send( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, 0, 0, P2_comm );
    }
-
+   MPI_Barrier(MPI_COMM_WORLD);
    if ( my_rank == SOURCE ) t3 = MPI_Wtime();
 
 /*-------------------------------------------------------------------------------------------------------*/
@@ -247,7 +248,7 @@ int main (int argc, char **argv) {
          }
       }
    }
-
+   MPI_Barrier(MPI_COMM_WORLD);
    if ( my_rank == SOURCE ) t4 = MPI_Wtime();
 
 /*-------------------------------------------------------------------------------------------------------*/
@@ -279,7 +280,7 @@ int main (int argc, char **argv) {
       else 
          MPI_Recv( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, 0, 0, P2_comm, &status );
    }
-
+   MPI_Barrier(MPI_COMM_WORLD);
    if ( my_rank == SOURCE ) t5 = MPI_Wtime();
 
 /*-------------------------------------------------------------------------------------------------------*/
@@ -301,8 +302,8 @@ int main (int argc, char **argv) {
    //print_matrix(A, "Matrix A after second fft",1);
    //print_matrix(B, "Matrix B after second fft",2);
    //print_matrix(B, "Matrix B after second fft",3);
-
-      if ( my_rank == SOURCE ) t6 = MPI_Wtime();
+   MPI_Barrier(MPI_COMM_WORLD);
+   if ( my_rank == SOURCE ) t6 = MPI_Wtime();
 
 
 /*-------------------------------------------------------------------------------------------------------*/
@@ -320,7 +321,7 @@ int main (int argc, char **argv) {
    }
    //print_matrix(A, "Matrix A after recv",4);
    //print_matrix(A, "Matrix A after recv",5);
-
+   MPI_Barrier(MPI_COMM_WORLD);
    if ( my_rank == SOURCE ) t7 = MPI_Wtime();
 
 
@@ -343,7 +344,7 @@ int main (int argc, char **argv) {
 
    //print_matrix(C, "Matrix C after mult",4);
    //print_matrix(C, "Matrix C after mult",5);
-
+   MPI_Barrier(MPI_COMM_WORLD);
    if ( my_rank == SOURCE ) t8 = MPI_Wtime();
 
 
@@ -358,7 +359,7 @@ int main (int argc, char **argv) {
    }
    //print_matrix(C, "Matrix C received in P4",6);
    //print_matrix(C, "Matrix C received in P4",7);
-
+   MPI_Barrier(MPI_COMM_WORLD);
    if ( my_rank == SOURCE ) t9 = MPI_Wtime();
 
 /*-------------------------------------------------------------------------------------------------------*/
@@ -369,7 +370,7 @@ int main (int argc, char **argv) {
          c_fft1d(C[i], N, 1);
 
    //print_matrix(C, "Matrix C after fft",7);
-
+   MPI_Barrier(MPI_COMM_WORLD);
    if ( my_rank == SOURCE ) t10 = MPI_Wtime();
 
 /*-------------------------------------------------------------------------------------------------------*/
@@ -385,7 +386,7 @@ int main (int argc, char **argv) {
       else 
          MPI_Send( &C[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, 0, 0, P4_comm );
    }
-
+   MPI_Barrier(MPI_COMM_WORLD);
    if ( my_rank == SOURCE ) t11 = MPI_Wtime();
 
 
@@ -403,7 +404,7 @@ int main (int argc, char **argv) {
       }
       
    }
-
+   MPI_Barrier(MPI_COMM_WORLD);
    if ( my_rank == SOURCE ) t12 = MPI_Wtime();
    
    //print_matrix(C, "Matrix C after trasposing",6);
@@ -421,7 +422,7 @@ int main (int argc, char **argv) {
       else 
          MPI_Recv( &C[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, 0, 0, P4_comm, &status );
    }
-
+   MPI_Barrier(MPI_COMM_WORLD);
    if ( my_rank == SOURCE ) t13 = MPI_Wtime();
 
 /*-------------------------------------------------------------------------------------------------------*/
@@ -433,7 +434,7 @@ int main (int argc, char **argv) {
 
    //print_matrix(C, "Matrix C after fft",6);
    //print_matrix(C, "Matrix C after fft",7);
-
+   MPI_Barrier(MPI_COMM_WORLD);
    if ( my_rank == SOURCE ) t14 = MPI_Wtime();
 
    /* Transpose C */
@@ -456,7 +457,7 @@ int main (int argc, char **argv) {
 /*-------------------------------------------------------------------------------------------------------*/
 
    MPI_Barrier(MPI_COMM_WORLD);
-   
+
    /* Final time */
    if ( my_rank == SOURCE )
       time_end = MPI_Wtime();
