@@ -86,49 +86,73 @@ int main (int argc, char **argv) {
    /* Divide the processors in 4 groups */ 
 
    int group_size = p / 4;
-   int P1[group_size], P2[group_size], P3[group_size], P4[group_size];
+   int P1_array[group_size], P2_array[group_size], P3_array[group_size], P4_array[group_size];
 
    for(i=0; i<p; i++) {
       int processor_group = i / group_size;
       switch(processor_group){
       case 0:
-         P1[ i%group_size ] = i;
+         P1_array[ i%group_size ] = i;
          break;
       case 1:
-         P2[ i%group_size ] = i;
+         P2_array[ i%group_size ] = i;
          break;
       case 2:
-         P3[ i%group_size ] = i;
+         P3_array[ i%group_size ] = i;
          break;
       case 3:
-         P4[ i%group_size ] = i;
+         P4_array[ i%group_size ] = i;
          break;
       }
    }
    
-   MPI_Group orig_group, new_group; 
+   MPI_Group world_group, P1, P2, P3, P4; 
+   MPI_Comm P1_comm, P2_comm, P3_comm, P4_comm;
 
    /* Extract the original group handle */ 
-   MPI_Comm_group(MPI_COMM_WORLD, &orig_group); 
+   MPI_Comm_group(MPI_COMM_WORLD, &world_group); 
 
-
+   /* Create the for groups */
    int processor_group = my_rank / group_size;
-   if ( processor_group == 0 )      { MPI_Group_incl(orig_group, p/4, P1, &new_group);} 
-   else if ( processor_group == 1 ) { MPI_Group_incl(orig_group, p/4, P2, &new_group); } 
-   else if ( processor_group == 2 ) { MPI_Group_incl(orig_group, p/4, P3, &new_group); } 
-   else if ( processor_group == 3 ) { MPI_Group_incl(orig_group, p/4, P4, &new_group); } 
+   if ( processor_group == 0 )      { 
+      MPI_Group_incl(world_group, p/4, P1_array, &P1);
+      MPI_Comm_create( MPI_COMM_WORLD, P1, &P1_comm);
+   } 
+   else if ( processor_group == 1 ) { 
+      MPI_Group_incl(world_group, p/4, P2_array, &P2); 
+      MPI_Comm_create( MPI_COMM_WORLD, P2, &P2_comm);
+   } 
+   else if ( processor_group == 2 ) { 
+      MPI_Group_incl(world_group, p/4, P3_array, &P3); 
+      MPI_Comm_create( MPI_COMM_WORLD, P3, &P3_comm);
+   } 
+   else if ( processor_group == 3 ) { 
+      MPI_Group_incl(world_group, p/4, P4_array, &P4); 
+      MPI_Comm_create( MPI_COMM_WORLD, P4, &P4_comm);
+   } 
 
    int my_grp_rank;
-
    MPI_Group_rank(new_group, &my_grp_rank);
 
-   printf("My rank is %d and my rank_grp is %d\n", my_rank, my_grp_rank);
+   printf("my_rank is %d and my_grp_rank is %d\n", my_rank, my_grp_rank);
 
-   
 
-   
+
+/*-------------------------------------------------------------------------------------------------------*/
+   /* Scatter A and B */
+   /* At this moment, it is the process SOURCE the one with the data */
+   /* This process must send A to P1 and B to P2 */
+
+   if ( my_rank == SOURCE ){
+
+
+
+   }
+
+
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter A and B to the other processes. We supose N is divisible by p */
+
    if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
