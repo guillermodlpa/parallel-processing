@@ -154,10 +154,10 @@ int main (int argc, char **argv) {
          MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, P2_comm );
    }
    else if ( processor_group == 0 )
-      MPI_Recv( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, P1, &status );
+      MPI_Recv( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, P1_comm, &status );
    
    else if ( processor_group == 1 ) {
-      MPI_Recv( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, P2, &status );
+      MPI_Recv( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, P2_comm, &status );
       printf("MATRIX PRINTER: my_rank is %d and my_grp_rank is %d\n", my_rank, my_grp_rank);
       print_matrix(B, "Matrix B after recv");
    }
