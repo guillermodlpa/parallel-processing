@@ -50,7 +50,7 @@ int main (int argc, char **argv) {
    int read_matrix ( const char* filename, complex matrix[N][N] );
    int write_matrix ( const char* filename, complex matrix[N][N] );
    void c_fft1d(complex *r, int n, int isign);
-   void print_matrix ( complex matrix[N][N], const char* matrixname );
+   void print_matrix ( complex matrix[N][N], const char* matrixname, int rank );
 
 
    /* Variable init */
