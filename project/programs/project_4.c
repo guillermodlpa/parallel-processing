@@ -58,7 +58,7 @@ int main (int argc, char **argv) {
    complex A[N][N], B[N][N], C[N][N];
    int i, j;
    complex tmp;
-   double time_init, time_end, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10;
+   double time_init, time_end, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13;
    MPI_Status status;
 
 
