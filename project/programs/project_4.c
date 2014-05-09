@@ -166,7 +166,7 @@ int main (int argc, char **argv) {
    
    else if ( processor_group == 1 ) {
 
-      printf("MATRIX PRINTER: my_rank is %d and my_grp_rank is %d\n. My place is in %d of %d", my_rank, my_grp_rank, chunk*my_grp_rank, N);
+      printf("MATRIX PRINTER: my_rank is %d and my_grp_rank is %d\n. My start index is in %d of %d\n", my_rank, my_grp_rank, chunk*my_grp_rank, N);
       MPI_Recv( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
       
 
