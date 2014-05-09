@@ -99,9 +99,9 @@ int main (int argc, char **argv) {
    /* The source processor, that could be any, sends the data to the processes that are going to take care of each task, groups P1 and P2 */
    int chunk = N / group_size; /* number of rows for each process */
 
-   if ( my_rank == SOURCE ){
+   /*if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
-         if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
+         if ( i==SOURCE ) continue; 
 
             int current_group = i / group_size;
             // If this is the first group, send A
@@ -121,7 +121,7 @@ int main (int argc, char **argv) {
       else if ( my_group == 1 )
          MPI_Recv( &B[chunk*my_rel_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
-   if ( my_rank == SOURCE ) t1 = MPI_Wtime();
+   if ( my_rank == SOURCE ) t1 = MPI_Wtime();*/
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Apply 1D FFT in all rows of A and B */
