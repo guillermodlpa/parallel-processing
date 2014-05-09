@@ -107,7 +107,7 @@ int main (int argc, char **argv) {
    
    MPI_Group world_group, P1, P2, P3, P4; 
    MPI_Comm P1_comm, P2_comm, P3_comm, P4_comm;
-   MPI_Comm P1_P2_inter;
+   //MPI_Comm P1_P2_inter;
 
    /* Extract the original group handle */ 
    MPI_Comm_group(MPI_COMM_WORLD, &world_group); 
@@ -121,14 +121,14 @@ int main (int argc, char **argv) {
       MPI_Group_incl(world_group, p/4, P1_array, &P1);
       MPI_Comm_create( MPI_COMM_WORLD, P1, &P1_comm);
       MPI_Group_rank(P1, &my_grp_rank);
-      MPI_Intercomm_create(P1_comm, 0, MPI_COMM_WORLD, P2_array[0], 111, &P1_P2_inter);
+      //MPI_Intercomm_create(P1_comm, 0, MPI_COMM_WORLD, P2_array[0], 111, &P1_P2_inter);
    } 
    else if ( my_group == 1 ) { 
 
       MPI_Group_incl(world_group, p/4, P2_array, &P2); 
       MPI_Comm_create( MPI_COMM_WORLD, P2, &P2_comm);
       MPI_Group_rank(P2, &my_grp_rank);
-      MPI_Intercomm_create(P2_comm, 0, MPI_COMM_WORLD, P1_array[0], 111, &P1_P2_inter);
+      //MPI_Intercomm_create(P2_comm, 0, MPI_COMM_WORLD, P1_array[0], 111, &P1_P2_inter);
    } 
    else if ( my_group == 2 ) { 
       MPI_Group_incl(world_group, p/4, P3_array, &P3); 
@@ -194,7 +194,7 @@ int main (int argc, char **argv) {
    /* Gather the row FFTs from A into the first processor of P1 for sequential trasposition */
 
    if ( my_group == 0 ) {
-      if ( my_grp_rank == P1_array[0] ) {
+      if ( my_grp_rank == 0 ) {
          for ( i=1; i<group_size; i++ ) {
             MPI_Recv( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, P1_comm, &status );
          }
@@ -208,7 +208,7 @@ int main (int argc, char **argv) {
    /* Gather the row FFTs from B into the first processor of P2 for sequential trasposition */
 
    if ( my_group == 1 ) {
-      if ( my_grp_rank == P2_array[0] ) {
+      if ( my_grp_rank == 0 ) {
          for ( i=1; i<group_size; i++ ) {
             MPI_Recv( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, P2_comm, &status );
          }
@@ -249,7 +249,7 @@ int main (int argc, char **argv) {
    /* Scatter the transposed A in the group P1 */
 
    if ( my_group == 0 ) {
-      if ( my_grp_rank == P1_array[0] ) {
+      if ( my_grp_rank == 0 ) {
          for ( i=1; i<group_size; i++ ) {
             MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, P1_comm );
          }
@@ -263,7 +263,7 @@ int main (int argc, char **argv) {
    /* Scatter the transposed B in the group P2 */
 
    if ( my_group == 1 ) {
-      if ( my_grp_rank == P2_array[0] ) {
+      if ( my_grp_rank == 0 ) {
          for ( i=1; i<group_size; i++ ) {
             MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, P2_comm );
          }
