@@ -117,6 +117,7 @@ int main (int argc, char **argv) {
    /* Create the for groups */
    int processor_group = my_rank / group_size;
 
+/*
    if ( processor_group == 0 )      { 
       
       MPI_Group_incl(world_group, p/4, P1_array, &P1);
@@ -141,7 +142,7 @@ int main (int argc, char **argv) {
       MPI_Comm_create( MPI_COMM_WORLD, P4, &P4_comm);
       MPI_Group_rank(P4, &my_grp_rank);
    } 
-
+*/
    printf("my_rank is %d and my_grp_rank is %d\n", my_rank, my_grp_rank);
 
 
