@@ -177,7 +177,7 @@ int main (int argc, char **argv) {
       }
    }
 
-
+   printf("I am process %d and I am here!\n",my_rank);
 /*-------------------------------------------------------------------------------------------------------*/
    /* Apply 1D FFT in all rows of A and B */
    for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
@@ -203,8 +203,8 @@ int main (int argc, char **argv) {
    }
    if ( my_rank == SOURCE ) t3 = MPI_Wtime();
 
-   //print_matrix(A, "Matrix A after recv");
-   //print_matrix(B, "Matrix B after recv");
+   print_matrix(A, "Matrix A after recv");
+   print_matrix(B, "Matrix B after recv");
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Transpose matrixes sequentially */
