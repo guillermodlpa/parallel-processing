@@ -289,7 +289,9 @@ int main (int argc, char **argv) {
 
 
    print_matrix(A, "Matrix A after second fft",0);
+   print_matrix(A, "Matrix A after second fft",1);
    print_matrix(B, "Matrix B after second fft",2);
+   print_matrix(B, "Matrix B after second fft",3);
 
 
 /*-------------------------------------------------------------------------------------------------------*/
