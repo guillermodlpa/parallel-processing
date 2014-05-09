@@ -153,7 +153,7 @@ int main (int argc, char **argv) {
          if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
          MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
       }
-      for ( i=P2_array[0]; i<=P2_array[group_size]; i++ ) {
+      for ( i=0; i<group_size; i++ ) {
          if ( i==SOURCE ) continue;
          MPI_Send( &B[chunk2*i][0], chunk2*N, MPI_COMPLEX, P2_array[i], 0, MPI_COMM_WORLD );
       }
