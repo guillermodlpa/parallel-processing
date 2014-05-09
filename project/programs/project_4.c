@@ -124,7 +124,40 @@ int main (int argc, char **argv) {
 /*-------------------------------------------------------------------------------------------------------*/
    /* Apply 1D FFT in all rows of A and B */
 
+   if ( my_group == 0 ) {
+      for (i= chunk*my_rel_rank ;i< chunk*(my_rel_rank+1);i++) {
+         c_fft1d(A[i], N, -1);
+      }
+   }
+   else if ( my_group == 1 ) {
+      for (i= chunk*my_rel_rank ;i< chunk*(my_rel_rank+1);i++) {
+         c_fft1d(B[i], N, -1);
+      }
+   }
 
+   if ( my_rank == SOURCE ) t2 = MPI_Wtime();
+
+
+/*-------------------------------------------------------------------------------------------------------*/
+   /* Gather A and B to the source processor */
+   if ( my_rank == SOURCE ){
+      for ( i=0; i<p; i++ ) {
+         if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
+
+         int current_group = i / group_size;
+         if ( current_group == 0 )
+            MPI_Recv( &A[chunk*(i%group_size)][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
+         else if ( current_group == 1 )
+            MPI_Recv( &B[chunk*(i%group_size)][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
+      }
+   }
+   else {
+      if ( my_group == 0 )
+         MPI_Send( &A[chunk*my_rel_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
+      else if ( my_group == 1 )
+         MPI_Send( &B[chunk*my_rel_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
+   }
+   if ( my_rank == SOURCE ) t3 = MPI_Wtime();
 
    //print_matrix(A, "Matrix A after recv");
    //print_matrix(B, "Matrix B after recv");
@@ -149,6 +182,7 @@ int main (int argc, char **argv) {
    //print_matrix(B, "Matrix B after traspose");
 
 
+   int chunk = N / p;
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter A and B to the other processes. We supose N is divisible by p */
