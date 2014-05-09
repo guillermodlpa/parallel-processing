@@ -85,31 +85,10 @@ int main (int argc, char **argv) {
 /*-------------------------------------------------------------------------------------------------------*/
    /* Divide the processors in 4 groups */ 
 
-   int ranks1[4]={0,1,2,3}, ranks2[4]={4,5,6,7}; 
-   
-   MPI_Group orig_group, new_group; 
-
-   /* Extract the original group handle */ 
-
-   MPI_Comm_group(MPI_COMM_WORLD, &orig_group); 
-
-   if (my_rank < p/2) { MPI_Group_incl(orig_group, p/2, ranks1, &new_group);} 
-   else { MPI_Group_incl(orig_group, p/2, ranks2, &new_group); } 
-
-   int my_grp_rank;
-
-   MPI_Group_rank(new_group, &my_grp_rank);
-
-   printf("My rank is %d and my rank_grp is %d\n", my_rank, my_grp_rank);
-
-   /*int group_size = p / 4;
-   int P1[group_size];
-   int P2[group_size];
-   int P3[group_size];
-   int P4[group_size];
+   int group_size = p / 4;
+   int P1[group_size], P2[group_size], P3[group_size], P4[group_size];
 
    for(i=0; i<p; i++) {
-
       int processor_group = i / group_size;
       switch(processor_group){
       case 0:
@@ -126,8 +105,26 @@ int main (int argc, char **argv) {
          break;
       }
    }
+   
+   MPI_Group orig_group, new_group; 
 
-   printf("El primer elemento de P4 es %d",P4[0]);*/
+   /* Extract the original group handle */ 
+   MPI_Comm_group(MPI_COMM_WORLD, &orig_group); 
+
+
+   int processor_group = my_rank / group_size;
+   if ( processor_group == 0 )      { MPI_Group_incl(orig_group, p/4, P1, &new_group);} 
+   else if ( processor_group == 1 ) { MPI_Group_incl(orig_group, p/4, P2, &new_group); } 
+   else if ( processor_group == 2 ) { MPI_Group_incl(orig_group, p/4, P3, &new_group); } 
+   else if ( processor_group == 3 ) { MPI_Group_incl(orig_group, p/4, P4, &new_group); } 
+
+   int my_grp_rank;
+
+   MPI_Group_rank(new_group, &my_grp_rank);
+
+   printf("My rank is %d and my rank_grp is %d\n", my_rank, my_grp_rank);
+
+   
 
    
 /*-------------------------------------------------------------------------------------------------------*/
