@@ -195,7 +195,7 @@ int main (int argc, char **argv) {
    if ( my_group == 0 ) {
       if ( my_grp_rank == P1_array[0] ) {
          for ( i=1; i<group_size; i++ ) {
-            MPI_Recv( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, P1_comm );
+            MPI_Recv( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, P1_comm, &status );
          }
          
       }
