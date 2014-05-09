@@ -66,8 +66,8 @@ int main (int argc, char **argv) {
    read_matrix (filename1, A);
    read_matrix (filename2, B);
 
-   print_matrix(A, "Matrix A");
-   print_matrix(B, "Matrix B");
+   print_matrix(A, "Matrix A", SOURCE);
+   print_matrix(B, "Matrix B", SOURCE);
 
    /* Initial time */
    if ( my_rank == SOURCE )
@@ -206,8 +206,6 @@ int main (int argc, char **argv) {
 /*-------------------------------------------------------------------------------------------------------*/
    /* Traspose matrix A in P1's main process */
 
-   print_matrix(A, "Matrix A after recv");
-
    if ( my_group == 0 && my_grp_rank == 0 ) {
       for (i=0;i<N;i++) {
          for (j=i;j<N;j++) {
@@ -218,7 +216,22 @@ int main (int argc, char **argv) {
       }
    }
 
-   print_matrix(A, "Matrix A after traspose");
+
+/*-------------------------------------------------------------------------------------------------------*/
+   /* Scatter A in the group P1 */
+
+   if ( my_group == 0 ) {
+      if ( my_grp_rank == P1_array[0] ) {
+         for ( i=1; i<group_size; i++ ) {
+            MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, P1_comm );
+         }
+         
+      }
+      else 
+         MPI_Recv( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, 0, 0, P1_comm, &status );
+   }
+
+   print_matrix(A, "Matrix A after recv", 1);
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Gather A and B into the P3 processor */
@@ -405,7 +418,7 @@ int main (int argc, char **argv) {
    if ( my_rank == SOURCE )
       time_end = MPI_Wtime();
 
-   print_matrix(C, "Matrix C");
+   print_matrix(C, "Matrix C", SOURCE);
    if ( my_rank==0) printf("C[0][0].r     = %e\n", C[0][0].r);
    if ( my_rank==0) printf("C[N-1][N-1].r = %e\n", C[N-1][N-1].r);
 
@@ -470,11 +483,11 @@ int write_matrix ( const char* filename, complex matrix[N][N] ) {
 
 /* Print the matrix if its size is no more than 32x32 */
 /* Rank is the processor that should print this */
-void print_matrix ( complex matrix[N][N], const char* matrixname ) {
-   if ( my_rank == SOURCE ) {
+void print_matrix ( complex matrix[N][N], const char* matrixname, int rank ) {
+   if ( my_rank == rank ) {
       if ( N<33 ) {
          int i, j;
-         printf("%s\n",matrixname);
+         printf("%s by process #%d\n",matrixname, rank);
          for (i=0;i<N;i++){
             for (j=0;j<N;j++) {
               printf("(%.1f,%.1f) ", matrix[i][j].r,matrix[i][j].i);
