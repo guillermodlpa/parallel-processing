@@ -314,8 +314,8 @@ int main (int argc, char **argv) {
       for ( i=0; i<group_size; i++ )
          MPI_Recv( &B[chunk*i][0], chunk*N, MPI_COMPLEX, P2_array[i], 0, MPI_COMM_WORLD, &status );
    }
-   print_matrix(A, "Matrix A after recv",3);
-   print_matrix(B, "Matrix B after recv",3);
+   print_matrix(A, "Matrix A after recv",4);
+   print_matrix(B, "Matrix B after recv",4);
 
    chunk = N / p;
 /*-------------------------------------------------------------------------------------------------------*/
