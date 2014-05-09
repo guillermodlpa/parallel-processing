@@ -161,7 +161,7 @@ int main (int argc, char **argv) {
    }
    else {
 
-      if ( processor_group == 1 )
+      if ( processor_group == 0 )
          MPI_Recv( &A[chunk2*my_grp_rank][0], chunk2*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
       if ( processor_group == 1 )
          MPI_Recv( &B[chunk2*my_grp_rank][0], chunk2*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
