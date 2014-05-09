@@ -149,9 +149,10 @@ int main (int argc, char **argv) {
    int chunk2 = N / group_size;
 
    if ( my_rank == SOURCE ){
-      for ( i=0; i<p; i++ ) {
-         if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
-         MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
+
+      for ( i=0; i<group_size; i++ ) {
+         if ( P1_array[i]==SOURCE ) continue;
+         MPI_Send( &A[chunk2*i][0], chunk2*N, MPI_COMPLEX, P1_array[i], 0, MPI_COMM_WORLD );
       }
       for ( i=0; i<group_size; i++ ) {
          if ( P2_array[i]==SOURCE ) continue;
@@ -159,7 +160,9 @@ int main (int argc, char **argv) {
       }
    }
    else {
-      MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+
+      if ( processor_group == 1 )
+         MPI_Recv( &A[chunk2*my_grp_rank][0], chunk2*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
       if ( processor_group == 1 )
          MPI_Recv( &B[chunk2*my_grp_rank][0], chunk2*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
