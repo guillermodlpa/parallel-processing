@@ -28,7 +28,7 @@ static complex ctmp;
 
 
 /* Size of matrix (NxN) */
-const int N = 512;
+const int N = 16;
 
 
 int p, my_rank;
@@ -161,10 +161,8 @@ int main (int argc, char **argv) {
    }
    if ( my_rank == SOURCE ) t3 = MPI_Wtime();
 
-   printf("AAAA");
-
-   //print_matrix(A, "Matrix A after recv");
-   //print_matrix(B, "Matrix B after recv");
+   print_matrix(A, "Matrix A after recv");
+   print_matrix(B, "Matrix B after recv");
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Transpose matrixes sequentially */
