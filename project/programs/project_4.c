@@ -122,63 +122,7 @@ int main (int argc, char **argv) {
    if ( my_rank == SOURCE ) t1 = MPI_Wtime();
 
 /*-------------------------------------------------------------------------------------------------------*/
-   /* Apply 1D FFT in all rows of A and B */
 
-   if ( my_group == 0 ) {
-      for (i= chunk*my_rel_rank ;i< chunk*(my_rel_rank+1);i++) {
-         c_fft1d(A[i], N, -1);
-      }
-   }
-   else if ( my_group == 1 ) {
-      for (i= chunk*my_rel_rank ;i< chunk*(my_rel_rank+1);i++) {
-         c_fft1d(B[i], N, -1);
-      }
-   }
-
-   if ( my_rank == SOURCE ) t2 = MPI_Wtime();
-
-
-/*-------------------------------------------------------------------------------------------------------*/
-   /* Gather A and B to the source processor */
-   if ( my_rank == SOURCE ){
-      for ( i=0; i<p; i++ ) {
-         if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
-
-         int current_group = i / group_size;
-         if ( current_group == 0 )
-            MPI_Recv( &A[chunk*(i%group_size)][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
-         else if ( current_group == 1 )
-            MPI_Recv( &B[chunk*(i%group_size)][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &status );
-      }
-   }
-   else {
-      if ( my_group == 0 )
-         MPI_Send( &A[chunk*my_rel_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
-      else if ( my_group == 1 )
-         MPI_Send( &B[chunk*my_rel_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
-   }
-   if ( my_rank == SOURCE ) t3 = MPI_Wtime();
-
-   //print_matrix(A, "Matrix A after recv");
-   //print_matrix(B, "Matrix B after recv");
-
-/*-------------------------------------------------------------------------------------------------------*/
-   /* Transpose matrixes sequentially */
-   if ( my_rank == SOURCE ) {
-      for (i=0;i<N;i++) {
-         for (j=i;j<N;j++) {
-            tmp = A[i][j];
-            A[i][j] = A[j][i];
-            A[j][i] = tmp;
-
-            tmp = B[i][j];
-            B[i][j] = B[j][i];
-            B[j][i] = tmp;
-         }
-      }
-      t4 = MPI_Wtime();
-   }
-   //print_matrix(A, "Matrix A after traspose");
    //print_matrix(B, "Matrix B after traspose");
 
 
