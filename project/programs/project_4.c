@@ -157,8 +157,9 @@ int main (int argc, char **argv) {
       MPI_Recv( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );*/
    
    else if ( processor_group == 1 ) {
-      MPI_Recv( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+      
       printf("MATRIX PRINTER: my_rank is %d and my_grp_rank is %d\n", my_rank, my_grp_rank);
+      MPI_Recv( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
       print_matrix(B, "Matrix B after recv");
    }
 
