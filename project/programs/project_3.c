@@ -58,7 +58,7 @@ int main (int argc, char **argv) {
    int read_matrix ( const char* filename, complex matrix[N][N] );
    int write_matrix ( const char* filename, complex matrix[N][N] );
    void c_fft1d(complex *r, int n, int isign);
-   void print_matrix ( complex matrix[N][N], const char* matrixname );
+   void print_matrix ( complex matrix[N][N], const char* matrixname, int rank );
 
 
    /* Variable init */
@@ -74,8 +74,8 @@ int main (int argc, char **argv) {
    read_matrix (filename1, A);
    read_matrix (filename2, B);
 
-   print_matrix(A, "Matrix A");
-   print_matrix(B, "Matrix B");
+   print_matrix(A, "Matrix A", SOURCE);
+   print_matrix(B, "Matrix B", SOURCE);
 
    /* Initial time */
    if ( my_rank == SOURCE )
@@ -271,7 +271,7 @@ int main (int argc, char **argv) {
    if ( my_rank==0) printf("C[N-1][N-1].r = %e\n", C[N-1][N-1].r);
 
    /* Write output file */
-   write_matrix("output_matrix", C);
+   write_matrix("output_matrix", C, SOURCE);
 
    if ( my_rank==0) printf("\nCS 546 Project: done\n");
    if ( my_rank==0) {
@@ -331,11 +331,11 @@ int write_matrix ( const char* filename, complex matrix[N][N] ) {
 
 /* Print the matrix if its size is no more than 32x32 */
 /* Rank is the processor that should print this */
-void print_matrix ( complex matrix[N][N], const char* matrixname ) {
-   if ( my_rank == SOURCE ) {
+void print_matrix ( complex matrix[N][N], const char* matrixname, int rank ) {
+   if ( my_rank == rank ) {
       if ( N<33 ) {
          int i, j;
-         printf("%s\n",matrixname);
+         printf("%s by process #%d\n",matrixname, rank);
          for (i=0;i<N;i++){
             for (j=0;j<N;j++) {
               printf("(%.1f,%.1f) ", matrix[i][j].r,matrix[i][j].i);
