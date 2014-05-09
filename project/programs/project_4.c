@@ -194,9 +194,32 @@ int main (int argc, char **argv) {
 /*-------------------------------------------------------------------------------------------------------*/
    /* Gather A and B into the P3 processor */
 
-   int my_comm_rank;
-   MPI_Comm_rank(P1_P2_inter, &my_comm_rank);
-   printf("My rank is %d and my itercomm rank is %d\n", my_rank, my_comm_rank);
+   if ( my_group == 0 )
+      MPI_Send ( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P3_array[0], 0, MPI_COMM_WORLD );
+   else if ( my_group == 1 )
+      MPI_Send ( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P3_array[0], 0, MPI_COMM_WORLD );
+
+   else if ( my_group == 2 && my_grp_rank == 0 ) {
+
+      for ( i=0; i<group_size; i++ )
+         MPI_Recv( &A[chunk*i][0], chunk*N, MPI_COMPLEX, P1_array[i], 0, MPI_COMM_WORLD, &status );
+      for ( i=0; i<group_size; i++ )
+         MPI_Recv( &B[chunk*i][0], chunk*N, MPI_COMPLEX, P2_array[i], 0, MPI_COMM_WORLD, &status );
+   }
+
+
+   if ( my_rank == 4 ) {
+      if ( N<33 ) {
+         int i, j;
+         printf("THIS IS RANK4, P3, PRINTING A after receiving it\n");
+         for (i=0;i<N;i++){
+            for (j=0;j<N;j++) {
+              printf("(%.1f,%.1f) ", A[i][j].r,A[i][j].i);
+           }printf("\n");
+         }printf("\n");
+      }
+   }
+   
 
    chunk = N / p;
 /*-------------------------------------------------------------------------------------------------------*/
