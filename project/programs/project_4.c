@@ -318,12 +318,11 @@ int main (int argc, char **argv) {
       MPI_Recv( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P1_array[my_grp_rank], 0, MPI_COMM_WORLD, &status );
       MPI_Recv( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P2_array[my_grp_rank], 0, MPI_COMM_WORLD, &status );
    }
-   print_matrix(A, "Matrix A after recv",4);
-   print_matrix(B, "Matrix A after recv",5);
+   //print_matrix(A, "Matrix A after recv",4);
+   //print_matrix(A, "Matrix A after recv",5);
 
    if ( my_rank == SOURCE ) t7 = MPI_Wtime();
 
-   chunk = N / p;
 
 
 
@@ -335,12 +334,19 @@ int main (int argc, char **argv) {
    //print_matrix(C, "Matrix C pre mult");
 
    /* Point to point multiplication */
-   for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
+   for (i= chunk*my_grp_rank ;i< chunk*(my_grp_rank+1);i++) {
       for (j=0;j<N;j++) {
          C[i][j].r = A[i][j].r*B[i][j].r - A[i][j].i*B[i][j].i;
          C[i][j].i = A[i][j].r*B[i][j].i + A[i][j].i*B[i][j].r;
       }
    }
+
+   if ( my_rank == SOURCE ) t8 = MPI_Wtime();
+
+   print_matrix(C, "Matrix C after mult",4);
+   print_matrix(C, "Matrix C after mult",5);
+
+   chunk = N / p;
 
    //print_matrix(C, "Matrix C after mult");
 
