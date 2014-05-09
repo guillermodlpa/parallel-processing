@@ -431,7 +431,8 @@ int main (int argc, char **argv) {
       for ( i=chunk*my_grp_rank; i<chunk*(my_grp_rank+1); i++ )
          c_fft1d(C[i], N, 1);
 
-   //print_matrix(C, "Matrix C after fft",6);
+   print_matrix(C, "Matrix C after fft",6);
+   print_matrix(C, "Matrix C after fft",7);
 
    if ( my_rank == SOURCE ) t14 = MPI_Wtime();
 
