@@ -1,7 +1,9 @@
 /*
 
-This program is the parallel algorithm using MPI Send and Recv
+This program is the parallel algorithm using MPI Send and Recv and Task Parallelism
 We suppost that N is always going to be divisible between the number of processes
+
+We suppose that the number of processors is divisible by 4
 
 The default input is sample/1_im1 and sample/1_im2
 To indicate other inputs:
@@ -79,11 +81,107 @@ int main (int argc, char **argv) {
    for (i=0;i<N;i++)
       for (j=0;j<N;j++) { A[i][j].r = 0; A[i][j].i = 0; B[i][j].r = 0; B[i][j].i = 0;}
    */
-        
 
+/*-------------------------------------------------------------------------------------------------------*/
+   /* Divide the processors in 4 groups */ 
+
+   int group_size = p / 4;
+   int my_grp_rank;
+   int P1_array[group_size], P2_array[group_size], P3_array[group_size], P4_array[group_size];
+
+   for(i=0; i<p; i++) {
+      int processor_group = i / group_size;
+      switch(processor_group){
+      case 0:
+         P1_array[ i%group_size ] = i;
+         break;
+      case 1:
+         P2_array[ i%group_size ] = i;
+         break;
+      case 2:
+         P3_array[ i%group_size ] = i;
+         break;
+      case 3:
+         P4_array[ i%group_size ] = i;
+         break;
+      }
+   }
    
+   MPI_Group world_group, P1, P2, P3, P4; 
+   MPI_Comm P1_comm, P2_comm, P3_comm, P4_comm;
+   MPI_Comm P1_P2_inter;
+
+   /* Extract the original group handle */ 
+   MPI_Comm_group(MPI_COMM_WORLD, &world_group); 
+
+   /* Create the for groups */
+   int processor_group = my_rank / group_size;
+
+/*
+   if ( processor_group == 0 )      { 
+      
+      MPI_Group_incl(world_group, p/4, P1_array, &P1);
+      MPI_Comm_create( MPI_COMM_WORLD, P1, &P1_comm);
+      MPI_Group_rank(P1, &my_grp_rank);
+      MPI_Intercomm_create(P1_comm, 0, MPI_COMM_WORLD, P2_array[0], 111, &P1_P2_inter);
+   } 
+   else if ( processor_group == 1 ) { 
+
+      MPI_Group_incl(world_group, p/4, P2_array, &P2); 
+      MPI_Comm_create( MPI_COMM_WORLD, P2, &P2_comm);
+      MPI_Group_rank(P2, &my_grp_rank);
+      MPI_Intercomm_create(P2_comm, 0, MPI_COMM_WORLD, P1_array[0], 111, &P1_P2_inter);
+   } 
+   else if ( processor_group == 2 ) { 
+      MPI_Group_incl(world_group, p/4, P3_array, &P3); 
+      MPI_Comm_create( MPI_COMM_WORLD, P3, &P3_comm);
+      MPI_Group_rank(P3, &my_grp_rank);
+   } 
+   else if ( processor_group == 3 ) { 
+      MPI_Group_incl(world_group, p/4, P4_array, &P4); 
+      MPI_Comm_create( MPI_COMM_WORLD, P4, &P4_comm);
+      MPI_Group_rank(P4, &my_grp_rank);
+   } 
+*/
+   printf("my_rank is %d and my_grp_rank is %d\n", my_rank, my_grp_rank);
+
+
+
+/*-------------------------------------------------------------------------------------------------------*/
+   /* Scatter A and B */
+   /* At this moment, it is the process SOURCE the one with the data */
+   /* This process must send A to P1 and B to P2 */
+/*
+   chunk = N / group_size;
+   if ( my_rank == SOURCE ){
+
+      for ( i=0; i < group_size; i++ ) {
+         printf("MATRIX SENDER: sending to %d\n",P2_array[i]);
+         MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, P2_array[i], 0, MPI_COMM_WORLD );
+      }  
+   }
+   
+   else if ( processor_group == 1 ) {
+
+      printf("MATRIX PRINTER: my_rank is %d and my_grp_rank is %d. My start index is in %d of %d. Chunk is %d\n", my_rank, my_grp_rank, chunk*my_grp_rank, N, chunk);
+      MPI_Recv( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+      
+
+      if ( N<33 ) {
+         for (i=0;i<N;i++){
+            for (j=0;j<N;j++) {
+              printf("(%.1f,%.1f) ", &B[i][j].r,&B[i][j].i);
+           }printf("\n");
+         }printf("\n");
+      }
+   }
+*/
+
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter A and B to the other processes. We supose N is divisible by p */
+
+   chunk = N / p;
+
    if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
@@ -98,18 +196,18 @@ int main (int argc, char **argv) {
    }
    if ( my_rank == SOURCE ) t1 = MPI_Wtime();
 
-   if ( my_rank == 3 ) {
+   if ( my_rank == 3) {
+
+      printf("MATRIX PRINTER: my_rank is %d and my_grp_rank is %d. After the regular transaction\n", my_rank, my_grp_rank);
+
       if ( N<33 ) {
-         i, j;
-         printf("MATRIX DE RANK 3\n");
          for (i=0;i<N;i++){
             for (j=0;j<N;j++) {
-              printf("(%.1f,%.1f) ", B[i][j].r,B[i][j].i);
+              printf("(%.1f,%.1f) ", &B[i][j].r,&B[i][j].i);
            }printf("\n");
          }printf("\n");
       }
    }
-
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Apply 1D FFT in all rows of A and B */
