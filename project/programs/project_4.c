@@ -171,7 +171,7 @@ int main (int argc, char **argv) {
          printf("MATRIX DE RANK 3\n");
          for (i=0;i<N;i++){
             for (j=0;j<N;j++) {
-              printf("(%.1f,%.1f) ", B[i][j].r,B[i][j].i);
+              printf("(%.1f,%.1f) ", A[i][j].r,A[i][j].i);
            }printf("\n");
          }printf("\n");
       }
@@ -182,7 +182,7 @@ int main (int argc, char **argv) {
          printf("MATRIX DE RANK 2\n");
          for (i=0;i<N;i++){
             for (j=0;j<N;j++) {
-              printf("(%.1f,%.1f) ", B[i][j].r,B[i][j].i);
+              printf("(%.1f,%.1f) ", A[i][j].r,A[i][j].i);
            }printf("\n");
          }printf("\n");
       }
