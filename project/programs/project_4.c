@@ -158,7 +158,7 @@ int main (int argc, char **argv) {
          MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, P1_comm );*/
       for ( i=0; i < group_size; i++ ) {
          printf("MATRIX SENDER: sending to %d\n",P2_array[i]);
-         MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, P2_array[i], 0, P1_P2_inter );
+         MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, 0, 0, P1_P2_inter );
       }  
    }
    /*else if ( processor_group == 0 )
