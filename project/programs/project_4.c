@@ -79,7 +79,43 @@ int main (int argc, char **argv) {
    for (i=0;i<N;i++)
       for (j=0;j<N;j++) { A[i][j].r = 0; A[i][j].i = 0; B[i][j].r = 0; B[i][j].i = 0;}
    
-        
+
+/*-------------------------------------------------------------------------------------------------------*/
+   /* Divide the processors in 4 groups */ 
+
+   int group_size = p / 4;
+   int my_grp_rank;
+   int P1_array[group_size], P2_array[group_size], P3_array[group_size], P4_array[group_size];
+
+   for(i=0; i<p; i++) {
+      int processor_group = i / group_size;
+      switch(processor_group){
+      case 0:
+         P1_array[ i%group_size ] = i;
+         break;
+      case 1:
+         P2_array[ i%group_size ] = i;
+         break;
+      case 2:
+         P3_array[ i%group_size ] = i;
+         break;
+      case 3:
+         P4_array[ i%group_size ] = i;
+         break;
+      }
+   }
+   
+   MPI_Group world_group, P1, P2, P3, P4; 
+   MPI_Comm P1_comm, P2_comm, P3_comm, P4_comm;
+   MPI_Comm P1_P2_inter;
+
+   /* Extract the original group handle */ 
+   MPI_Comm_group(MPI_COMM_WORLD, &world_group); 
+
+   /* Create the for groups */
+   int processor_group = my_rank / group_size;
+
+
 
    
 /*-------------------------------------------------------------------------------------------------------*/
