@@ -438,8 +438,6 @@ int main (int argc, char **argv) {
    /* Transpose C */
    /* It is not necessary if we remove the other traspose */
 
-   chunk = N / p;
-
 /*-------------------------------------------------------------------------------------------------------*/
    /* Gather the fragments of C to the SOURCE process, which will be in charge of computing time and writing file */
 
