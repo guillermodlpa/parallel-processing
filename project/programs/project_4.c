@@ -370,7 +370,7 @@ int main (int argc, char **argv) {
 
    if ( my_rank == SOURCE ) t10 = MPI_Wtime();
 
-   print_matrix(C, "Matrix C after fft",6);
+   print_matrix(C, "Matrix C after fft",7);
 
 
 
