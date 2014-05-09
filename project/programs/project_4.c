@@ -99,7 +99,7 @@ int main (int argc, char **argv) {
    /* The source processor, that could be any, sends the data to the processes that are going to take care of each task, groups P1 and P2 */
    int chunk = N / group_size; /* number of rows for each process */
 
-   /*if ( my_rank == SOURCE ){
+   if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; 
 
@@ -121,7 +121,7 @@ int main (int argc, char **argv) {
       else if ( my_group == 1 )
          MPI_Recv( &B[chunk*my_rel_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
-   if ( my_rank == SOURCE ) t1 = MPI_Wtime();*/
+   if ( my_rank == SOURCE ) t1 = MPI_Wtime();
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Apply 1D FFT in all rows of A and B */
@@ -184,7 +184,7 @@ int main (int argc, char **argv) {
    //print_matrix(B, "Matrix B after traspose");
 
 
-   int chunk = N / p;
+   chunk = N / p;
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter A and B to the other processes. We supose N is divisible by p */
