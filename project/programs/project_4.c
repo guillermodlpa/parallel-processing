@@ -206,7 +206,7 @@ int main (int argc, char **argv) {
 /*-------------------------------------------------------------------------------------------------------*/
    /* Traspose matrix A in P1's main process */
 
-   print_matrix(A, "Matrix A before traspose", 1);
+
 
    if ( my_group == 0 && my_grp_rank == 0 ) {
       for (i=0;i<N;i++) {
@@ -221,6 +221,9 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter A in the group P1 */
+
+   print_matrix(A, "Matrix A after traspose", 0);
+   print_matrix(A, "Matrix A before send", 1);
 
    if ( my_group == 0 ) {
       if ( my_grp_rank == P1_array[0] ) {
