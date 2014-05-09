@@ -116,6 +116,31 @@ int main (int argc, char **argv) {
    int processor_group = my_rank / group_size;
 
 
+   if ( processor_group == 0 )      { 
+      
+      MPI_Group_incl(world_group, p/4, P1_array, &P1);
+      MPI_Comm_create( MPI_COMM_WORLD, P1, &P1_comm);
+      MPI_Group_rank(P1, &my_grp_rank);
+      MPI_Intercomm_create(P1_comm, 0, MPI_COMM_WORLD, P2_array[0], 111, &P1_P2_inter);
+   } 
+   else if ( processor_group == 1 ) { 
+
+      MPI_Group_incl(world_group, p/4, P2_array, &P2); 
+      MPI_Comm_create( MPI_COMM_WORLD, P2, &P2_comm);
+      MPI_Group_rank(P2, &my_grp_rank);
+      MPI_Intercomm_create(P2_comm, 0, MPI_COMM_WORLD, P1_array[0], 111, &P1_P2_inter);
+   } 
+   else if ( processor_group == 2 ) { 
+      MPI_Group_incl(world_group, p/4, P3_array, &P3); 
+      MPI_Comm_create( MPI_COMM_WORLD, P3, &P3_comm);
+      MPI_Group_rank(P3, &my_grp_rank);
+   } 
+   else if ( processor_group == 3 ) { 
+      MPI_Group_incl(world_group, p/4, P4_array, &P4); 
+      MPI_Comm_create( MPI_COMM_WORLD, P4, &P4_comm);
+      MPI_Group_rank(P4, &my_grp_rank);
+   } 
+
 
    
 /*-------------------------------------------------------------------------------------------------------*/
