@@ -145,17 +145,23 @@ int main (int argc, char **argv) {
    
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter A and B to the other processes. We supose N is divisible by p */
+
+   int chunk2 = N / group_size;
+
    if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
-
          MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
-         MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
+      }
+      for ( i=P2[0]; i<=P2[group_size]; i++ ) {
+         if ( i==SOURCE ) continue;
+         MPI_Send( &B[chunk2*i][0], chunk2*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
       }
    }
    else {
       MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
-      MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+      if ( processor_group == 1 )
+         MPI_Recv( &B[chunk2*my_rank][0], chunk2*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
    if ( my_rank == SOURCE ) t1 = MPI_Wtime();
 
