@@ -161,7 +161,7 @@ int main (int argc, char **argv) {
    else {
       MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
       if ( processor_group == 1 )
-         MPI_Recv( &B[chunk2*my_rank][0], chunk2*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+         MPI_Recv( &B[chunk2*my_grp_rank][0], chunk2*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
    if ( my_rank == SOURCE ) t1 = MPI_Wtime();
 
