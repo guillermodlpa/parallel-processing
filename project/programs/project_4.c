@@ -231,7 +231,7 @@ int main (int argc, char **argv) {
       }
    }
 
-   print_matrix(A, "Matrix A before receiving tranposition",1);
+   //print_matrix(A, "Matrix A before receiving tranposition",1);
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Traspose matrix B in P2's main process */
@@ -261,7 +261,7 @@ int main (int argc, char **argv) {
          MPI_Recv( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, 0, 0, P1_comm, &status );
    }
 
-   print_matrix(A, "Matrix A after receiving transposition",1);
+   //print_matrix(A, "Matrix A after receiving transposition",1);
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter the transposed B in the group P2 */
@@ -293,7 +293,7 @@ int main (int argc, char **argv) {
 
 
    //print_matrix(A, "Matrix A after second fft",0);
-   print_matrix(A, "Matrix A after second fft",1);
+   //print_matrix(A, "Matrix A after second fft",1);
    //print_matrix(B, "Matrix B after second fft",2);
    //print_matrix(B, "Matrix B after second fft",3);
 
@@ -302,7 +302,6 @@ int main (int argc, char **argv) {
    /* Gather A and B into the P3 processor */
    /* All the processors in P1 and P2 will send it to the first processor in P3 using the global communicator */
 
-/*
    if ( my_group == 0 )
       MPI_Send ( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P3_array[0], 0, MPI_COMM_WORLD );
    else if ( my_group == 1 )
@@ -315,7 +314,8 @@ int main (int argc, char **argv) {
       for ( i=0; i<group_size; i++ )
          MPI_Recv( &B[chunk*i][0], chunk*N, MPI_COMPLEX, P2_array[i], 0, MPI_COMM_WORLD, &status );
    }
-   */
+   print_matrix(A, "Matrix A after recv",3);
+   print_matrix(B, "Matrix B after recv",3);
 
    chunk = N / p;
 /*-------------------------------------------------------------------------------------------------------*/
