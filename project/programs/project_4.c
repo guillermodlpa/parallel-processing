@@ -66,8 +66,8 @@ int main (int argc, char **argv) {
    read_matrix (filename1, A);
    read_matrix (filename2, B);
 
-   print_matrix(A, "Matrix A", SOURCE);
-   print_matrix(B, "Matrix B", SOURCE);
+   print_matrix(A, "Matrix A initial", SOURCE);
+   print_matrix(B, "Matrix B initial", SOURCE);
 
    /* Initial time */
    if ( my_rank == SOURCE )
@@ -205,6 +205,8 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Traspose matrix A in P1's main process */
+
+   print_matrix(A, "Matrix A before traspose", 1);
 
    if ( my_group == 0 && my_grp_rank == 0 ) {
       for (i=0;i<N;i++) {
@@ -418,7 +420,7 @@ int main (int argc, char **argv) {
    if ( my_rank == SOURCE )
       time_end = MPI_Wtime();
 
-   print_matrix(C, "Matrix C", SOURCE);
+   print_matrix(C, "Matrix C final", SOURCE);
    if ( my_rank==0) printf("C[0][0].r     = %e\n", C[0][0].r);
    if ( my_rank==0) printf("C[N-1][N-1].r = %e\n", C[N-1][N-1].r);
 
