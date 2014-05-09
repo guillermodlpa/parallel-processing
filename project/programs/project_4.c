@@ -93,7 +93,7 @@ int main (int argc, char **argv) {
 
    MPI_Comm_group(MPI_COMM_WORLD, &orig_group); 
 
-   if (rank < p/2) { MPI_Group_incl(orig_group, p/2, ranks1, &new_group);} 
+   if (my_rank < p/2) { MPI_Group_incl(orig_group, p/2, ranks1, &new_group);} 
    else { MPI_Group_incl(orig_group, p/2, ranks2, &new_group); } 
 
    int my_grp_rank;
