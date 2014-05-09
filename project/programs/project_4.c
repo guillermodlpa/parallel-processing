@@ -168,10 +168,10 @@ int main (int argc, char **argv) {
    }
    if ( my_rank == SOURCE ) t1 = MPI_Wtime();
 
-   if ( my_rank == 3 ) {
+   if ( my_rank == 1 ) {
       if ( N<33 ) {
          i, j;
-         printf("MATRIX DE RANK 3\n");
+         printf("MATRIX DE RANK 1\n");
          for (i=0;i<N;i++){
             for (j=0;j<N;j++) {
               printf("(%.1f,%.1f) ", A[i][j].r,A[i][j].i);
@@ -179,10 +179,10 @@ int main (int argc, char **argv) {
          }printf("\n");
       }
    }
-   if ( my_rank == 2 ) {
+   if ( my_rank == 0 ) {
       if ( N<33 ) {
          i, j;
-         printf("MATRIX DE RANK 2\n");
+         printf("MATRIX DE RANK 0\n");
          for (i=0;i<N;i++){
             for (j=0;j<N;j++) {
               printf("(%.1f,%.1f) ", A[i][j].r,A[i][j].i);
