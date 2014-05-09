@@ -356,21 +356,25 @@ int main (int argc, char **argv) {
    else if ( my_group == 3 ) {
       MPI_Recv( &C[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P3_array[my_grp_rank], 0, MPI_COMM_WORLD, &status );
    }
-   print_matrix(C, "Matrix C received in P4",6);
-   print_matrix(C, "Matrix C received in P4",7);
+   //print_matrix(C, "Matrix C received in P4",6);
+   //print_matrix(C, "Matrix C received in P4",7);
 
-   chunk = N / p;
-
-   //print_matrix(C, "Matrix C after mult");
+   if ( my_rank == SOURCE ) t9 = MPI_Wtime();
 
 /*-------------------------------------------------------------------------------------------------------*/
-   /* Inverse 1D FFT in all rows of C */
-   for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
-      c_fft1d(C[i], N, 1);
-   }
-   if ( my_rank == SOURCE ) t6 = MPI_Wtime();
+   /* Inverse 1D FFT in all rows of C, made by P3. Each processor in P3 will do a part */
 
-   //print_matrix(C, "Matrix C after fft");
+   if ( my_group == 3 )
+      for ( i=chunk*my_grp_rank; i<chunk*(my_grp_rank+1); i++ )
+         c_fft1d(C[i], N, 1);
+
+   if ( my_rank == SOURCE ) t10 = MPI_Wtime();
+
+   print_matrix(C, "Matrix C after fft");
+
+   
+
+   chunk = N / p;
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Gather the fragments of C to the source processor */
