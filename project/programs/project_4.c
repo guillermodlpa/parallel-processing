@@ -91,7 +91,7 @@ int main (int argc, char **argv) {
    int my_group = my_rank / group_size;
    int my_rel_rank = my_rank % group_size;
 
-   printf("Hello I am %f an my group is %f\n", my_rank, my_group);
+   printf("Hello I am %d an my group is %d\n", my_rank, my_group);
 
    
 /*-------------------------------------------------------------------------------------------------------*/
