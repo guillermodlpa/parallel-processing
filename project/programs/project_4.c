@@ -98,7 +98,7 @@ int main (int argc, char **argv) {
 
    int my_grp_rank;
 
-   MPI_Group_rank(new_group, my_grp_rank);
+   MPI_Group_rank(new_group, &my_grp_rank);
 
    printf("My rank is %d and my rank_grp is %d\n", my_rank, my_grp_rank);
 
