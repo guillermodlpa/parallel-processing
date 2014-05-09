@@ -126,7 +126,7 @@ int main (int argc, char **argv) {
       MPI_Group_incl(world_group, p/4, P2_array, &P2); 
       MPI_Comm_create( MPI_COMM_WORLD, P2, &P2_comm);
       MPI_Group_rank(P2, &my_grp_rank);
-      MPI_Intercomm_create(P2_comm, 0, P1_comm, 0, 111, &P1_P2_inter);
+      MPI_Intercomm_create(P2_comm, 0, P1_comm, 0, 110, &P1_P2_inter);
    } 
    else if ( processor_group == 2 ) { 
       MPI_Group_incl(world_group, p/4, P3_array, &P3); 
