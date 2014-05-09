@@ -146,42 +146,53 @@ int main (int argc, char **argv) {
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter A and B to the other processes. We supose N is divisible by p */
 
-   int chunk2 = N / group_size;
+   chunk = N / group_size;
 
    if ( my_rank == SOURCE ){
 
       // Send A to the P1 processors
       for ( i=0; i<group_size; i++ ) {
          if ( P1_array[i]==SOURCE ) continue;
-         MPI_Send( &A[chunk2*i][0], chunk2*N, MPI_COMPLEX, P1_array[i], 0, MPI_COMM_WORLD );
+         MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, P1_array[i], 0, MPI_COMM_WORLD );
       }
       // Send B to the P2 processors
       for ( i=0; i<group_size; i++ ) {
          if ( P2_array[i]==SOURCE ) continue;
-         MPI_Send( &B[chunk2*i][0], chunk2*N, MPI_COMPLEX, P2_array[i], 0, MPI_COMM_WORLD );
+         MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, P2_array[i], 0, MPI_COMM_WORLD );
       }
    }
    else {
 
       // Receive A because this is group P1
       if ( my_group == 0 )
-         MPI_Recv( &A[chunk2*my_grp_rank][0], chunk2*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+         MPI_Recv( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
       // Receive B because this is group P2
       if ( my_group == 1 )
-         MPI_Recv( &B[chunk2*my_grp_rank][0], chunk2*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+         MPI_Recv( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
    if ( my_rank == SOURCE ) t1 = MPI_Wtime();
 
    
 /*-------------------------------------------------------------------------------------------------------*/
    /* Apply 1D FFT in all rows of A and B */
-   for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
+
+   if ( my_group == 0 )
+      for ( i=chunk*my_grp_rank; i<chunk*(my_grp_rank+1); i++ )
+         c_fft1d(A[i], N, -1);
+   
+   else if ( my_group == 1 )
+      for ( i=chunk*my_grp_rank; i<chunk*(my_grp_rank+1); i++ )
+         c_fft1d(B[i], N, -1);
+
+   /*for (i= chunk*my_rank ;i< chunk*(my_rank+1);i++) {
          c_fft1d(A[i], N, -1);
          c_fft1d(B[i], N, -1);
-   }
+   }*/
    if ( my_rank == SOURCE ) t2 = MPI_Wtime();
 
+   print_matrix(A, "Matrix A after fft");
 
+   chunk = N / p;
 /*-------------------------------------------------------------------------------------------------------*/
    /* Gather A and B to the source processor */
    if ( my_rank == SOURCE ){
@@ -198,8 +209,8 @@ int main (int argc, char **argv) {
    }
    if ( my_rank == SOURCE ) t3 = MPI_Wtime();
 
-   print_matrix(A, "Matrix A after recv");
-   print_matrix(B, "Matrix B after recv");
+   //print_matrix(A, "Matrix A after recv");
+   //print_matrix(B, "Matrix B after recv");
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Transpose matrixes sequentially */
