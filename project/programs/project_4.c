@@ -195,7 +195,7 @@ int main (int argc, char **argv) {
    }
    if ( my_rank == SOURCE ) t1 = MPI_Wtime();
 
-   if ( my_rank = 3) {
+   if ( my_rank == 3) {
 
       printf("MATRIX PRINTER: my_rank is %d and my_grp_rank is %d. After the regular transaction\n", my_rank, my_grp_rank);
 
