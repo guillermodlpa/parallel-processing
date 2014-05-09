@@ -151,22 +151,51 @@ int main (int argc, char **argv) {
    /* At this moment, it is the process SOURCE the one with the data */
    /* This process must send A to P1 and B to P2 */
 
+   chunk = N / group_size;
+   if ( my_rank == SOURCE ){
+
+      /*for ( i=0; i < group_size; i++ )
+         MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, P1_comm );*/
+      for ( i=0; i < group_size; i++ ) {
+         printf("MATRIX SENDER: sending to %d\n",P2_array[i]);
+         MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, P2_array[i], 0, MPI_COMM_WORLD );
+      }  
+   }
+   /*else if ( processor_group == 0 )
+      MPI_Recv( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );*/
+   
+   else if ( processor_group == 1 ) {
+
+      printf("MATRIX PRINTER: my_rank is %d and my_grp_rank is %d\n. My place is in %d of %d", my_rank, my_grp_rank, chunk*my_grp_rank, N);
+      MPI_Recv( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+      
+
+      if ( N<33 ) {
+         for (i=0;i<N;i++){
+            for (j=0;j<N;j++) {
+              printf("(%.1f,%.1f) ", &B[i][j].r,&B[i][j].i);
+           }printf("\n");
+         }printf("\n");
+      }
+   }
 
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter A and B to the other processes. We supose N is divisible by p */
+
+   chunk = N / p;
 
    if ( my_rank == SOURCE ){
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
 
          MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
-         MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
+         //MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
       }
    }
    else {
       MPI_Recv( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
-      MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
+      //MPI_Recv( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );
    }
    if ( my_rank == SOURCE ) t1 = MPI_Wtime();
 
