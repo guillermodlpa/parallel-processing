@@ -341,8 +341,8 @@ int main (int argc, char **argv) {
       }
    }
 
-   print_matrix(C, "Matrix C after mult",4);
-   print_matrix(C, "Matrix C after mult",5);
+   //print_matrix(C, "Matrix C after mult",4);
+   //print_matrix(C, "Matrix C after mult",5);
 
    if ( my_rank == SOURCE ) t8 = MPI_Wtime();
 
@@ -355,10 +355,8 @@ int main (int argc, char **argv) {
       MPI_Send ( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P4_array[my_grp_rank], 0, MPI_COMM_WORLD );
    }
    else if ( my_group == 3 ) {
-      for ( i=0; i<group_size; i++ )
-         MPI_Recv( &A[chunk*i][0], chunk*N, MPI_COMPLEX, P3_array[i], 0, MPI_COMM_WORLD, &status );
-      for ( i=0; i<group_size; i++ )
-         MPI_Recv( &B[chunk*i][0], chunk*N, MPI_COMPLEX, P3_array[i], 0, MPI_COMM_WORLD, &status );
+      MPI_Recv( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P3_array[my_grp_rank], 0, MPI_COMM_WORLD, &status );
+      MPI_Recv( &B[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, P3_array[my_grp_rank], 0, MPI_COMM_WORLD, &status );
    }
    print_matrix(C, "Matrix C received in P4",6);
    print_matrix(C, "Matrix C received in P4",7);
