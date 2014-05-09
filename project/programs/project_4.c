@@ -85,7 +85,7 @@ int main (int argc, char **argv) {
 /*-------------------------------------------------------------------------------------------------------*/
    /* Divide the processors in 4 groups */ 
 
-   ranks1[4]={0,1,2,3}, ranks2[4]={4,5,6,7}; 
+   int ranks1[4]={0,1,2,3}, ranks2[4]={4,5,6,7}; 
    
    MPI_Group orig_group, new_group; 
 
