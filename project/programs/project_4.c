@@ -455,6 +455,8 @@ int main (int argc, char **argv) {
 
 /*-------------------------------------------------------------------------------------------------------*/
 
+   MPI_Barrier(MPI_COMM_WORLD);
+   
    /* Final time */
    if ( my_rank == SOURCE )
       time_end = MPI_Wtime();
