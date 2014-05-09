@@ -173,7 +173,7 @@ int main (int argc, char **argv) {
       if ( N<33 ) {
          for (i=0;i<N;i++){
             for (j=0;j<N;j++) {
-              printf("(%.1f,%.1f) ", matrix[i][j].r,matrix[i][j].i);
+              printf("(%.1f,%.1f) ", &B[i][j].r,&B[i][j].i);
            }printf("\n");
          }printf("\n");
       }
