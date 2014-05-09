@@ -150,19 +150,15 @@ int main (int argc, char **argv) {
    /* Scatter A and B */
    /* At this moment, it is the process SOURCE the one with the data */
    /* This process must send A to P1 and B to P2 */
-
+/*
    chunk = N / group_size;
    if ( my_rank == SOURCE ){
 
-      /*for ( i=0; i < group_size; i++ )
-         MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, P1_comm );*/
       for ( i=0; i < group_size; i++ ) {
          printf("MATRIX SENDER: sending to %d\n",P2_array[i]);
          MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, P2_array[i], 0, MPI_COMM_WORLD );
       }  
    }
-   /*else if ( processor_group == 0 )
-      MPI_Recv( &A[chunk*my_grp_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &status );*/
    
    else if ( processor_group == 1 ) {
 
@@ -178,7 +174,7 @@ int main (int argc, char **argv) {
          }printf("\n");
       }
    }
-
+*/
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Scatter A and B to the other processes. We supose N is divisible by p */
@@ -199,7 +195,7 @@ int main (int argc, char **argv) {
    }
    if ( my_rank == SOURCE ) t1 = MPI_Wtime();
 
-   if ( processor_group == 1 ) {
+   if ( my_rank = 3) {
 
       printf("MATRIX PRINTER: my_rank is %d and my_grp_rank is %d. After the regular transaction\n", my_rank, my_grp_rank);
 
