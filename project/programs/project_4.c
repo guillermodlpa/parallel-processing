@@ -3,11 +3,6 @@
 This program is the parallel algorithm using MPI Send and Recv
 We suppost that N is always going to be divisible between the number of processes
 
-The default input is sample/1_im1 and sample/1_im2
-To indicate other inputs:
-
-   $ ./a.out [image1] [image2]
-
 The output file is saved as "output_matrix" in the working directory
 
 This algorithm is better explained in the document that goes with this project
