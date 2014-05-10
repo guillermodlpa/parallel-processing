@@ -2,6 +2,8 @@
 
 This program is the parallel algorithm using MPI collective communication when possible and also shared memory through OpenMP
 
+The algorithm is explained in the PDF document called CS546_SectionNumber_DeLaPuente_Guillermo_Project.pdf
+
 Because we are using OpenMP, this program must be compiled using -fopenmp:
 
    $ mpicc -c project_3.c -fopenmp
@@ -283,7 +285,6 @@ int main (int argc, char **argv) {
       printf("CS 546 Project: time computation is  %f ms\n", tcomputation * 1000 );
       printf("CS 546 Project: time communication is  %f ms\n", tcommunication * 1000 );
    }
-
    MPI_Finalize();
 }
 

@@ -3,6 +3,8 @@
 This program is the parallel algorithm using MPI Send and Recv
 We suppost that N is always going to be divisible between the number of processes
 
+The algorithm is explained in the PDF document called CS546_SectionNumber_DeLaPuente_Guillermo_Project.pdf
+
 The default input is sample/1_im1 and sample/1_im2
 To indicate other inputs:
 
@@ -26,7 +28,7 @@ static complex ctmp;
 
 
 /* Size of matrix (NxN) */
-const int N = 16;
+const int N = 512;
 
 
 int p, my_rank;

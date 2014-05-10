@@ -21,7 +21,7 @@ static complex ctmp;
 #define C_SWAP(a,b) {ctmp=(a);(a)=(b);(b)=ctmp;}
 
 
-const int N = 16;
+const int N = 512;
 
 int main (int argc, char **argv) {
 
