@@ -12,6 +12,8 @@
 *.la
 *.a
 
+~*
+
 gauss
 gauss_pthread
 gauus_openmpi
