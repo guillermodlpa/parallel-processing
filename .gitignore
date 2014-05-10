@@ -13,6 +13,7 @@
 *.a
 
 ~*
+.~*
 
 gauss
 gauss_pthread
