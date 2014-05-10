@@ -62,7 +62,7 @@ int main (int argc, char **argv) {
    complex tmp;
    double time_init, time_end, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10;
    MPI_Status status;
-   MPI_Request request;
+
 
    /* Read files */
    read_matrix (filename1, A);
@@ -90,8 +90,8 @@ int main (int argc, char **argv) {
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
 
-         MPI_Isend( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &request );
-         MPI_Isend( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &request );
+         MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
+         MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
       }
    }
    else {
@@ -121,8 +121,8 @@ int main (int argc, char **argv) {
       }
    }
    else {
-      MPI_Isend( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &request );
-      MPI_Isend( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &request );
+      MPI_Send( &A[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
+      MPI_Send( &B[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
    }
    if ( my_rank == SOURCE ) t3 = MPI_Wtime();
 
@@ -156,8 +156,8 @@ int main (int argc, char **argv) {
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; /* Source process doesn't send to itself */
 
-         MPI_Isend( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &request );
-         MPI_Isend( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &request );
+         MPI_Send( &A[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
+         MPI_Send( &B[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
       }
    }
    else {
@@ -216,7 +216,7 @@ int main (int argc, char **argv) {
       }
    }
    else
-      MPI_Isend( &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &request );
+      MPI_Send( &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
    if ( my_rank == SOURCE ) t7 = MPI_Wtime();
 
    //print_matrix(C, "Matrix C after recv");
@@ -240,7 +240,7 @@ int main (int argc, char **argv) {
       for ( i=0; i<p; i++ ) {
          if ( i==SOURCE ) continue; /* Source process doesn't receive from itself */
 
-         MPI_Isend( &C[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD, &request );
+         MPI_Send( &C[chunk*i][0], chunk*N, MPI_COMPLEX, i, 0, MPI_COMM_WORLD );
       }
    }
    else
@@ -268,7 +268,7 @@ int main (int argc, char **argv) {
       }
    }
    else
-      MPI_Isend( &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD, &request );
+      MPI_Send( &C[chunk*my_rank][0], chunk*N, MPI_COMPLEX, SOURCE, 0, MPI_COMM_WORLD );
 
 /*-------------------------------------------------------------------------------------------------------*/
    /* Final time */
