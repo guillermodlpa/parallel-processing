@@ -3,7 +3,7 @@
 This program is the parallel algorithm using MPI collective communication when possible
 We suppost that N is always going to be divisible between the number of processes
 
-The algorithm is explained in the PDF document called CS546_SectionNumber_DeLaPuente_Guillermo_Project.pdf
+The algorithm is explained in the PDF document called CS546_01_DeLaPuente_Guillermo_Project.pdf
 
 The default input is sample/1_im1 and sample/1_im2
 To indicate other inputs:

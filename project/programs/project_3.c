@@ -2,7 +2,7 @@
 
 This program is the parallel algorithm using MPI collective communication when possible and also shared memory through OpenMP
 
-The algorithm is explained in the PDF document called CS546_SectionNumber_DeLaPuente_Guillermo_Project.pdf
+The algorithm is explained in the PDF document called CS546_01_DeLaPuente_Guillermo_Project.pdf
 
 Because we are using OpenMP, this program must be compiled using -fopenmp:
 
