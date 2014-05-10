@@ -300,7 +300,7 @@ int main (int argc, char **argv) {
 
 
 /*-------------------------------------------------------------------------------------------------------*/
-   /* Gather A and B into the P3 processor */
+   /* Gather A and B into the P3 processors */
    /* All the processors in P1 and P2 will send it to the first processor in P3 using the global communicator */
 
    if ( my_group == 0 )
