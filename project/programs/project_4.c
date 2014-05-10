@@ -3,7 +3,7 @@
 This program is the parallel algorithm using MPI Send and Recv
 We suppost that N is always going to be divisible between the number of processes
 
-The algorithm is explained in the PDF document called CS546_01_DeLaPuente_Guillermo_Project.pdf
+The algorithm is explained in the PDF document called project_report.pdf
 
 The output file is saved as "output_matrix" in the working directory
 
