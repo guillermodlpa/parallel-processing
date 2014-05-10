@@ -8,3 +8,4 @@
 	pwd
 
 mpirun -npernode 8 ./project_4
+#mpirun -npernode 8 ./project_4 sample/2_im1 sample/2_im2
